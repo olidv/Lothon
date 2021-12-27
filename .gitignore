@@ -21,6 +21,8 @@ sdist/
 var/
 wheels/
 pip-wheel-metadata/
+Pipfile
+Pipfile.lock
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -73,6 +75,9 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# PyCharm
+.idea
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -127,3 +132,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Several
+logs/
+tmp/
+www/
