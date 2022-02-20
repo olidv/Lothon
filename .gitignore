@@ -134,6 +134,7 @@ dmypy.json
 .pyre/
 
 # Several
+data/
 logs/
 tmp/
 www/
