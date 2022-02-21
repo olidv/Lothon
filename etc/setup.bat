@@ -1,6 +1,6 @@
 @echo off
 
-echo Posicionando no diretorio raiz da aplicacao
+echo Posicionando no diretorio raiz do projeto
 cd ..
 echo.
 
@@ -12,7 +12,7 @@ echo Verificando a versao atual do pip no sistema
 pip --version
 echo.
 
-echo Ativa o ambiente virtual da aplicacao
+echo Ativa o ambiente virtual do projeto
 call venv\Scripts\activate.bat
 echo.
 
@@ -24,7 +24,7 @@ echo Verificando a versao atual do pip no ambiente
 pip --version
 echo.
 
-echo Instalando as dependencias da aplicacao no ambiente
+echo Instalando as dependencias do projeto no ambiente
 python -m pip install -r requirements.txt
 echo.
 

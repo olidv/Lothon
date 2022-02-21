@@ -22,7 +22,7 @@ handlers:
       when: 'midnight'
       backupCount: 32
       encoding: utf8
-      filename: C:\Apps\B3\InFiniTe\logs\infinite.log
+      filename: C:\Apps\B3\Infinite\logs\infinite.log
 
 loggers:
   #schedule:

@@ -1,6 +1,7 @@
 @echo off
 
-rem ativa o ambiente virtual do projeto
+rem Ativa o ambiente virtual da aplicacao:
 call ..\venv\Scripts\activate.bat
 
-python infinite.zip -d -c C:\Apps\B3\InFiniTe\conf
+rem Executa a aplicacao indicando o arquivo de configuracao:
+python lothon.zip -c C:\Apps\B3\Lothon\conf

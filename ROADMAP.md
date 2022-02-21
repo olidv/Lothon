@@ -1,4 +1,12 @@
 
+
+--- OK --------------------------------------------------------------
+
+
+Adotar "async def" nos métodos de jobs.
+
+??? Mudar o codename de cada job para 3 letras ao gerar arquivo de controle (\temp) ???
+
 Buscar informações sobre os clubes de loterias/investidores nos USA
     Verificar se é empresa, como é feito, legalidade, se pode usar no Brasil.
     Para efeito de marketing é bom falar que é clube de apostadores:
@@ -18,10 +26,4 @@ Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
       urllib3:
         level: ERROR
 
-Incluir zip do diretorio \dist\*.* no InFiniTe.
-    <app>.zip
-
-
 ---------------------------------------------------------------------
-
-Substituir level CRITICAL por FATAL.

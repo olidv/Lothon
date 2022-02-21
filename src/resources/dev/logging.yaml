@@ -16,9 +16,6 @@ handlers:
 
   # Create rotating file handler using 'simple' format.
   file_handler:
-      #class: logging.handlers.RotatingFileHandler
-      #maxBytes: 10485760  # 10MB
-
       class: logging.handlers.TimedRotatingFileHandler
       level: DEBUG
       formatter: simple

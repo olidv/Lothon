@@ -1,44 +1,69 @@
-rem @echo off
+@echo off
 
-rem ativa o ambiente virtual do projeto
+rem Printa a apresentacao do build:
+echo.
+echo  BUILD DO LOTHON   [ D:\WORKSPACE\PYTHON\LOTHON\ETC\BUILD.BAT ]
+echo.
+echo.
+
+call C:\Apps\Command\amarelo.bat
+echo  ******************************************
+echo  **  INICIANDO  COMPILACAO  DO  LOTHON.  **
+echo  ******************************************
+echo.
+echo.
+
+echo Posicionando no diretorio raiz do projeto
 cd ..
+echo.
+
+echo Ativando o ambiente virtual do projeto
 call venv\Scripts\activate.bat
+echo.
 
-rem apaga a pasta de distribuicao para nova release
+echo Apagando a pasta de distribuicao para nova release [ \dist ]
 rmdir /s /q dist  1>nul  2>&1
+echo.
 
-rem monta estrutura para distribuir o pacote de executavel
+echo Criando nova estrutura para distribuir o pacote do executavel
 mkdir dist  1>nul  2>&1
 mkdir dist\bin  1>nul  2>&1
 mkdir dist\conf  1>nul  2>&1
+mkdir dist\data  1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
 mkdir dist\tmp  1>nul  2>&1
 mkdir dist\www  1>nul  2>&1
+echo.
 
-rem atualiza a lista de dependencias do projeto
+echo Atualizando a lista de dependencias do projeto [ requirements ]
 python -m pip freeze > requirements.txt
 copy requirements.txt dist\  
+echo.
 
-rem elimina os arquivos de byte-code temporarios
+echo Apagando os arquivos de byte-code temporarios [ __pycache__ ]
 forfiles /p .\src\main /s /m __pycache__ /c "cmd /c rmdir /s /q @file"  1>nul  2>&1
+echo.
 
-rem compacta o codigo fonte no pacote executavel
-python -m zipfile -c dist\bin\infinite.zip src\main\infinite src\main\__main__.py
+echo Compactando o codigo fonte para criar pacote executavel [ ZIP ]
+python -m zipfile -c dist\bin\lothon.zip src\main\lothon src\main\__main__.py
+echo.
 
-rem copia para distribuicao os arquivos resources e scripts
+echo Copiando para distribuicao os arquivos de resources e scripts
 copy src\scripts\*.* dist\bin\
 copy src\resources\prod\*.* dist\conf\
 copy src\resources\README.md dist\
+echo.
 
-rem executa o programa para testar se tudo ok
+echo Compactando o build e gerando pacote de distribuicao da release [ ZIP ]
+python -m zipfile -c lothon-1.0.zip dist\.
+move lothon-1.0.zip dist\.  1>nul  2>&1
+echo.
+
+echo Executando o programa para testar se tudo ok [ -t  testing ]
 cd dist\bin
-python infinite.zip -t -c ..\conf
+python lothon.zip -t -c ..\conf
+echo.
 
-
-rem instala as dependencias do projeto (ambiente virtual corrente)
-rem python -m pip install -r requirements.txt
-
-rem atualiza versao do utilitario pip
-rem python -m pip install --upgrade pip
-
+rem Pausa final...
+echo.
 pause

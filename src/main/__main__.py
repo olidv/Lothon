@@ -2,7 +2,7 @@
    Package .
    Module  __main__.py
 
-   Modulo principal do aplicativo InFiniTe, entry-point para execucao de
+   Modulo principal do aplicativo Infinite, entry-point para execucao de
    tarefas individuais ou pelo agendador utilitario do Python (lib schedule).
 """
 
@@ -91,7 +91,7 @@ opt_diario = False   # Flag para tarefas diarias
 opt_mensal = False   # Flag para tarefas mensais
 opt_testes = False   # Flag para teste de funcionamento
 
-# identifica o comando/tarefa/job do InFiniTe a ser executado:
+# identifica o comando/tarefa/job do Infinite a ser executado:
 for opt, val in opts:
     if opt == '-c':
         opt_cfpath = val
