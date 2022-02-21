@@ -1,4 +1,5 @@
 @echo off
+color F
 
 echo Posicionando no diretorio raiz do projeto
 cd ..
