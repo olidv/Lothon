@@ -135,6 +135,6 @@ dmypy.json
 
 # Several
 data/
+bets/
 logs/
 tmp/
-www/

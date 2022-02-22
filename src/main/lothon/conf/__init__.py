@@ -6,7 +6,7 @@
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
-from infinite.conf.appconfig import AppConfig
+from lothon.conf.appconfig import AppConfig
 
 
 # ----------------------------------------------------------------------------

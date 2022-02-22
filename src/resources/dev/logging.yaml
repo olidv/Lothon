@@ -22,7 +22,7 @@ handlers:
       when: 'midnight'
       backupCount: 32
       encoding: utf8
-      filename: ..\..\logs\infinite.log
+      filename: ..\..\logs\lothon.log
 
 loggers:
   schedule:
@@ -40,7 +40,7 @@ loggers:
     handlers: [console, file_handler]
     propagate: yes
 
-  infinite:
+  lothon:
     level: DEBUG
     handlers: [console, file_handler]
     propagate: no

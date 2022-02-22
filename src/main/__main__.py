@@ -2,8 +2,8 @@
    Package .
    Module  __main__.py
 
-   Modulo principal do aplicativo Infinite, entry-point para execucao de
-   tarefas individuais ou pelo agendador utilitario do Python (lib schedule).
+   Modulo principal do aplicativo Lothon, entry-point para execucao de
+   tarefas individuais ou pelo notebook do Jupyter (import lib).
 """
 
 # ----------------------------------------------------------------------------
@@ -17,9 +17,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from infinite.conf import settings
-from infinite import scheduler_diario
-from infinite import scheduler_mensal
+from lothon.conf import settings
 
 
 # ----------------------------------------------------------------------------
@@ -27,7 +25,7 @@ from infinite import scheduler_mensal
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "dmtc:"
+CMD_LINE_ARGS = "brtc:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -57,12 +55,12 @@ if __name__ != '__main__':
 def print_usage():
     print('\n'
           'Uso:\n'
-          '  python infinite.zip [opcoes]\n'
+          '  python lothon.zip [opcoes]\n'
           '\n'
           'Opcoes Gerais:\n'
           '  -c <path>   Informa o path para os arquivos de configuracao\n'
-          '  -d          Agenda as tarefas diarias\n'
-          '  -m          Agenda as tarefas mensais\n'
+          '  -b          Gera boloes de apostas para loterias da Caixa\n'
+          '  -r          Confere os boloes com os resultados das loterias\n'
           '  -t          Executa teste de funcionamento\n')
 
 
@@ -87,18 +85,18 @@ if (opts is None) or (len(opts) == 0):
 
 # comandos e opcoes de execucao:
 opt_cfpath = ''      # path para os arquivos de configuracao
-opt_diario = False   # Flag para tarefas diarias
-opt_mensal = False   # Flag para tarefas mensais
+opt_boloes = False   # Flag para geracao de boloes de apostas
+opt_result = False   # Flag para conferencia dos resultados
 opt_testes = False   # Flag para teste de funcionamento
 
-# identifica o comando/tarefa/job do Infinite a ser executado:
+# identifica o comando/tarefa/job do Lothon a ser executado:
 for opt, val in opts:
     if opt == '-c':
         opt_cfpath = val
-    if opt == '-d':
-        opt_diario = True
-    elif opt == '-m':
-        opt_mensal = True
+    elif opt == '-b':
+        opt_boloes = True
+    elif opt == '-r':
+        opt_result = True
     elif opt == '-t':
         opt_testes = True
 
@@ -151,15 +149,10 @@ if opt_testes:
 # ----------------------------------------------------------------------------
 
 # configura as tarefas no scheduler de acordo com as opcoes de execucao:
-if opt_diario:
-    logger.debug("Vai iniciar o scheduler diario...")
-    # Executa schedulers para agendar as tarefas (jobs)
-    sys.exit(scheduler_diario.main())
-
-elif opt_mensal:
-    logger.debug("Vai iniciar o scheduler mensal...")
-    # Executa schedulers para agendar as tarefas (jobs)
-    sys.exit(scheduler_mensal.main())
+if opt_result:
+    logger.debug("Vai iniciar a conferencia dos boloes...")
+    # Executa conferencia dos boloes com os resultados das loterias:
+    print('Resultados OK!')
 
 # se a opcao de execucao fornecida na linha de comando nao foi reconhecida:
 else:

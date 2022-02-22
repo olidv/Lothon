@@ -1,5 +1,5 @@
 """
-   Package infinite.conf
+   Package lothon.conf
    Module  settings.py
 
    Carga das configuracoes da aplicacao a partir de arquivo INI.
@@ -19,8 +19,7 @@ from configparser import ConfigParser, ExtendedInterpolation
 import yaml
 
 # Own/Project modules
-from infinite.conf import app_config
-# from infinite.conf.appconfig import AppConfig
+from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------
