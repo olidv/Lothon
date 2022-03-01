@@ -60,8 +60,8 @@ def setup_logging(config_path: str = '.') -> bool:
         logging.config.dictConfig(config)
 
         # redefine os levels do logging para melhor legibilidade do output:
-        logging.addLevelName(logging.INFO, 'INFOR')
-        logging.addLevelName(logging.WARNING, 'WARNG')
+        logging.addLevelName(logging.INFO, 'INFO')
+        logging.addLevelName(logging.WARNING, 'WARN')
         logging.addLevelName(logging.CRITICAL, 'FATAL')
 
         logger.debug("O arquivo '%s' foi utilizado para configurar o logging.", file_config_log)

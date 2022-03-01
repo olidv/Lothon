@@ -1,8 +1,11 @@
 @echo off
 color F
 
+mkdir Infinite
+python -m venv Infinite\venv
+
 echo Posicionando no diretorio raiz do projeto
-cd ..
+cd Infinite
 echo.
 
 echo Verificando a versao atual do Python no sistema
