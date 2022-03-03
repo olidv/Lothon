@@ -23,7 +23,7 @@ from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------
-# CONSTANTES
+# CONSTANTES GLOBAIS
 # ----------------------------------------------------------------------------
 
 # nome do arquivo de configuracao do logging:
@@ -34,7 +34,7 @@ APP_CONFIG_INI = "app_config.ini"
 
 
 # ----------------------------------------------------------------------------
-# VARIAVEIS
+# VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
 # obtem uma instância do logger para o modulo corrente:

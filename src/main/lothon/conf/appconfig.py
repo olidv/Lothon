@@ -19,7 +19,7 @@ from configparser import ConfigParser
 
 
 # ----------------------------------------------------------------------------
-# CLASSE
+# CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
 @dataclass
@@ -41,8 +41,9 @@ class AppConfig:
     RT_files_all_mask: str = ''
 
     # Parametrizacao das loterias da Caixa EF:
-    LC_loterias_caixa: list[tuple] = None
+    LC_loterias_caixa: list[tuple[str, ...]] = None
     LC_loteria_htm_name: str = ''
+    LC_table_class_find: str = ''
 
     # Parametrizacao para geracao de boloes de apostas:
     BA_bolao_csv_name: str = ''
@@ -67,6 +68,7 @@ class AppConfig:
 
         # Parametrizacao das loterias da Caixa EF:
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")
+        self.LC_table_class_find = parser.get("LOTERIA_CAIXA", "table_class_find")
 
         loterias = parser.get("LOTERIA_CAIXA", "loterias_caixa").split(',')
         self.LC_loterias_caixa = [tuple(jogo.strip().split(';')) for jogo in loterias]

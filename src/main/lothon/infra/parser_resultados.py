@@ -1,8 +1,7 @@
 """
-   Package lothon.util
-   Module  parallel_task.py
+   Package lothon.infra
+   Module  parser_resultados.py
 
-   Funcoes utilitarias para manipulacao de threads.
 """
 
 # ----------------------------------------------------------------------------
@@ -11,10 +10,11 @@
 
 # Built-in/Generic modules
 import logging
-import threading
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
+from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------
@@ -26,12 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES UTILITARIAS
+# FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
-# execucao paralela de qualquer job, cada um em sua propria thread:
-def run_threaded(job_func, callback_func):
-    job_thread = threading.Thread(target=job_func, args=[callback_func])
-    job_thread.start()
+
+# ----------------------------------------------------------------------------
+# LEITURA OS RESULTADOS
+# ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
