@@ -38,42 +38,42 @@ class Bola:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_bola', 'numeral', 'ordem'
+    # __slots__ = 'id_bola', 'numeral', 'ordem'
 
     @property
     def id_bola(self) -> int:
-        return self.id_bola
+        return self._id_bola
 
     @id_bola.setter
     def id_bola(self, value):
         if isinstance(value, int):
-            self.id_bola = value
+            self._id_bola = value
         else:
-            self.id_bola = int(value)
+            self._id_bola = int(value)
 
     @property
     def numeral(self) -> Numeral:
-        return self.numeral
+        return self._numeral
 
     @numeral.setter
     def numeral(self, value):
         if isinstance(value, Numeral):
-            self.numeral = value
+            self._numeral = value
         elif isinstance(value, int) or isinstance(value, str):
-            self.numeral = Numeral(value)
+            self._numeral = Numeral(value)
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeral' = {value}.")
 
     @property
     def ordem(self) -> int:
-        return self.ordem
+        return self._ordem
 
     @ordem.setter
     def ordem(self, value):
         if isinstance(value, int):
-            self.ordem = value
+            self._ordem = value
         else:
-            self.ordem = int(value)
+            self._ordem = int(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

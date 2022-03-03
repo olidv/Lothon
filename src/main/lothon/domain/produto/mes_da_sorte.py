@@ -12,8 +12,11 @@
 import logging
 
 # Libs/Frameworks modules
+from bs4.element import Tag
+
 # Own/Project modules
 from lothon.domain.produto.loteria import Loteria
+from lothon.domain.sorteio.concurso import Concurso
 
 
 # ----------------------------------------------------------------------------
@@ -39,8 +42,8 @@ class MesDaSorte(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_loteria', 'nome_loteria', 'tem_bola', 'faixa_bola', 'qtd_bolas_sorteio', \
-                'dias_sorteio', 'faixa_aposta', 'preco_aposta'
+    # __slots__ = 'id_loteria', 'nome_loteria', 'tem_bola', 'faixa_bola', 'qtd_bolas_sorteio', \
+    #             'dias_sorteio', 'faixa_aposta', 'preco_aposta'
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -54,5 +57,8 @@ class MesDaSorte(Loteria):
 
     def get_file_resultados(self) -> str:
         return 'DIA-DE-SORTE'
+
+    def parse_concurso(self, td: Tag) -> Concurso:
+        pass
 
 # ----------------------------------------------------------------------------

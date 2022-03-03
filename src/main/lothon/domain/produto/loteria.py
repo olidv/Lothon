@@ -12,8 +12,11 @@
 from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
+from bs4.element import Tag
+
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.domain.sorteio.concurso import Concurso
 
 
 # ----------------------------------------------------------------------------
@@ -27,101 +30,112 @@ class Loteria(ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
+    # __slots__ = ()
 
     @property
     def id_loteria(self) -> str:
-        return self.id_loteria
+        return self._id_loteria
 
     @id_loteria.setter
     def id_loteria(self, value):
         if isinstance(value, str):
-            self.id_loteria = value
+            self._id_loteria = value
         else:
-            self.id_loteria = str(value)
+            self._id_loteria = str(value)
 
     @property
     def nome_loteria(self) -> str:
-        return self.nome_loteria
+        return self._nome_loteria
 
     @nome_loteria.setter
     def nome_loteria(self, value):
         if isinstance(value, str):
-            self.nome_loteria = value
+            self._nome_loteria = value
         else:
-            self.nome_loteria = str(value)
+            self._nome_loteria = str(value)
 
     @property
     def tem_bola(self) -> bool:
-        return self.tem_bola
+        return self._tem_bola
 
     @tem_bola.setter
     def tem_bola(self, value):
         if isinstance(value, bool):
-            self.tem_bola = value
+            self._tem_bola = value
         else:
-            self.tem_bola = to_bool(value)
+            self._tem_bola = to_bool(value)
 
     @property
     def faixa_bola(self) -> tuple[int, int]:
-        return self.faixa_bola
+        return self._faixa_bola
 
     @faixa_bola.setter
     def faixa_bola(self, value):
         if isinstance(value, tuple):
-            self.faixa_bola = value
+            self._faixa_bola = value
         elif isinstance(value, str):
-            self.faixa_bola = tuple(map(int, value.split('-')))
+            self._faixa_bola = tuple(map(int, value.split('-')))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'faixa_bola' = {value}")
 
     @property
     def qtd_bolas_sorteio(self) -> int:
-        return self.qtd_bolas_sorteio
+        return self._qtd_bolas_sorteio
 
     @qtd_bolas_sorteio.setter
     def qtd_bolas_sorteio(self, value):
         if isinstance(value, int):
-            self.qtd_bolas_sorteio = value
+            self._qtd_bolas_sorteio = value
         else:
-            self.qtd_bolas_sorteio = int(value)
+            self._qtd_bolas_sorteio = int(value)
 
     @property
     def dias_sorteio(self) -> tuple[int, ...]:
-        return self.dias_sorteio
+        return self._dias_sorteio
 
     @dias_sorteio.setter
     def dias_sorteio(self, value):
         if isinstance(value, tuple):
-            self.dias_sorteio = value
+            self._dias_sorteio = value
         elif isinstance(value, str):
-            self.faixa_bola = tuple(map(int, value.split('|')))
+            self._dias_sorteio = tuple(map(int, value.split('|')))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'dias_sorteio' = {value}.")
 
     @property
     def faixa_aposta(self) -> tuple[int, int]:
-        return self.faixa_aposta
+        return self._faixa_aposta
 
     @faixa_aposta.setter
     def faixa_aposta(self, value):
         if isinstance(value, tuple):
-            self.faixa_aposta = value
+            self._faixa_aposta = value
         elif isinstance(value, str):
-            self.faixa_aposta = tuple(map(int, value.split('-')))
+            self._faixa_aposta = tuple(map(int, value.split('-')))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'faixa_aposta' = {value}.")
 
     @property
     def preco_aposta(self) -> float:
-        return self.preco_aposta
+        return self._preco_aposta
 
     @preco_aposta.setter
     def preco_aposta(self, value):
         if isinstance(value, float):
-            self.preco_aposta = value
+            self._preco_aposta = value
         else:
-            self.preco_aposta = float(value)
+            self._preco_aposta = float(value)
+
+    @property
+    def concursos(self) -> list[Concurso]:
+        return self._concursos
+
+    @concursos.setter
+    def concursos(self, value):
+        if isinstance(value, list) or value is None:
+            self._concursos = value
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'concursos' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -129,11 +143,12 @@ class Loteria(ABC):
         self.id_loteria = dados[0]
         self.nome_loteria = dados[1]
         self.tem_bola = dados[2]
-        self.faixa_bolas = dados[3]
-        self.qtd_bolas_sorteadas = dados[4]
+        self.faixa_bola = dados[3]
+        self.qtd_bolas_sorteio = dados[4]
         self.dias_sorteio = dados[5]
         self.faixa_aposta = dados[6]
         self.preco_aposta = dados[7]
+        self.concursos = None
 
     # --- METODOS ------------------------------------------------------------
 
@@ -142,5 +157,9 @@ class Loteria(ABC):
 
     def get_file_resultados(self) -> str:
         return self.nome_loteria
+
+    @abstractmethod
+    def parse_concurso(self, td: Tag) -> Concurso:
+        pass
 
 # ----------------------------------------------------------------------------

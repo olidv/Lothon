@@ -38,51 +38,51 @@ class Cota:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_cota', 'qtd_cotas', 'preco_unitario', 'preco_total'
+    # __slots__ = 'id_cota', 'qtd_cotas', 'preco_unitario', 'preco_total'
 
     @property
     def id_cota(self) -> str:
-        return self.id_cota
+        return self._id_cota
 
     @id_cota.setter
     def id_cota(self, value):
         if isinstance(value, str):
-            self.id_cota = value
+            self._id_cota = value
         else:
-            self.id_cota = str(value)
+            self._id_cota = str(value)
 
     @property
     def qtd_cotas(self) -> int:
-        return self.qtd_cotas
+        return self._qtd_cotas
 
     @qtd_cotas.setter
     def qtd_cotas(self, value):
         if isinstance(value, int):
-            self.qtd_cotas = value
+            self._qtd_cotas = value
         else:
-            self.qtd_cotas = int(value)
+            self._qtd_cotas = int(value)
 
     @property
     def preco_unitario(self) -> float:
-        return self.preco_unitario
+        return self._preco_unitario
 
     @preco_unitario.setter
     def preco_unitario(self, value):
         if isinstance(value, float):
-            self.preco_unitario = value
+            self._preco_unitario = value
         else:
-            self.preco_unitario = float(value)
+            self._preco_unitario = float(value)
 
     @property
     def preco_total(self) -> float:
-        return self.preco_total
+        return self._preco_total
 
     @preco_total.setter
     def preco_total(self, value):
         if isinstance(value, float):
-            self.preco_total = value
+            self._preco_total = value
         else:
-            self.preco_total = float(value)
+            self._preco_total = float(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

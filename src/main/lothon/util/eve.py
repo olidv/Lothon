@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
+from math import log, floor
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -19,10 +19,6 @@ import logging
 # ----------------------------------------------------------------------------
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
 
 # ----------------------------------------------------------------------------
 # FUNCOES UTILITARIAS
@@ -85,5 +81,13 @@ def to_bool(val) -> bool:
     # para qualquer outro valor deixa o comportamento padrao do Python decidir:
     else:
         return bool(val)
+
+
+def human_format(number):
+    units = ['', 'K', 'M', 'G', 'T', 'P']
+    k = 1000.0
+    magnitude = int(floor(log(number, k)))
+
+    return '%.2f%s' % (number / k**magnitude, units[magnitude])
 
 # ----------------------------------------------------------------------------

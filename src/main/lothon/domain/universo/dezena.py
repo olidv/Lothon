@@ -38,29 +38,29 @@ class Dezena:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_dez', 'faixa'
+    # __slots__ = 'id_dez', 'faixa'
 
     @property
     def id_dez(self) -> int:
-        return self.id_dez
+        return self._id_dez
 
     @id_dez.setter
     def id_dez(self, value):
         if isinstance(value, int):
-            self.id_dez = value
+            self._id_dez = value
         else:
-            self.id_dez = int(value)
+            self._id_dez = int(value)
 
     @property
     def faixa(self) -> tuple[int, ...]:
-        return self.faixa
+        return self._faixa
 
     @faixa.setter
     def faixa(self, value):
         if isinstance(value, tuple):
-            self.faixa = value
+            self._faixa = value
         elif isinstance(value, str):
-            self.faixa = tuple(map(int, value.split('-')))
+            self._faixa = tuple(map(int, value.split('-')))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'faixa' = {value}.")
 

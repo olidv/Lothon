@@ -39,62 +39,62 @@ class Jogo:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_jogo', 'numeros', 'escala', 'fator', 'metrica'
+    # __slots__ = 'id_jogo', 'numeros', 'escala', 'fator', 'metrica'
 
     @property
     def id_jogo(self) -> int:
-        return self.id_jogo
+        return self._id_jogo
 
     @id_jogo.setter
     def id_jogo(self, value):
         if isinstance(value, int):
-            self.id_jogo = value
+            self._id_jogo = value
         else:
-            self.id_jogo = int(value)
+            self._id_jogo = int(value)
 
     @property
     def numeros(self) -> list[Numeral]:
-        return self.numeros
+        return self._numeros
 
     @numeros.setter
     def numeros(self, value):
         if isinstance(value, list):
-            self.numeros = value
+            self._numeros = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeros' = {value}.")
 
     @property
     def escala(self) -> int:
-        return self.escala
+        return self._escala
 
     @escala.setter
     def escala(self, value):
         if isinstance(value, int):
-            self.escala = value
+            self._escala = value
         else:
-            self.escala = int(value)
+            self._escala = int(value)
 
     @property
     def fator(self) -> int:
-        return self.fator
+        return self._fator
 
     @fator.setter
     def fator(self, value):
         if isinstance(value, int):
-            self.fator = value
+            self._fator = value
         else:
-            self.fator = int(value)
+            self._fator = int(value)
 
     @property
     def metrica(self) -> int:
-        return self.metrica
+        return self._metrica
 
     @metrica.setter
     def metrica(self, value):
         if isinstance(value, int):
-            self.metrica = value
+            self._metrica = value
         else:
-            self.metrica = int(value)
+            self._metrica = int(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

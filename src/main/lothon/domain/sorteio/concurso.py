@@ -39,40 +39,40 @@ class Concurso:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_concurso', 'data_sorteio', 'bolas_sorteadas'
+    # __slots__ = 'id_concurso', 'data_sorteio', 'bolas_sorteadas'
 
     @property
     def id_concurso(self) -> int:
-        return self.id_concurso
+        return self._id_concurso
 
     @id_concurso.setter
     def id_concurso(self, value):
         if isinstance(value, int):
-            self.id_concurso = value
+            self._id_concurso = value
         else:
-            self.id_concurso = int(value)
+            self._id_concurso = int(value)
 
     @property
     def data_sorteio(self) -> date:
-        return self.data_sorteio
+        return self._data_sorteio
 
     @data_sorteio.setter
     def data_sorteio(self, value):
         if isinstance(value, date):
-            self.data_sorteio = value
+            self._data_sorteio = value
         elif isinstance(value, str):  # 20/11/2001
-            self.data_sorteio = datetime.strptime(value, "%d/%m/%Y").date()
+            self._data_sorteio = datetime.strptime(value, "%d/%m/%Y").date()
         else:
             raise ValueError(f"Valor invalido para a propriedade 'data_sorteio' = {value}.")
 
     @property
     def bolas_sorteadas(self) -> list[Bola]:
-        return self.bolas_sorteadas
+        return self._bolas_sorteadas
 
     @bolas_sorteadas.setter
     def bolas_sorteadas(self, value):
         if isinstance(value, list):
-            self.bolas_sorteadas = value
+            self._bolas_sorteadas = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'bolas_sorteadas' = {value}.")
 

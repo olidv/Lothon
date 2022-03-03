@@ -41,73 +41,73 @@ class Bolao:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_bolao', 'loteria', 'volantes', 'cota', 'valor_total', 'lucro'
+    # __slots__ = 'id_bolao', 'loteria', 'volantes', 'cota', 'valor_total', 'lucro'
 
     @property
     def id_bolao(self) -> str:
-        return self.id_bolao
+        return self._id_bolao
 
     @id_bolao.setter
     def id_bolao(self, value):
         if isinstance(value, str):
-            self.id_bolao = value
+            self._id_bolao = value
         else:
-            self.id_bolao = str(value)
+            self._id_bolao = str(value)
 
     @property
-    def loteria(self) -> str:
-        return self.loteria
+    def loteria(self) -> Loteria:
+        return self._loteria
 
     @loteria.setter
     def loteria(self, value):
         if isinstance(value, Loteria):
-            self.loteria = value
+            self._loteria = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'loteria' = {value}.")
 
     @property
     def volantes(self) -> list[Volante]:
-        return self.volantes
+        return self._volantes
 
     @volantes.setter
     def volantes(self, value):
         if isinstance(value, list):
-            self.volantes = value
+            self._volantes = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'volantes' = {value}.")
 
     @property
-    def cota(self) -> str:
-        return self.cota
+    def cota(self) -> Cota:
+        return self._cota
 
     @cota.setter
     def cota(self, value):
         if isinstance(value, Cota):
-            self.cota = value
+            self._cota = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'cota' = {value}.")
 
     @property
     def valor_total(self) -> float:
-        return self.valor_total
+        return self._valor_total
 
     @valor_total.setter
     def valor_total(self, value):
         if isinstance(value, float):
-            self.valor_total = value
+            self._valor_total = value
         else:
-            self.valor_total = float(value)
+            self._valor_total = float(value)
 
     @property
     def lucro(self) -> float:
-        return self.lucro
+        return self._lucro
 
     @lucro.setter
     def lucro(self, value):
         if isinstance(value, float):
-            self.lucro = value
+            self._lucro = value
         else:
-            self.lucro = float(value)
+            self._lucro = float(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

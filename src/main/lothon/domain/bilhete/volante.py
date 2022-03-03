@@ -13,7 +13,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.universo.numeral import Numeral
+from lothon.domain .universo.numeral import Numeral
 
 
 # ----------------------------------------------------------------------------
@@ -39,51 +39,51 @@ class Volante:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_volante', 'numeros', 'qtd_numeros', 'valor_aposta'
+    # __slots__ = 'id_volante', 'numeros', 'qtd_numeros', 'valor_aposta'
 
     @property
     def id_volante(self) -> str:
-        return self.id_volante
+        return self._id_volante
 
     @id_volante.setter
     def id_volante(self, value):
         if isinstance(value, str):
-            self.id_volante = value
+            self._id_volante = value
         else:
-            self.id_volante = str(value)
+            self._id_volante = str(value)
 
     @property
     def numeros(self) -> list[Numeral]:
-        return self.numeros
+        return self._numeros
 
     @numeros.setter
     def numeros(self, value):
         if isinstance(value, list):
-            self.numeros = value
+            self._numeros = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeros' = {value}.")
 
     @property
     def qtd_numeros(self) -> int:
-        return self.qtd_numeros
+        return self._qtd_numeros
 
     @qtd_numeros.setter
     def qtd_numeros(self, value):
         if isinstance(value, int):
-            self.qtd_numeros = value
+            self._qtd_numeros = value
         else:
-            self.qtd_numeros = int(value)
+            self._qtd_numeros = int(value)
 
     @property
     def valor_aposta(self) -> float:
-        return self.valor_aposta
+        return self._valor_aposta
 
     @valor_aposta.setter
     def valor_aposta(self, value):
         if isinstance(value, float):
-            self.valor_aposta = value
+            self._valor_aposta = value
         else:
-            self.valor_aposta = float(value)
+            self._valor_aposta = float(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

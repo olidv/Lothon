@@ -38,18 +38,18 @@ class Numeral:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'numero'
+    # __slots__ = 'numero',
 
     @property
     def numero(self) -> int:
-        return self.numero
+        return self._numero
 
     @numero.setter
     def numero(self, value):
         if isinstance(value, int):
-            self.numero = value
+            self._numero = value
         else:
-            self.numero = int(value)
+            self._numero = int(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
