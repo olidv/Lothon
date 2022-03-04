@@ -12,7 +12,7 @@
 from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
-from bs4.element import Tag
+from bs4.element import ResultSet
 
 # Own/Project modules
 from lothon.util.eve import *
@@ -30,7 +30,7 @@ class Loteria(ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = ()
+    __slots__ = ()
 
     @property
     def id_loteria(self) -> str:
@@ -159,7 +159,7 @@ class Loteria(ABC):
         return self.nome_loteria
 
     @abstractmethod
-    def parse_concurso(self, td: Tag) -> Concurso:
+    def parse_concurso(self, td: ResultSet) -> Concurso:
         pass
 
 # ----------------------------------------------------------------------------

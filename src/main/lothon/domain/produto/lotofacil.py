@@ -9,27 +9,13 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
-from bs4.element import Tag
+from bs4.element import ResultSet
 
 # Own/Project modules
 from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
+from lothon.domain.sorteio.bola import Bola
 
 
 # ----------------------------------------------------------------------------
@@ -42,8 +28,8 @@ class Lotofacil(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_loteria', 'nome_loteria', 'tem_bola', 'faixa_bola', 'qtd_bolas_sorteio', \
-    #             'dias_sorteio', 'faixa_aposta', 'preco_aposta'
+    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bola', '_faixa_bola', '_qtd_bolas_sorteio', \
+                '_dias_sorteio', '_faixa_aposta', '_preco_aposta', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -52,7 +38,16 @@ class Lotofacil(Loteria):
 
     # --- METODOS ------------------------------------------------------------
 
-    def parse_concurso(self, td: Tag) -> Concurso:
-        pass
+    def parse_concurso(self, td: ResultSet) -> Concurso:
+        bolas_sorteadas: list[Bola] = [Bola(td[2].text, 1), Bola(td[3].text, 2),
+                                       Bola(td[4].text, 3), Bola(td[5].text, 4),
+                                       Bola(td[6].text, 5), Bola(td[7].text, 6),
+                                       Bola(td[8].text, 7), Bola(td[9].text, 8),
+                                       Bola(td[10].text, 9), Bola(td[11].text, 10),
+                                       Bola(td[12].text, 11), Bola(td[13].text, 12),
+                                       Bola(td[14].text, 13), Bola(td[15].text, 14),
+                                       Bola(td[16].text, 15)]
+
+        return Concurso(td[0].text, td[1].text, bolas_sorteadas)
 
 # ----------------------------------------------------------------------------

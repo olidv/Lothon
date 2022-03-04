@@ -9,24 +9,11 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
 from datetime import date, datetime
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.sorteio.bola import Bola
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -39,7 +26,7 @@ class Concurso:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_concurso', 'data_sorteio', 'bolas_sorteadas'
+    __slots__ = '_id_concurso', '_data_sorteio', '_bolas_sorteadas', '_numero_sorteado'
 
     @property
     def id_concurso(self) -> int:
@@ -71,21 +58,45 @@ class Concurso:
 
     @bolas_sorteadas.setter
     def bolas_sorteadas(self, value):
-        if isinstance(value, list):
+        if value is None or isinstance(value, list):
             self._bolas_sorteadas = value
         else:
             raise ValueError(f"Valor invalido para a propriedade 'bolas_sorteadas' = {value}.")
 
+    @property
+    def numero_sorteado(self) -> int:
+        return self._numero_sorteado
+
+    @numero_sorteado.setter
+    def numero_sorteado(self, value):
+        if value is None or isinstance(value, int):
+            self._numero_sorteado = value
+        else:
+            self._numero_sorteado = int(value)
+
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, numr, dia, sortedas):
+    def __init__(self, numr, dia, sortedas=None, sorteado=None):
         self.id_concurso = numr
         self.data_sorteio = dia
         self.bolas_sorteadas = sortedas
+        self.numero_sorteado = sorteado
 
     # --- METODOS ------------------------------------------------------------
 
     def bolas_ordenadas(self) -> list[Bola]:
         return sorted(self.bolas_sorteadas, key=lambda b: b.ordem)
+
+    def __repr__(self):
+        bolas: str = ''
+        if self.bolas_sorteadas is not None:
+            for bola in self.bolas_sorteadas:
+                if len(bolas) > 0:
+                    bolas += ','
+                bolas += str(bola.id_bola)
+        elif self.numero_sorteado is not None:
+            bolas = str(self.numero_sorteado)
+
+        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{bolas}] }}"
 
 # ----------------------------------------------------------------------------

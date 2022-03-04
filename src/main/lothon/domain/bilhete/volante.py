@@ -9,24 +9,9 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain .universo.numeral import Numeral
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -39,7 +24,7 @@ class Volante:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_volante', 'numeros', 'qtd_numeros', 'valor_aposta'
+    __slots__ = '_id_volante', '_numeros', '_qtd_numeros', '_valor_aposta'
 
     @property
     def id_volante(self) -> str:
@@ -92,5 +77,14 @@ class Volante:
         self.numeros = nums
         self.qtd_numeros = qtd
         self.valor_aposta = val
+
+    def __repr__(self):
+        nums: str = ''
+        for n in self.numeros:
+            if len(nums) > 0:
+                nums += ','
+            nums += str(n)
+
+        return f"Volante{{ {self.id_volante}, [{nums}], {self.qtd_numeros}, {self.valor_aposta} }}"
 
 # ----------------------------------------------------------------------------

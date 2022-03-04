@@ -9,23 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
 # Own/Project modules
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +23,7 @@ class Cota:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_cota', 'qtd_cotas', 'preco_unitario', 'preco_total'
+    __slots__ = '_id_cota', '_qtd_cotas', '_preco_unitario', '_preco_total'
 
     @property
     def id_cota(self) -> str:
@@ -91,5 +76,9 @@ class Cota:
         self.qtd_cotas = qtd
         self.preco_unitario = punt
         self.preco_total = ptot
+
+    def __repr__(self):
+        return f"Cota{{ {self.id_cota}, {self.qtd_cotas}, {self.preco_unitario}, " \
+               f"{self.preco_total} }}"
 
 # ----------------------------------------------------------------------------

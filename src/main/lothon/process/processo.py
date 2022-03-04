@@ -29,14 +29,14 @@ class Processo(ABC):
 
     @property
     def id_processo(self) -> str:
-        return self.id_processo
+        return self._id_processo
 
     @id_processo.setter
     def id_processo(self, value):
         if isinstance(value, str):
-            self.id_processo = value
+            self._id_processo = value
         else:
-            self.id_processo = str(value)
+            self._id_processo = str(value)
 
     # --- INICIALIZACAO ------------------------------------------------------
 

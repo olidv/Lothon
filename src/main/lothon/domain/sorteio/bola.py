@@ -9,23 +9,9 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.universo.numeral import Numeral
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +24,7 @@ class Bola:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_bola', 'numeral', 'ordem'
+    __slots__ = '_id_bola', '_numeral', '_ordem'
 
     @property
     def id_bola(self) -> int:
@@ -81,5 +67,8 @@ class Bola:
         self.id_bola = idb
         self.numeral = idb
         self.ordem = ordm
+
+    def __repr__(self):
+        return f"Bola{{ {self.id_bola}, {self.ordem} }}"
 
 # ----------------------------------------------------------------------------

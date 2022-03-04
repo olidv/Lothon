@@ -9,23 +9,9 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +24,7 @@ class Dezena:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_dez', 'faixa'
+    __slots__ = '_id_dez', '_faixa'
 
     @property
     def id_dez(self) -> int:
@@ -69,5 +55,8 @@ class Dezena:
     def __init__(self, idz, fxa):
         self.id_dez = idz
         self.faixa = fxa
+
+    def __repr__(self):
+        return f"Dezena{{ {self.id_dez}, {self.faixa} }}"
 
 # ----------------------------------------------------------------------------

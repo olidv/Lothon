@@ -121,8 +121,14 @@ def get_concursos_loteria(loteria: Loteria):
     # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
     list_concursos: list[Concurso] = []
     for tbody in table_body:
-        td = tbody.find_all("td")
+        tr = tbody.find("tr", recursive=False)
+        # print("tr = ", type(tr), len(tr))
+        td = tr.find_all("td", recursive=False)
+        # print("td = ", type(td), len(td))
+        # print("td[0] = ", type(td[0]), len(td[0]), td[0].text)
+
         concurso = loteria.parse_concurso(td)
+        # print("Concurso = ", concurso)
         list_concursos.append(concurso)
 
     loteria.concursos = list_concursos

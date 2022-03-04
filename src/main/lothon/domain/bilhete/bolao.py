@@ -9,26 +9,11 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.bilhete.cota import Cota
 from lothon.domain.bilhete.volante import Volante
 from lothon.domain.produto.loteria import Loteria
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -41,7 +26,7 @@ class Bolao:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_bolao', 'loteria', 'volantes', 'cota', 'valor_total', 'lucro'
+    __slots__ = '_id_bolao', '_loteria', '_volantes', '_cota', '_valor_total', '_lucro'
 
     @property
     def id_bolao(self) -> str:
@@ -118,5 +103,9 @@ class Bolao:
         self.cota = cta
         self.valor_total = vtot
         self.lucro = lcro
+
+    def __repr__(self):
+        return f"Bolao{{ {self.id_bolao}, {self.loteria.nome_loteria}, {self.valor_total}, "\
+               f"{self.lucro} }}"
 
 # ----------------------------------------------------------------------------

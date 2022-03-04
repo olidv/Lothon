@@ -10,15 +10,12 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+import unicodedata
 from math import log, floor
 
 # Libs/Frameworks modules
 # Own/Project modules
 
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
 # FUNCOES UTILITARIAS
@@ -89,5 +86,25 @@ def human_format(number):
     magnitude = int(floor(log(number, k)))
 
     return '%.2f%s' % (number / k**magnitude, units[magnitude])
+
+
+def strip_accents(text) -> str:
+    """
+    Strip accents from input String.
+
+    :param text: The input string.
+
+    :returns: The processed String.
+    """
+    try:
+        text = str(text, 'utf-8')
+    except (TypeError, NameError):  # unicode is a default on python 3
+        pass
+
+    text = unicodedata.normalize('NFD', text)
+    text = text.encode('ascii', 'ignore')
+    text = text.decode("utf-8")
+
+    return str(text)
 
 # ----------------------------------------------------------------------------

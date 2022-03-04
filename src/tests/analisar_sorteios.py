@@ -57,7 +57,6 @@ def run():
     quina = Quina(get_tuple_loteria("quina"))
     super_sete = SuperSete(get_tuple_loteria("supersete"))
     timemania = Timemania(get_tuple_loteria("timemania"))
-
     mes_da_sorte = MesDaSorte(get_tuple_loteria("mesdasorte"))
     time_do_coracao = TimeDoCoracao(get_tuple_loteria("timedocoracao"))
 

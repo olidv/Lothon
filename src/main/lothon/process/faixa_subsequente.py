@@ -39,7 +39,7 @@ class FaixaSubsequente(Processo):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = 'id_processo'
+    __slots__ = '_id_processo'
 
     # --- INICIALIZACAO ------------------------------------------------------
 

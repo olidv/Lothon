@@ -9,24 +9,9 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
-
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.universo.numeral import Numeral
-
-
-# ----------------------------------------------------------------------------
-# VARIAVEIS GLOBAIS
-# ----------------------------------------------------------------------------
-
-# obtem uma instância do logger para o modulo corrente:
-logger = logging.getLogger(__name__)
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -39,7 +24,7 @@ class Jogo:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    # __slots__ = 'id_jogo', 'numeros', 'escala', 'fator', 'metrica'
+    __slots__ = '_id_jogo', '_numeros', '_escala', '_fator', '_metrica'
 
     @property
     def id_jogo(self) -> int:
@@ -104,5 +89,15 @@ class Jogo:
         self.escala = escl
         self.fator = fatr
         self.metrica = rank
+
+    def __repr__(self):
+        nums: str = ''
+        for n in self.numeros:
+            if len(nums) > 0:
+                nums += ','
+            nums += str(n)
+
+        return f"Jogo{{ {self.id_jogo}, [{nums}], escala={self.escala}, fator={self.fator}, " \
+               f"metrica={self.metrica} }}"
 
 # ----------------------------------------------------------------------------
