@@ -45,8 +45,10 @@ class Bola:
     def numeral(self, value):
         if isinstance(value, Numeral):
             self._numeral = value
-        elif isinstance(value, int) or isinstance(value, str):
-            self._numeral = Numeral(value)
+        elif isinstance(value, int):
+            self._numeral = Numeral.from_int(value)
+        elif isinstance(value, str):
+            self._numeral = Numeral.from_int(int(value))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeral' = {value}.")
 

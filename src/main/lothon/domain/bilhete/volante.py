@@ -45,6 +45,7 @@ class Volante:
     def numeros(self, value):
         if isinstance(value, list):
             self._numeros = value
+            self._qtd_numeros = len(value)
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeros' = {value}.")
 
@@ -72,10 +73,9 @@ class Volante:
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idv, nums, qtd, val):
+    def __init__(self, idv, nums, val):
         self.id_volante = idv
         self.numeros = nums
-        self.qtd_numeros = qtd
         self.valor_aposta = val
 
     def __repr__(self):

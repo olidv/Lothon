@@ -37,6 +37,10 @@ class Dezena:
         else:
             self._id_dez = int(value)
 
+        maxim = self._id_dez * 10
+        minim = maxim - 9
+        self._faixa = (minim, maxim)
+
     @property
     def faixa(self) -> tuple[int, ...]:
         return self._faixa
@@ -52,11 +56,28 @@ class Dezena:
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idz, fxa):
+    def __init__(self, idz):
         self.id_dez = idz
-        self.faixa = fxa
 
     def __repr__(self):
         return f"Dezena{{ {self.id_dez}, {self.faixa} }}"
+
+    # --- METODOS STATIC -----------------------------------------------------
+
+    @staticmethod
+    def from_int(value: int):
+        if (value is not None) and (0 <= value <= 10):
+            return ALL_DEZENAS[value]
+        else:
+            raise ValueError(f"Valor invalido para criar instancia de Dezena: {value}.")
+
+
+# ----------------------------------------------------------------------------
+# VARIAVEIS GLOBAIS
+# ----------------------------------------------------------------------------
+
+ALL_DEZENAS: list[Dezena] = [Dezena(0),  Dezena(1),  Dezena(2),  Dezena(3),  Dezena(4),
+                             Dezena(5),  Dezena(6),  Dezena(7),  Dezena(8),  Dezena(9),
+                             Dezena(10)]
 
 # ----------------------------------------------------------------------------

@@ -13,6 +13,7 @@ from datetime import date, datetime
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.domain.universo.numeral import Numeral
 from lothon.domain.sorteio.bola import Bola
 
 
@@ -26,7 +27,7 @@ class Concurso:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_concurso', '_data_sorteio', '_bolas_sorteadas', '_numero_sorteado'
+    __slots__ = '_id_concurso', '_data_sorteio', '_bolas_sorteadas', '_numeral_sorteado'
 
     @property
     def id_concurso(self) -> int:
@@ -64,15 +65,17 @@ class Concurso:
             raise ValueError(f"Valor invalido para a propriedade 'bolas_sorteadas' = {value}.")
 
     @property
-    def numero_sorteado(self) -> int:
-        return self._numero_sorteado
+    def numeral_sorteado(self) -> Numeral:
+        return self._numeral_sorteado
 
-    @numero_sorteado.setter
-    def numero_sorteado(self, value):
-        if value is None or isinstance(value, int):
-            self._numero_sorteado = value
+    @numeral_sorteado.setter
+    def numeral_sorteado(self, value):
+        if isinstance(value, Numeral):
+            self._numeral_sorteado = value
+        elif isinstance(value, int):
+            self._numeral_sorteado = Numeral.from_int(value)
         else:
-            self._numero_sorteado = int(value)
+            self._numeral_sorteado = Numeral.from_int(int(value))
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -80,7 +83,7 @@ class Concurso:
         self.id_concurso = numr
         self.data_sorteio = dia
         self.bolas_sorteadas = sortedas
-        self.numero_sorteado = sorteado
+        self.numeral_sorteado = sorteado
 
     # --- METODOS ------------------------------------------------------------
 
@@ -88,15 +91,15 @@ class Concurso:
         return sorted(self.bolas_sorteadas, key=lambda b: b.ordem)
 
     def __repr__(self):
-        bolas: str = ''
+        sorteado: str = ''
         if self.bolas_sorteadas is not None:
             for bola in self.bolas_sorteadas:
-                if len(bolas) > 0:
-                    bolas += ','
-                bolas += str(bola.id_bola)
-        elif self.numero_sorteado is not None:
-            bolas = str(self.numero_sorteado)
+                if len(sorteado) > 0:
+                    sorteado += ','
+                sorteado += str(bola.id_bola)
+        elif self.numeral_sorteado is not None:
+            sorteado = str(self.numeral_sorteado)
 
-        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{bolas}] }}"
+        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{sorteado}] }}"
 
 # ----------------------------------------------------------------------------
