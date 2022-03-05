@@ -34,8 +34,10 @@ class Bola:
     def id_bola(self, value):
         if isinstance(value, int):
             self._id_bola = value
-        else:
+        elif isinstance(value, str):
             self._id_bola = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'id_bola' = {value}.")
 
     @property
     def numeral(self) -> Numeral:
@@ -60,8 +62,10 @@ class Bola:
     def ordem(self, value):
         if isinstance(value, int):
             self._ordem = value
-        else:
+        elif isinstance(value, str):
             self._ordem = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'ordem' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

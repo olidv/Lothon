@@ -80,8 +80,10 @@ class Bolao:
     def valor_total(self, value):
         if isinstance(value, float):
             self._valor_total = value
-        else:
+        elif isinstance(value, str):
             self._valor_total = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'valor_total' = {value}.")
 
     @property
     def lucro(self) -> float:
@@ -91,8 +93,10 @@ class Bolao:
     def lucro(self, value):
         if isinstance(value, float):
             self._lucro = value
-        else:
+        elif isinstance(value, str):
             self._lucro = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'lucro' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

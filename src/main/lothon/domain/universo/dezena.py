@@ -33,11 +33,13 @@ class Dezena:
     def id_dez(self, value):
         if isinstance(value, int):
             self._id_dez = value
-        else:
+        elif isinstance(value, str):
             self._id_dez = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'id_dez' = {value}.")
 
-        maxim = self._id_dez * 10
-        minim = maxim - 9
+        minim = self._id_dez * 10
+        maxim = minim + 9
         self._faixa = (minim, maxim)
 
     @property
@@ -65,7 +67,7 @@ class Dezena:
 
     @staticmethod
     def from_int(value: int):
-        if (value is not None) and (0 <= value <= 10):
+        if (value is not None) and (0 <= value <= 9):
             return ALL_DEZENAS[value]
         else:
             raise ValueError(f"Valor invalido para criar instancia de Dezena: {value}.")
@@ -76,7 +78,6 @@ class Dezena:
 # ----------------------------------------------------------------------------
 
 ALL_DEZENAS: list[Dezena] = [Dezena(0),  Dezena(1),  Dezena(2),  Dezena(3),  Dezena(4),
-                             Dezena(5),  Dezena(6),  Dezena(7),  Dezena(8),  Dezena(9),
-                             Dezena(10)]
+                             Dezena(5),  Dezena(6),  Dezena(7),  Dezena(8),  Dezena(9)]
 
 # ----------------------------------------------------------------------------

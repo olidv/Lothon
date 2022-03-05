@@ -37,8 +37,10 @@ class Concurso:
     def id_concurso(self, value):
         if isinstance(value, int):
             self._id_concurso = value
-        else:
+        elif isinstance(value, str):
             self._id_concurso = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'id_concurso' = {value}.")
 
     @property
     def data_sorteio(self) -> date:
@@ -74,8 +76,10 @@ class Concurso:
             self._numeral_sorteado = value
         elif isinstance(value, int):
             self._numeral_sorteado = Numeral.from_int(value)
-        else:
+        elif isinstance(value, str):
             self._numeral_sorteado = Numeral.from_int(int(value))
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'numeral_sorteado' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

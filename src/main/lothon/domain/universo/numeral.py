@@ -11,6 +11,7 @@
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.domain.universo.dezena import Dezena
 
 
 # ----------------------------------------------------------------------------
@@ -23,7 +24,7 @@ class Numeral:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_numero',
+    __slots__ = '_numero', '_dezena'
 
     @property
     def numero(self) -> int:
@@ -33,8 +34,27 @@ class Numeral:
     def numero(self, value):
         if isinstance(value, int):
             self._numero = value
-        else:
+        elif isinstance(value, str):
             self._numero = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'numero' = {value}.")
+
+        self._dezena = Dezena.from_int(self._numero // 10)
+
+    @property
+    def dezena(self) -> Dezena:
+        return self._dezena
+
+    @dezena.setter
+    def dezena(self, value):
+        if value is None or isinstance(value, Dezena):
+            self._dezena = value
+        elif isinstance(value, int):
+            self._dezena = Dezena.from_int(value)
+        elif isinstance(value, str):
+            self._dezena = Dezena.from_int(int(value))
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'dezena' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -48,7 +68,7 @@ class Numeral:
 
     @staticmethod
     def from_int(value: int):
-        if (value is not None) and (0 <= value <= 100):
+        if (value is not None) and (0 <= value <= 99):
             return ALL_NUMERALS[value]
         else:
             raise ValueError(f"Valor invalido para criar instancia de Numeral: {value}.")
@@ -77,7 +97,6 @@ ALL_NUMERALS: list[Numeral] = [Numeral(0),  Numeral(1),  Numeral(2),  Numeral(3)
                                Numeral(80), Numeral(81), Numeral(82), Numeral(83), Numeral(84),
                                Numeral(85), Numeral(86), Numeral(87), Numeral(88), Numeral(89),
                                Numeral(90), Numeral(91), Numeral(92), Numeral(93), Numeral(94),
-                               Numeral(95), Numeral(96), Numeral(97), Numeral(98), Numeral(99),
-                               Numeral(100)]
+                               Numeral(95), Numeral(96), Numeral(97), Numeral(98), Numeral(99)]
 
 # ----------------------------------------------------------------------------

@@ -34,8 +34,10 @@ class Jogo:
     def id_jogo(self, value):
         if isinstance(value, int):
             self._id_jogo = value
-        else:
+        elif isinstance(value, str):
             self._id_jogo = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'id_jogo' = {value}.")
 
     @property
     def numeros(self) -> list[Numeral]:
@@ -56,8 +58,10 @@ class Jogo:
     def escala(self, value):
         if isinstance(value, int):
             self._escala = value
-        else:
+        elif isinstance(value, str):
             self._escala = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'escala' = {value}.")
 
     @property
     def fator(self) -> int:
@@ -67,8 +71,10 @@ class Jogo:
     def fator(self, value):
         if isinstance(value, int):
             self._fator = value
-        else:
+        elif isinstance(value, str):
             self._fator = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'fator' = {value}.")
 
     @property
     def metrica(self) -> int:
@@ -78,8 +84,10 @@ class Jogo:
     def metrica(self, value):
         if isinstance(value, int):
             self._metrica = value
-        else:
+        elif isinstance(value, str):
             self._metrica = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'metrica' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

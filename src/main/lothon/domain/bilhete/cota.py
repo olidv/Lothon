@@ -44,8 +44,10 @@ class Cota:
     def qtd_cotas(self, value):
         if isinstance(value, int):
             self._qtd_cotas = value
-        else:
+        elif isinstance(value, str):
             self._qtd_cotas = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'qtd_cotas' = {value}.")
 
     @property
     def preco_unitario(self) -> float:
@@ -55,8 +57,10 @@ class Cota:
     def preco_unitario(self, value):
         if isinstance(value, float):
             self._preco_unitario = value
-        else:
+        elif isinstance(value, str):
             self._preco_unitario = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'preco_unitario' = {value}.")
 
     @property
     def preco_total(self) -> float:
@@ -66,8 +70,10 @@ class Cota:
     def preco_total(self, value):
         if isinstance(value, float):
             self._preco_total = value
-        else:
+        elif isinstance(value, str):
             self._preco_total = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'preco_total' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

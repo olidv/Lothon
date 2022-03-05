@@ -57,8 +57,10 @@ class Volante:
     def qtd_numeros(self, value):
         if isinstance(value, int):
             self._qtd_numeros = value
-        else:
+        elif isinstance(value, str):
             self._qtd_numeros = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'qtd_numeros' = {value}.")
 
     @property
     def valor_aposta(self) -> float:
@@ -68,8 +70,10 @@ class Volante:
     def valor_aposta(self, value):
         if isinstance(value, float):
             self._valor_aposta = value
-        else:
+        elif isinstance(value, str):
             self._valor_aposta = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'valor_aposta' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

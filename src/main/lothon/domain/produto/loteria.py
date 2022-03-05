@@ -86,8 +86,10 @@ class Loteria(ABC):
     def qtd_bolas_sorteio(self, value):
         if isinstance(value, int):
             self._qtd_bolas_sorteio = value
-        else:
+        elif isinstance(value, str):
             self._qtd_bolas_sorteio = int(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'qtd_bolas_sorteio' = {value}.")
 
     @property
     def dias_sorteio(self) -> tuple[int, ...]:
@@ -123,8 +125,10 @@ class Loteria(ABC):
     def preco_aposta(self, value):
         if isinstance(value, float):
             self._preco_aposta = value
-        else:
+        elif isinstance(value, str):
             self._preco_aposta = float(value)
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'preco_aposta' = {value}.")
 
     @property
     def concursos(self) -> list[Concurso]:
