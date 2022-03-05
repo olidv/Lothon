@@ -68,7 +68,7 @@ class Numeral:
 
     @staticmethod
     def from_int(value: int):
-        if (value is not None) and (0 <= value <= 99):
+        if (value is not None) and (0 <= value <= 100):
             return ALL_NUMERALS[value]
         else:
             raise ValueError(f"Valor invalido para criar instancia de Numeral: {value}.")
@@ -97,6 +97,7 @@ ALL_NUMERALS: list[Numeral] = [Numeral(0),  Numeral(1),  Numeral(2),  Numeral(3)
                                Numeral(80), Numeral(81), Numeral(82), Numeral(83), Numeral(84),
                                Numeral(85), Numeral(86), Numeral(87), Numeral(88), Numeral(89),
                                Numeral(90), Numeral(91), Numeral(92), Numeral(93), Numeral(94),
-                               Numeral(95), Numeral(96), Numeral(97), Numeral(98), Numeral(99)]
+                               Numeral(95), Numeral(96), Numeral(97), Numeral(98), Numeral(99),
+                               Numeral(100)]
 
 # ----------------------------------------------------------------------------
