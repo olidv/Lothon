@@ -70,7 +70,7 @@ class Concurso:
 
     @numeral_sorteado.setter
     def numeral_sorteado(self, value):
-        if isinstance(value, Numeral):
+        if value is None or isinstance(value, Numeral):
             self._numeral_sorteado = value
         elif isinstance(value, int):
             self._numeral_sorteado = Numeral.from_int(value)
