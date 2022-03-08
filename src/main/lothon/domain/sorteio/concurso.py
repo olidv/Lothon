@@ -120,8 +120,7 @@ class Concurso:
         premiacao: str = ''
         if self.premios is not None:
             for key in self.premios.keys():
-                item = self.premios[key]
-                premiacao += f"\n\t\t\t\t\t {item}"
+                premiacao += f"\n\t\t\t{self.premios[key]}"
 
         return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{sorteado}], " \
                f"{premiacao} }}"

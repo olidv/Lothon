@@ -50,7 +50,7 @@ def run():
     print(TIMEMANIA())
     print(MES_DA_SORTE())
     print(TIME_DO_CORACAO())
-    return 1
+
     print('Instancias OK!')
 
     parser_resultados.parse_concursos_loteria(DIA_DE_SORTE())
