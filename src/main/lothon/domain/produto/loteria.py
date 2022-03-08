@@ -128,6 +128,8 @@ class Loteria(ABC):
     def faixas(self, value):
         if value is None or isinstance(value, list):
             self._faixas = value
+        if isinstance(value, str):
+            self._faixas = Faixa.from_str(value)
         else:
             raise ValueError(f"Valor invalido para a propriedade 'faixas' = {value}.")
 
@@ -151,7 +153,7 @@ class Loteria(ABC):
         self.intervalo_bolas = dados[3]
         self.qtd_bolas_sorteio = dados[4]
         self.dias_sorteio = dados[5]
-        self.faixas = None
+        self.faixas = dados[6]
         self.concursos = None
 
     # --- METODOS ------------------------------------------------------------
@@ -182,4 +184,17 @@ class Loteria(ABC):
     def parse_concurso(self, td: ResultSet) -> Concurso:
         pass
 
-# ----------------------------------------------------------------------------
+    def __repr__(self):
+        faixas_apostas: str = ''
+        if self.faixas is not None:
+            for item in self.faixas:
+                if len(faixas_apostas) > 0:
+                    faixas_apostas += ', '
+                faixas_apostas += str(item)
+
+        classe = type(self).__name__
+        return f"{classe}{{ {self.id_loteria}, {self.nome_loteria}, {self.tem_bolas}, " \
+               f"{self.intervalo_bolas}, {self.qtd_bolas}, {self.qtd_bolas_sorteio}, " \
+               f"{self.dias_sorteio}, [{faixas_apostas}]  }}"
+
+    # ----------------------------------------------------------------------------

@@ -29,7 +29,7 @@ class SuperSete(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', 'intervalo_bolas', '_qtd_bolas', \
+    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', '_intervalo_bolas', '_qtd_bolas', \
                 '_qtd_bolas_sorteio', '_dias_sorteio', '_faixas', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
