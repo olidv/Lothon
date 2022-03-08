@@ -16,6 +16,7 @@ from bs4.element import ResultSet
 from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.bola import Bola
+from lothon.domain.sorteio.premio import Premio
 
 
 # ----------------------------------------------------------------------------
@@ -28,8 +29,8 @@ class SuperSete(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bola', '_faixa_bola', '_qtd_bolas_sorteio', \
-                '_dias_sorteio', '_faixa_aposta', '_preco_aposta', '_concursos'
+    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', 'intervalo_bolas', '_qtd_bolas', \
+                '_qtd_bolas_sorteio', '_dias_sorteio', '_faixas', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -44,6 +45,12 @@ class SuperSete(Loteria):
                                        Bola(td[6].text, 5), Bola(td[7].text, 6),
                                        Bola(td[8].text, 7)]
 
-        return Concurso(td[0].text, td[1].text, bolas_sorteadas)
+        premios: dict[int, Premio] = {7: Premio(7, td[10].text, td[16].text),
+                                      6: Premio(6, td[12].text, td[17].text),
+                                      5: Premio(5, td[13].text, td[18].text),
+                                      4: Premio(4, td[14].text, td[19].text),
+                                      3: Premio(3, td[15].text, td[20].text)}
+
+        return Concurso(td[0].text, td[1].text, sortedas=bolas_sorteadas, premiacao=premios)
 
 # ----------------------------------------------------------------------------

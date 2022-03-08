@@ -53,16 +53,16 @@ def run():
 
     print('Instancias OK!')
 
-    parser_resultados.get_concursos_loteria(DIA_DE_SORTE())
-    parser_resultados.get_concursos_loteria(DUPLA_SENA())
-    parser_resultados.get_concursos_loteria(LOTOFACIL())
-    parser_resultados.get_concursos_loteria(LOTOMANIA())
-    parser_resultados.get_concursos_loteria(MEGA_SENA())
-    parser_resultados.get_concursos_loteria(QUINA())
-    parser_resultados.get_concursos_loteria(SUPER_SETE())
-    parser_resultados.get_concursos_loteria(TIMEMANIA())
-    parser_resultados.get_concursos_loteria(TIME_DO_CORACAO())
-    parser_resultados.get_concursos_loteria(MES_DA_SORTE())
+    parser_resultados.parse_concursos_loteria(DIA_DE_SORTE())
+    parser_resultados.parse_concursos_loteria(DUPLA_SENA())
+    parser_resultados.parse_concursos_loteria(LOTOFACIL())
+    parser_resultados.parse_concursos_loteria(LOTOMANIA())
+    parser_resultados.parse_concursos_loteria(MEGA_SENA())
+    parser_resultados.parse_concursos_loteria(QUINA())
+    parser_resultados.parse_concursos_loteria(SUPER_SETE())
+    parser_resultados.parse_concursos_loteria(TIMEMANIA())
+    parser_resultados.parse_concursos_loteria(TIME_DO_CORACAO())
+    parser_resultados.parse_concursos_loteria(MES_DA_SORTE())
 
     print('Carga OK!')
 

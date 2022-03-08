@@ -107,4 +107,14 @@ def strip_accents(text) -> str:
 
     return str(text)
 
+
+def parse_money(val: str) -> float:
+    # se o valor for nulo (None), entao considera zero:
+    if val is None:
+        return 0.0
+
+    # elimina as formatacoes e converte para numero decimal:
+    val = val.strip().lower().replace("r$", "").replace(".", "").replace(",", ".")
+    return float(val)
+
 # ----------------------------------------------------------------------------

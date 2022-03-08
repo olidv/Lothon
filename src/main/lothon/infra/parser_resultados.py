@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.conf import app_config
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Loteria
 
 
 # ----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ def carregar_resultados(nome_loteria: str):
 # LEITURA E PARSING DOS RESULTADOS
 # ----------------------------------------------------------------------------
 
-def get_concursos_loteria(loteria: Loteria):
+def parse_concursos_loteria(loteria: Loteria):
     nome_loteria = loteria.get_file_resultados()
     tag_loteria = loteria.get_tag_resultados()
     logger.info("Iniciando a carga dos concursos da loteria '%s'.", nome_loteria)
@@ -119,18 +119,6 @@ def get_concursos_loteria(loteria: Loteria):
                     len(table_body), nome_loteria)
 
     # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
-    list_concursos: list[Concurso] = []
-    for tbody in table_body:
-        tr = tbody.find("tr", recursive=False)
-        # print("tr = ", type(tr), len(tr))
-        td = tr.find_all("td", recursive=False)
-        # print("td = ", type(td), len(td))
-        # print("td[0] = ", type(td[0]), len(td[0]), td[0].text)
-
-        concurso = loteria.parse_concurso(td)
-        # print("Concurso = ", concurso)
-        list_concursos.append(concurso)
-
-    loteria.concursos = list_concursos
+    loteria.set_resultados(table_body)
 
 # ----------------------------------------------------------------------------

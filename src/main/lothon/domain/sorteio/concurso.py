@@ -15,6 +15,7 @@ from datetime import date, datetime
 # Own/Project modules
 from lothon.domain.universo.numeral import Numeral
 from lothon.domain.sorteio.bola import Bola
+from lothon.domain.sorteio.premio import Premio
 
 
 # ----------------------------------------------------------------------------
@@ -27,7 +28,7 @@ class Concurso:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_concurso', '_data_sorteio', '_bolas_sorteadas', '_numeral_sorteado'
+    __slots__ = '_id_concurso', '_data_sorteio', '_bolas_sorteadas', '_numeral_sorteado', '_premios'
 
     @property
     def id_concurso(self) -> int:
@@ -81,13 +82,25 @@ class Concurso:
         else:
             raise ValueError(f"Valor invalido para a propriedade 'numeral_sorteado' = {value}.")
 
+    @property
+    def premios(self) -> dict[int, Premio]:
+        return self._premios
+
+    @premios.setter
+    def premios(self, value):
+        if value is None or isinstance(value, dict):
+            self._premios = value
+        else:
+            raise ValueError(f"Valor invalido para a propriedade '_premios' = {value}.")
+
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, numr, dia, sortedas=None, sorteado=None):
+    def __init__(self, numr, dia, sortedas=None, sorteado=None, premiacao=None):
         self.id_concurso = numr
         self.data_sorteio = dia
         self.bolas_sorteadas = sortedas
         self.numeral_sorteado = sorteado
+        self.premios = premiacao
 
     # --- METODOS ------------------------------------------------------------
 
@@ -104,6 +117,13 @@ class Concurso:
         elif self.numeral_sorteado is not None:
             sorteado = str(self.numeral_sorteado)
 
-        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{sorteado}] }}"
+        premiacao: str = ''
+        if self.premios is not None:
+            for key in self.premios.keys():
+                item = self.premios[key]
+                premiacao += f"\n\t\t\t\t\t {item}"
+
+        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{sorteado}], " \
+               f"{premiacao} }}"
 
 # ----------------------------------------------------------------------------

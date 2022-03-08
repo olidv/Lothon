@@ -16,6 +16,7 @@ from bs4.element import ResultSet
 from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.bola import Bola
+from lothon.domain.sorteio.premio import Premio
 
 
 # ----------------------------------------------------------------------------
@@ -28,8 +29,8 @@ class Lotomania(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bola', '_faixa_bola', '_qtd_bolas_sorteio', \
-                '_dias_sorteio', '_faixa_aposta', '_preco_aposta', '_concursos'
+    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', 'intervalo_bolas', '_qtd_bolas', \
+                '_qtd_bolas_sorteio', '_dias_sorteio', '_faixas', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -50,6 +51,13 @@ class Lotomania(Loteria):
                                        Bola(td[18].text, 17), Bola(td[19].text, 18),
                                        Bola(td[20].text, 19), Bola(td[21].text, 20)]
 
-        return Concurso(td[0].text, td[1].text, bolas_sorteadas)
+        premios: dict[int, Premio] = {20: Premio(20, td[23].text, td[31].text),
+                                      19: Premio(19, td[26].text, td[32].text),
+                                      18: Premio(18, td[27].text, td[33].text),
+                                      17: Premio(17, td[28].text, td[34].text),
+                                      16: Premio(16, td[29].text, td[35].text),
+                                      15: Premio(15, td[30].text, td[36].text)}
+
+        return Concurso(td[0].text, td[1].text, sortedas=bolas_sorteadas, premiacao=premios)
 
 # ----------------------------------------------------------------------------

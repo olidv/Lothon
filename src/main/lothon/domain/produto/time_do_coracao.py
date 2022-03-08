@@ -17,6 +17,7 @@ from lothon.util.eve import *
 from lothon.conf import app_config
 from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
+from lothon.domain.sorteio.premio import Premio
 
 
 # ----------------------------------------------------------------------------
@@ -29,8 +30,8 @@ class TimeDoCoracao(Loteria):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bola', '_faixa_bola', '_qtd_bolas_sorteio', \
-                '_dias_sorteio', '_faixa_aposta', '_preco_aposta', '_concursos'
+    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', 'intervalo_bolas', '_qtd_bolas', \
+                '_qtd_bolas_sorteio', '_dias_sorteio', '_faixas', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -55,6 +56,8 @@ class TimeDoCoracao(Loteria):
             raise ValueError(f"*** ATENCAO: TIME-DO-CORACAO NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {time} ***")
 
-        return Concurso(td[0].text, td[1].text, sorteado=numero)
+        premios: dict[int, Premio] = {1: Premio(1, td[17].text, td[23].text)}
+
+        return Concurso(td[0].text, td[1].text, sorteado=numero, premiacao=premios)
 
 # ----------------------------------------------------------------------------

@@ -12,6 +12,7 @@
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.universo.dezena import Dezena
+from lothon.domain.universo.cor import Cor
 
 
 # ----------------------------------------------------------------------------
@@ -24,7 +25,7 @@ class Numeral:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_numero', '_dezena'
+    __slots__ = '_numero', '_dezena', '_cor'
 
     @property
     def numero(self) -> int:
@@ -40,6 +41,7 @@ class Numeral:
             raise ValueError(f"Valor invalido para a propriedade 'numero' = {value}.")
 
         self._dezena = Dezena.from_int(self._numero // 10)
+        self._cor = Cor.from_int(self._numero)
 
     @property
     def dezena(self) -> Dezena:
@@ -55,6 +57,21 @@ class Numeral:
             self._dezena = Dezena.from_int(int(value))
         else:
             raise ValueError(f"Valor invalido para a propriedade 'dezena' = {value}.")
+
+    @property
+    def cor(self) -> Cor:
+        return self._cor
+
+    @cor.setter
+    def cor(self, value):
+        if value is None or isinstance(value, Cor):
+            self._cor = value
+        elif isinstance(value, int):
+            self._cor = Cor.from_int(value)
+        elif isinstance(value, str):
+            self._cor = Cor.from_int(int(value))
+        else:
+            raise ValueError(f"Valor invalido para a propriedade 'cor' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 

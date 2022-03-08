@@ -23,7 +23,7 @@ class Dezena:
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_dez', '_faixa'
+    __slots__ = '_id_dez', '_intervalo'
 
     @property
     def id_dez(self) -> int:
@@ -40,20 +40,20 @@ class Dezena:
 
         minim = self._id_dez * 10
         maxim = minim + 9
-        self._faixa = (minim, maxim)
+        self._intervalo = (minim, maxim)
 
     @property
-    def faixa(self) -> tuple[int, ...]:
-        return self._faixa
+    def intervalo(self) -> tuple[int, ...]:
+        return self._intervalo
 
-    @faixa.setter
-    def faixa(self, value):
+    @intervalo.setter
+    def intervalo(self, value):
         if isinstance(value, tuple):
-            self._faixa = value
+            self._intervalo = value
         elif isinstance(value, str):
-            self._faixa = tuple(map(int, value.split('-')))
+            self._intervalo = tuple(map(int, value.split('-')))
         else:
-            raise ValueError(f"Valor invalido para a propriedade 'faixa' = {value}.")
+            raise ValueError(f"Valor invalido para a propriedade 'intervalo' = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -61,7 +61,7 @@ class Dezena:
         self.id_dez = idz
 
     def __repr__(self):
-        return f"Dezena{{ {self.id_dez}, {self.faixa} }}"
+        return f"Dezena{{ {self.id_dez}, {self.intervalo} }}"
 
     # --- METODOS STATIC -----------------------------------------------------
 
