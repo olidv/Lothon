@@ -61,7 +61,7 @@ class Dezena:
         self.id_dez = idz
 
     def __repr__(self):
-        return f"Dezena{{ {self.id_dez}, {self.intervalo} }}"
+        return f"Dezena{{ id_dez={self.id_dez}, intervalo={self.intervalo} }}"
 
     # --- METODOS STATIC -----------------------------------------------------
 

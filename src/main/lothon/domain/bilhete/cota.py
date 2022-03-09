@@ -84,7 +84,7 @@ class Cota:
         self.preco_total = ptot
 
     def __repr__(self):
-        return f"Cota{{ {self.id_cota}, {self.qtd_cotas}, {self.preco_unitario}, " \
-               f"{self.preco_total} }}"
+        return f"Cota{{ id_cota={self.id_cota}, qtd_cotas={self.qtd_cotas}, " \
+               f"preco_unitario=R${self.preco_unitario}, preco_total=R${self.preco_total} }}"
 
 # ----------------------------------------------------------------------------

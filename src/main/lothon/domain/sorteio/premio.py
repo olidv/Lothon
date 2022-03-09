@@ -73,6 +73,7 @@ class Premio:
         self.premio = prem
 
     def __repr__(self):
-        return f"Premio{{ {self.acertos}, #{self.qtd_ganhadores}, R${self.premio} }}"
+        return f"Premio{{ acertos={self.acertos}, qtd_ganhadores={self.qtd_ganhadores}, " \
+               f"premio=R${self.premio} }}"
 
 # ----------------------------------------------------------------------------

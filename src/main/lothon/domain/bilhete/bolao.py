@@ -109,7 +109,13 @@ class Bolao:
         self.lucro = lcro
 
     def __repr__(self):
-        return f"Bolao{{ {self.id_bolao}, {self.loteria.nome_loteria}, {self.valor_total}, "\
-               f"{self.lucro} }}"
+        volantes_apostas: str = ''
+        if self.volantes is not None:
+            for item in self.volantes:
+                volantes_apostas += f"\n\t\t\t{item}"
 
-# ----------------------------------------------------------------------------
+        return f"Bolao{{ id_bolao={self.id_bolao}, loteria={self.loteria.nome_loteria}, "\
+               f"valor_total=R${self.valor_total}, lucro=R${self.lucro}, cota={self.cota}, " \
+               f"volantes=[{volantes_apostas}] }}"
+
+    # ----------------------------------------------------------------------------

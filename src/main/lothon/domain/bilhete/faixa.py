@@ -74,7 +74,8 @@ class Faixa:
         self.qtd_apostas = qtda
 
     def __repr__(self):
-        return f"Faixa{{ {self.id_faixa}, R${self.preco}, {self.qtd_apostas} }}"
+        return f"Faixa{{ id_faixa={self.id_faixa}, preco=R${self.preco}, " \
+               f"qtd_apostas={self.qtd_apostas} }}"
 
     # --- METODOS STATIC -----------------------------------------------------
 

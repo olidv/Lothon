@@ -75,6 +75,6 @@ class Bola:
         self.ordem = ordm
 
     def __repr__(self):
-        return f"Bola{{ {self.id_bola}, {self.ordem} }}"
+        return f"Bola{{ id_bola={self.id_bola}, ordem={self.ordem} }}"
 
 # ----------------------------------------------------------------------------

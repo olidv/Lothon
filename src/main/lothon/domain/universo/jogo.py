@@ -103,9 +103,9 @@ class Jogo:
         for n in self.numeros:
             if len(nums) > 0:
                 nums += ','
-            nums += str(n)
+            nums += str(n.numero)
 
-        return f"Jogo{{ {self.id_jogo}, [{nums}], escala={self.escala}, fator={self.fator}, " \
-               f"metrica={self.metrica} }}"
+        return f"Jogo{{ id_jogo={self.id_jogo}, numeros=[{nums}], escala={self.escala}, " \
+               f"fator={self.fator}, metrica={self.metrica} }}"
 
 # ----------------------------------------------------------------------------

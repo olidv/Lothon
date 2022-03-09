@@ -175,7 +175,7 @@ class Loteria(ABC):
             # print("td[0] = ", type(td[0]), len(td[0]), td[0].text)
 
             concurso = self.parse_concurso(td)
-            print(concurso)
+            # print(concurso)
             list_concursos.append(concurso)
 
         self.concursos = list_concursos
@@ -190,10 +190,15 @@ class Loteria(ABC):
             for item in self.faixas:
                 faixas_apostas += f"\n\t\t\t{item}"
 
+        len_concursos: int = 0
+        if self.concursos is not None:
+            len_concursos = len(self.concursos)
+
         classe = type(self).__name__
-        return f"{classe}{{ {self.id_loteria}, {self.nome_loteria}, {self.tem_bolas}, " \
-               f"{self.intervalo_bolas}, {self.qtd_bolas}, {self.qtd_bolas_sorteio}, " \
-               f"{self.dias_sorteio}, " \
-               f"{faixas_apostas} }}"
+        return f"{classe}{{ id_loteria={self.id_loteria}, nome_loteria={self.nome_loteria}, " \
+               f"tem_bolas={self.tem_bolas}, intervalo_bolas={self.intervalo_bolas}, " \
+               f"qtd_bolas={self.qtd_bolas}, qtd_bolas_sorteio={self.qtd_bolas_sorteio}, " \
+               f"dias_sorteio={self.dias_sorteio}, concursos=[#{len_concursos}], " \
+               f"faixas=[{faixas_apostas}] }}"
 
     # ----------------------------------------------------------------------------

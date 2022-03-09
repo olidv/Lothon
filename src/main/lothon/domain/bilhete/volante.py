@@ -87,8 +87,9 @@ class Volante:
         for n in self.numeros:
             if len(nums) > 0:
                 nums += ','
-            nums += str(n)
+            nums += str(n.numero)
 
-        return f"Volante{{ {self.id_volante}, [{nums}], {self.qtd_numeros}, {self.valor_aposta} }}"
+        return f"Volante{{ id_volante={self.id_volante}, qtd_numeros={self.qtd_numeros}, " \
+               f"valor_aposta=R${self.valor_aposta}, numeros=[{nums}] }}"
 
 # ----------------------------------------------------------------------------

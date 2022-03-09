@@ -79,7 +79,7 @@ class Numeral:
         self.numero = numr
 
     def __repr__(self):
-        return str(self.numero)
+        return f"Numeral{{ numero={self.numero}, dezena={self.dezena}, cor={self.cor} }}"
 
     # --- METODOS STATIC -----------------------------------------------------
 

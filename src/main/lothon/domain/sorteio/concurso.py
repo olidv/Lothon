@@ -114,15 +114,16 @@ class Concurso:
                 if len(sorteado) > 0:
                     sorteado += ','
                 sorteado += str(bola.id_bola)
+            sorteado = "bolas_sorteadas=[" + sorteado + ']'
         elif self.numeral_sorteado is not None:
-            sorteado = str(self.numeral_sorteado)
+            sorteado = "numeral_sorteado=[" + str(self.numeral_sorteado.numero) + ']'
 
         premiacao: str = ''
         if self.premios is not None:
             for key in self.premios.keys():
                 premiacao += f"\n\t\t\t{self.premios[key]}"
 
-        return f"Concurso{{ {self.id_concurso}, {self.data_sorteio}, [{sorteado}], " \
-               f"{premiacao} }}"
+        return f"Concurso{{ id_concurso={self.id_concurso}, data_sorteio={self.data_sorteio}, " \
+               f"{sorteado}, premios=[{premiacao}] }}"
 
 # ----------------------------------------------------------------------------
