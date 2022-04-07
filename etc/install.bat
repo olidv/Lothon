@@ -1,11 +1,16 @@
 @echo off
 color F
 
-mkdir Infinite
-python -m venv Infinite\venv
+echo Criando pasta do projeto
+mkdir Lothon
+echo.
+
+echo Instalando ambiente virtual no projeto
+python -m venv Lothon\venv
+echo.
 
 echo Posicionando no diretorio raiz do projeto
-cd Infinite
+cd Lothon
 echo.
 
 echo Verificando a versao atual do Python no sistema
@@ -28,7 +33,7 @@ echo Verificando a versao atual do Python no ambiente
 python --version
 echo.
 
-echo Atualizando o pip no ambiente para evitar conflitos de versoes
+echo Atualizando o pip no ambiente para evitar conflitos
 python -m pip install --upgrade pip
 echo.
 
@@ -38,6 +43,8 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
+pip install PyYAML
+pip install beautifulsoup4
 pip install -U numpy
 pip install -U pandas
 pip install -U patsy
