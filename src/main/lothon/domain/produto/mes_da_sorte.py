@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from dataclasses import dataclass
+
 # Libs/Frameworks modules
 from bs4.element import ResultSet
 
@@ -17,25 +19,22 @@ from lothon.conf import app_config
 from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
+from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(order=True, slots=True)
 class MesDaSorte(Loteria):
     """
     Implementacao de classe para tratamento da logica e regras da produto Mes da Sorte.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_loteria', '_nome_loteria', '_tem_bolas', '_intervalo_bolas', '_qtd_bolas', \
-                '_qtd_bolas_sorteio', '_dias_sorteio', '_faixas', '_concursos'
 
     # --- INICIALIZACAO ------------------------------------------------------
-
-    def __init__(self, dados: tuple[str, ...]):
-        super().__init__(dados)
 
     # --- METODOS ------------------------------------------------------------
 
@@ -46,15 +45,18 @@ class MesDaSorte(Loteria):
         return 'DIA-DE-SORTE'
 
     def parse_concurso(self, td: ResultSet) -> Concurso:
+        id_concurso: int = int(td[0].text)
+        data_sorteio: date = parse_dmy(td[2].text)
+
         mes = td[10].text.strip().lower()
         if mes in app_config.MAP_MESES.keys():
-            numero = app_config.MAP_MESES[mes]
+            mes_sorteado = app_config.MAP_MESES[mes]
         else:
             raise ValueError(f"*** ATENCAO: MES-DA-SORTE NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {mes} ***")
 
-        premios: dict[int, Premio] = {1: Premio(1, td[15].text, td[20].text)}
+        premios: dict[int, Premio] = {1: Premio(1, int(td[15].text), parse_money(td[20].text))}
 
-        return Concurso(td[0].text, td[2].text, sorteado=numero, premiacao=premios)
+        return Concurso(id_concurso, data_sorteio, numeral_sorteado=mes_sorteado, premios=premios)
 
 # ----------------------------------------------------------------------------

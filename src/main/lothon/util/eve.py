@@ -12,6 +12,7 @@
 # Built-in/Generic modules
 import unicodedata
 from math import log, floor
+from datetime import date, datetime
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -116,5 +117,14 @@ def parse_money(val: str) -> float:
     # elimina as formatacoes e converte para numero decimal:
     val = val.strip().lower().replace("r$", "").replace(".", "").replace(",", ".")
     return float(val)
+
+
+def parse_dmy(val: str) -> date | None:
+    # se o valor for nulo (None), entao considera tudo nulo:
+    if val is None:
+        return
+
+    # converte para data a partir do formato  DD/MM/YYYY:
+    return datetime.strptime(val, "%d/%m/%Y").date()
 
 # ----------------------------------------------------------------------------

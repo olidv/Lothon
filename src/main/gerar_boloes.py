@@ -14,7 +14,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.conf import app_config
+# from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------

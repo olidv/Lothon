@@ -16,9 +16,10 @@ import logging
 from memory_profiler import profile
 
 # Own/Project modules
-from lothon.conf import app_config
-from lothon.domain import DIA_DE_SORTE, DUPLA_SENA, LOTOFACIL, LOTOMANIA, MEGA_SENA, QUINA, \
-                          SUPER_SETE, TIMEMANIA, MES_DA_SORTE, TIME_DO_CORACAO
+# from lothon.conf import app_config
+from lothon.domain import Loteria
+from lothon.domain import dia_de_sorte, dupla_sena, lotofacil, lotomania, mega_sena, quina, \
+                          super_sete, timemania, mes_da_sorte, time_do_coracao
 from lothon.infra import parser_resultados
 
 
@@ -43,29 +44,29 @@ logger = logging.getLogger(__name__)
 def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
-    print(DIA_DE_SORTE())
-    print(DUPLA_SENA())
-    print(LOTOFACIL())
-    print(LOTOMANIA())
-    print(MEGA_SENA())
-    print(QUINA())
-    print(SUPER_SETE())
-    print(TIMEMANIA())
-    print(MES_DA_SORTE())
-    print(TIME_DO_CORACAO())
+    _dia_de_sorte: Loteria = dia_de_sorte()
+    _dupla_sena: Loteria = dupla_sena()
+    _lotofacil: Loteria = lotofacil()
+    _lotomania: Loteria = lotomania()
+    _mega_sena: Loteria = mega_sena()
+    _quina: Loteria = quina()
+    _super_sete: Loteria = super_sete()
+    _timemania: Loteria = timemania()
+    _mes_da_sorte: Loteria = mes_da_sorte()
+    _time_do_coracao: Loteria = time_do_coracao()
 
     print('Instancias OK!')
 
-    parser_resultados.parse_concursos_loteria(DIA_DE_SORTE())
-    parser_resultados.parse_concursos_loteria(DUPLA_SENA())
-    parser_resultados.parse_concursos_loteria(LOTOFACIL())
-    parser_resultados.parse_concursos_loteria(LOTOMANIA())
-    parser_resultados.parse_concursos_loteria(MEGA_SENA())
-    parser_resultados.parse_concursos_loteria(QUINA())
-    parser_resultados.parse_concursos_loteria(SUPER_SETE())
-    parser_resultados.parse_concursos_loteria(TIMEMANIA())
-    parser_resultados.parse_concursos_loteria(TIME_DO_CORACAO())
-    parser_resultados.parse_concursos_loteria(MES_DA_SORTE())
+    parser_resultados.parse_concursos_loteria(_dia_de_sorte)
+    parser_resultados.parse_concursos_loteria(_dupla_sena)
+    parser_resultados.parse_concursos_loteria(_lotofacil)
+    parser_resultados.parse_concursos_loteria(_lotomania)
+    parser_resultados.parse_concursos_loteria(_mega_sena)
+    parser_resultados.parse_concursos_loteria(_quina)
+    parser_resultados.parse_concursos_loteria(_super_sete)
+    parser_resultados.parse_concursos_loteria(_timemania)
+    parser_resultados.parse_concursos_loteria(_mes_da_sorte)
+    parser_resultados.parse_concursos_loteria(_time_do_coracao)
 
     print('Carga OK!')
 

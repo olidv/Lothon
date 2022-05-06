@@ -10,6 +10,7 @@
 
 # Built-in/Generic modules
 import math
+from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -19,63 +20,23 @@ import math
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(frozen=True, order=True, slots=True)
 class Faixa:
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_faixa', '_preco', '_qtd_apostas'
+    id_faixa: int
+    preco: float
+    qtd_apostas: int
 
-    @property
-    def id_faixa(self) -> int:
-        return self._id_faixa
-
-    @id_faixa.setter
-    def id_faixa(self, value):
-        if isinstance(value, int):
-            self._id_faixa = value
-        elif isinstance(value, str):
-            self._id_faixa = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'id_faixa' = {value}.")
-
-    @property
-    def preco(self) -> float:
-        return self._preco
-
-    @preco.setter
-    def preco(self, value):
-        if isinstance(value, float):
-            self._preco = value
-        elif isinstance(value, str):
-            self._preco = float(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'preco' = {value}.")
-
-    @property
-    def qtd_apostas(self) -> int:
-        return self._qtd_apostas
-
-    @qtd_apostas.setter
-    def qtd_apostas(self, value):
-        if isinstance(value, int):
-            self._qtd_apostas = value
-        elif isinstance(value, str):
-            self._qtd_apostas = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'qtd_apostas' = {value}.")
+    sort_index: float = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idf, prec, qtda):
-        self.id_faixa = idf
-        self.preco = prec
-        self.qtd_apostas = qtda
-
-    def __repr__(self):
-        return f"Faixa{{ id_faixa={self.id_faixa}, preco=R${self.preco}, " \
-               f"qtd_apostas={self.qtd_apostas} }}"
+    def __post_init__(self):
+        object.__setattr__(self, 'sort_index', float(self.id_faixa))
 
     # --- METODOS STATIC -----------------------------------------------------
 

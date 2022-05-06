@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from dataclasses import dataclass, field
+
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.universo.dezena import Dezena
@@ -19,67 +21,25 @@ from lothon.domain.universo.cor import Cor
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(frozen=True, order=True, slots=True)
 class Numeral:
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_numero', '_dezena', '_cor'
+    numero: int
+    dezena: Dezena = field(init=False, repr=False)
+    cor: Cor = field(init=False, repr=False)
 
-    @property
-    def numero(self) -> int:
-        return self._numero
-
-    @numero.setter
-    def numero(self, value):
-        if isinstance(value, int):
-            self._numero = value
-        elif isinstance(value, str):
-            self._numero = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'numero' = {value}.")
-
-        self._dezena = Dezena.from_int(self._numero // 10)
-        self._cor = Cor.from_int(self._numero)
-
-    @property
-    def dezena(self) -> Dezena:
-        return self._dezena
-
-    @dezena.setter
-    def dezena(self, value):
-        if value is None or isinstance(value, Dezena):
-            self._dezena = value
-        elif isinstance(value, int):
-            self._dezena = Dezena.from_int(value)
-        elif isinstance(value, str):
-            self._dezena = Dezena.from_int(int(value))
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'dezena' = {value}.")
-
-    @property
-    def cor(self) -> Cor:
-        return self._cor
-
-    @cor.setter
-    def cor(self, value):
-        if value is None or isinstance(value, Cor):
-            self._cor = value
-        elif isinstance(value, int):
-            self._cor = Cor.from_int(value)
-        elif isinstance(value, str):
-            self._cor = Cor.from_int(int(value))
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'cor' = {value}.")
+    sort_index: int = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, numr):
-        self.numero = numr
-
-    def __repr__(self):
-        return f"Numeral{{ numero={self.numero}, dezena={self.dezena}, cor={self.cor} }}"
+    def __post_init__(self):
+        object.__setattr__(self, 'dezena', Dezena.from_int(self.numero // 10))
+        object.__setattr__(self, 'cor', Cor.from_int(self.numero))
+        object.__setattr__(self, 'sort_index', self.numero)
 
     # --- METODOS STATIC -----------------------------------------------------
 

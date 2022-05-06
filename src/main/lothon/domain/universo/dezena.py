@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from dataclasses import dataclass, field
+
 # Libs/Frameworks modules
 # Own/Project modules
 
@@ -17,51 +19,25 @@
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(frozen=True, order=True, slots=True)
 class Dezena:
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_dez', '_intervalo'
+    id_dez: int
+    intervalo: tuple[int, int] = field(init=False, repr=False)
 
-    @property
-    def id_dez(self) -> int:
-        return self._id_dez
-
-    @id_dez.setter
-    def id_dez(self, value):
-        if isinstance(value, int):
-            self._id_dez = value
-        elif isinstance(value, str):
-            self._id_dez = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'id_dez' = {value}.")
-
-        minim = self._id_dez * 10
-        maxim = minim + 9
-        self._intervalo = (minim, maxim)
-
-    @property
-    def intervalo(self) -> tuple[int, ...]:
-        return self._intervalo
-
-    @intervalo.setter
-    def intervalo(self, value):
-        if isinstance(value, tuple):
-            self._intervalo = value
-        elif isinstance(value, str):
-            self._intervalo = tuple(map(int, value.split('-')))
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'intervalo' = {value}.")
+    sort_index: int = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idz):
-        self.id_dez = idz
-
-    def __repr__(self):
-        return f"Dezena{{ id_dez={self.id_dez}, intervalo={self.intervalo} }}"
+    def __post_init__(self):
+        minim = (self.id_dez - 1) * 10
+        maxim = minim + 9
+        object.__setattr__(self, 'intervalo', (minim, maxim))
+        object.__setattr__(self, 'sort_index', self.id_dez)
 
     # --- METODOS STATIC -----------------------------------------------------
 

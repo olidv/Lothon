@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from dataclasses import dataclass, field
+
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.universo.numeral import Numeral
@@ -18,63 +20,23 @@ from lothon.domain.universo.numeral import Numeral
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(frozen=True, order=True, slots=True)
 class Bola:
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_bola', '_numeral', '_ordem'
+    id_bola: int
+    ordem: int
+    numeral: Numeral = field(init=False, repr=False)
 
-    @property
-    def id_bola(self) -> int:
-        return self._id_bola
-
-    @id_bola.setter
-    def id_bola(self, value):
-        if isinstance(value, int):
-            self._id_bola = value
-        elif isinstance(value, str):
-            self._id_bola = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'id_bola' = {value}.")
-
-    @property
-    def numeral(self) -> Numeral:
-        return self._numeral
-
-    @numeral.setter
-    def numeral(self, value):
-        if isinstance(value, Numeral):
-            self._numeral = value
-        elif isinstance(value, int):
-            self._numeral = Numeral.from_int(value)
-        elif isinstance(value, str):
-            self._numeral = Numeral.from_int(int(value))
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'numeral' = {value}.")
-
-    @property
-    def ordem(self) -> int:
-        return self._ordem
-
-    @ordem.setter
-    def ordem(self, value):
-        if isinstance(value, int):
-            self._ordem = value
-        elif isinstance(value, str):
-            self._ordem = int(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'ordem' = {value}.")
+    sort_index: int = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idb, ordm):
-        self.id_bola = idb
-        self.numeral = idb
-        self.ordem = ordm
-
-    def __repr__(self):
-        return f"Bola{{ id_bola={self.id_bola}, ordem={self.ordem} }}"
+    def __post_init__(self):
+        object.__setattr__(self, 'numeral', Numeral.from_int(self.id_bola))
+        object.__setattr__(self, 'sort_index', self.id_bola)
 
 # ----------------------------------------------------------------------------

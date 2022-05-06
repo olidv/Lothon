@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from dataclasses import dataclass, field
+
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.bilhete.cota import Cota
@@ -20,102 +22,25 @@ from lothon.domain.produto.loteria import Loteria
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
+@dataclass(frozen=True, order=True, slots=True)
 class Bolao:
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_bolao', '_loteria', '_volantes', '_cota', '_valor_total', '_lucro'
+    id_bolao: int
+    loteria: Loteria
+    volantes: list[Volante]
+    cota: Cota
+    valor_total: float
+    lucro: float
 
-    @property
-    def id_bolao(self) -> str:
-        return self._id_bolao
-
-    @id_bolao.setter
-    def id_bolao(self, value):
-        if isinstance(value, str):
-            self._id_bolao = value
-        else:
-            self._id_bolao = str(value)
-
-    @property
-    def loteria(self) -> Loteria:
-        return self._loteria
-
-    @loteria.setter
-    def loteria(self, value):
-        if isinstance(value, Loteria):
-            self._loteria = value
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'loteria' = {value}.")
-
-    @property
-    def volantes(self) -> list[Volante]:
-        return self._volantes
-
-    @volantes.setter
-    def volantes(self, value):
-        if isinstance(value, list):
-            self._volantes = value
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'volantes' = {value}.")
-
-    @property
-    def cota(self) -> Cota:
-        return self._cota
-
-    @cota.setter
-    def cota(self, value):
-        if isinstance(value, Cota):
-            self._cota = value
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'cota' = {value}.")
-
-    @property
-    def valor_total(self) -> float:
-        return self._valor_total
-
-    @valor_total.setter
-    def valor_total(self, value):
-        if isinstance(value, float):
-            self._valor_total = value
-        elif isinstance(value, str):
-            self._valor_total = float(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'valor_total' = {value}.")
-
-    @property
-    def lucro(self) -> float:
-        return self._lucro
-
-    @lucro.setter
-    def lucro(self, value):
-        if isinstance(value, float):
-            self._lucro = value
-        elif isinstance(value, str):
-            self._lucro = float(value)
-        else:
-            raise ValueError(f"Valor invalido para a propriedade 'lucro' = {value}.")
+    sort_index: int = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idb, lot, vols, cta, vtot, lcro):
-        self.id_bolao = idb
-        self.loteria = lot
-        self.volantes = vols
-        self.cota = cta
-        self.valor_total = vtot
-        self.lucro = lcro
-
-    def __repr__(self):
-        volantes_apostas: str = ''
-        if self.volantes is not None:
-            for item in self.volantes:
-                volantes_apostas += f"\n\t\t\t{item}"
-
-        return f"Bolao{{ id_bolao={self.id_bolao}, loteria={self.loteria.nome_loteria}, "\
-               f"valor_total=R${self.valor_total}, lucro=R${self.lucro}, cota={self.cota}, " \
-               f"volantes=[{volantes_apostas}] }}"
+    def __post_init__(self):
+        object.__setattr__(self, 'sort_index', self.id_bolao)
 
     # ----------------------------------------------------------------------------
