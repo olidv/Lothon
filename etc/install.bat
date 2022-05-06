@@ -43,8 +43,9 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
-pip install PyYAML
-pip install beautifulsoup4
+pip install -U wheel
+pip install -U PyYAML
+pip install -U beautifulsoup4
 pip install -U numpy
 pip install -U pandas
 pip install -U patsy
@@ -56,6 +57,7 @@ pip install -U seaborn
 pip install -U scikit-learn
 pip install -U pingouin
 pip install -U jupyterlab
+pip install -U memory_profiler
 @echo off
 echo.
 

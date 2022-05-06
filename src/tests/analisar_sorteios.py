@@ -13,6 +13,8 @@
 import logging
 
 # Libs/Frameworks modules
+from memory_profiler import profile
+
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain import DIA_DE_SORTE, DUPLA_SENA, LOTOFACIL, LOTOMANIA, MEGA_SENA, QUINA, \
@@ -37,6 +39,7 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------
 
 # entry-point de execucao para tarefas diarias:
+@profile
 def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
