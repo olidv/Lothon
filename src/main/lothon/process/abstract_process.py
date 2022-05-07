@@ -1,6 +1,6 @@
 """
    Package lothon.process
-   Module  processo.py
+   Module  abstract_process.py
 
 """
 
@@ -19,7 +19,7 @@ from abc import ABC, abstractmethod
 # CLASSE ABSTRATA
 # ----------------------------------------------------------------------------
 
-class Processo(ABC):
+class AbstractProcess(ABC):
     """
     Classe abstrata com definicao de propriedades e metodos para criacao de processos.
     """
@@ -28,29 +28,40 @@ class Processo(ABC):
     __slots__ = ()
 
     @property
-    def id_processo(self) -> str:
-        return self._id_processo
+    def id_process(self) -> str:
+        return self._id_process
 
-    @id_processo.setter
-    def id_processo(self, value):
+    @id_process.setter
+    def id_process(self, value):
         if isinstance(value, str):
-            self._id_processo = value
+            self._id_process = value
         else:
-            self._id_processo = str(value)
+            self._id_process = str(value)
+
+    @property
+    def options(self) -> dict:
+        return self._options
+
+    @options.setter
+    def options(self, value):
+        if value is None or isinstance(value, dict):
+            self._options = value
+        else:
+            raise ValueError(f"Valor invalido para a propriedade  options : dict = {value}.")
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, idp):
-        self.id_processo = idp
+    def __init__(self, idp: str):
+        self.id_process = idp
+        self.options = None
 
     # --- METODOS ------------------------------------------------------------
 
-    @abstractmethod
-    def init(self, universo) -> None:
-        pass
+    def init(self, options: dict) -> None:
+        self.options = options
 
     @abstractmethod
-    def execute(self) -> None:
+    def execute(self, payload) -> None:
         pass
 
 # ----------------------------------------------------------------------------

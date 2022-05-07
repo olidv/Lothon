@@ -1,8 +1,8 @@
 """
    Test Package
-   Module  gerar_boloes.py
+   Module  conferir_apostas.py
 
-   Modulo para executar a geracao de boloes de apostas para as loterias.
+   Modulo para executar a conferencia das apostas com os resultados das loterias.
 """
 
 # ----------------------------------------------------------------------------
@@ -36,12 +36,10 @@ logger = logging.getLogger(__name__)
 
 # entry-point de execucao para tarefas diarias:
 def run():
-    logger.info("Iniciando a geracao de boloes de apostas para as loterias...")
-
-    print('Boloes OK!')
+    logger.info("Iniciando a conferencia das apostas com os resultados das loterias...")
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
-    logger.info("Finalizada a geracao de boloes de apostas para as loterias.")
+    logger.info("Finalizada a conferencia das apostas com os resultados das loterias.")
     return 0
 
 # ----------------------------------------------------------------------------

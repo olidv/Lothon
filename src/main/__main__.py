@@ -18,10 +18,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import settings
-import analisar_sorteios
-import conferir_apostas
-import gerar_boloes
-
+from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas
 
 # ----------------------------------------------------------------------------
 # CONSTANTES

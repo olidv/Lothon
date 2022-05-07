@@ -13,14 +13,14 @@
 import logging
 
 # Libs/Frameworks modules
-from memory_profiler import profile
+# from memory_profiler import profile
 
 # Own/Project modules
 # from lothon.conf import app_config
+from lothon import domain
 from lothon.domain import Loteria
-from lothon.domain import dia_de_sorte, dupla_sena, lotofacil, lotomania, mega_sena, quina, \
-                          super_sete, timemania, mes_da_sorte, time_do_coracao
 from lothon.infra import parser_resultados
+import analyze
 
 
 # ----------------------------------------------------------------------------
@@ -40,22 +40,21 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------
 
 # entry-point de execucao para tarefas diarias:
-@profile
+# @profile
 def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
-    _dia_de_sorte: Loteria = dia_de_sorte()
-    _dupla_sena: Loteria = dupla_sena()
-    _lotofacil: Loteria = lotofacil()
-    _lotomania: Loteria = lotomania()
-    _mega_sena: Loteria = mega_sena()
-    _quina: Loteria = quina()
-    _super_sete: Loteria = super_sete()
-    _timemania: Loteria = timemania()
-    _mes_da_sorte: Loteria = mes_da_sorte()
-    _time_do_coracao: Loteria = time_do_coracao()
-
-    print('Instancias OK!')
+    _dia_de_sorte: Loteria = domain.get_dia_de_sorte()
+    _dupla_sena: Loteria = domain.get_dupla_sena()
+    _lotofacil: Loteria = domain.get_lotofacil()
+    _lotomania: Loteria = domain.get_lotomania()
+    _mega_sena: Loteria = domain.get_mega_sena()
+    _quina: Loteria = domain.get_quina()
+    _super_sete: Loteria = domain.get_super_sete()
+    _timemania: Loteria = domain.get_timemania()
+    _mes_da_sorte: Loteria = domain.get_mes_da_sorte()
+    _time_do_coracao: Loteria = domain.get_time_do_coracao()
+    logger.debug("Criadas instancias das loterias para processamento.")
 
     parser_resultados.parse_concursos_loteria(_dia_de_sorte)
     parser_resultados.parse_concursos_loteria(_dupla_sena)
@@ -67,8 +66,9 @@ def run():
     parser_resultados.parse_concursos_loteria(_timemania)
     parser_resultados.parse_concursos_loteria(_mes_da_sorte)
     parser_resultados.parse_concursos_loteria(_time_do_coracao)
+    logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
 
-    print('Carga OK!')
+    _process_chain: list = analyze.get_process_chain()
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     logger.info("Finalizada a analise dos dados de sorteios das loterias.")

@@ -19,6 +19,7 @@ from lothon.domain.produto.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
+from lothon.domain.bilhete.faixa import Faixa
 from lothon.util.eve import *
 
 
@@ -51,5 +52,22 @@ class MegaSena(Loteria):
                                       4: Premio(4, int(td[10].text), parse_money(td[13].text))}
 
         return Concurso(id_concurso, data_sorteio, bolas_sorteadas=bolas_sorteadas, premios=premios)
+
+    # --- METODOS STATIC -----------------------------------------------------
+
+    @staticmethod
+    def from_tuple(value: tuple):
+        if value is not None:
+            _mega_sena = MegaSena(id_loteria=value[0],
+                                  nome_loteria=value[1],
+                                  tem_bolas=to_bool(value[2]),
+                                  intervalo_bolas=tuple(map(int, value[3].split('-'))),
+                                  qtd_bolas_sorteio=int(value[4]),
+                                  dias_sorteio=tuple(map(int, value[5].split('|'))),
+                                  faixas=Faixa.from_str(value[6]))
+            return _mega_sena
+
+        else:
+            raise ValueError(f"Valor invalido para criar instancia de MegaSena: {value}.")
 
 # ----------------------------------------------------------------------------

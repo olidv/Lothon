@@ -1,7 +1,8 @@
 """
-   Package lothon.process
-   Module  faixa_subsequente.py
+   Test Package
+   Module  gerar_boloes.py
 
+   Modulo para executar a geracao de boloes de apostas para as loterias.
 """
 
 # ----------------------------------------------------------------------------
@@ -13,7 +14,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.process.processo import Processo
+# from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------
@@ -30,28 +31,15 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# CLASSE CONCRETA
+# MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
 
-class FaixaSubsequente(Processo):
-    """
-    Implementacao de classe para .
-    """
+# entry-point de execucao para tarefas diarias:
+def run():
+    logger.info("Iniciando a geracao de boloes de apostas para as loterias...")
 
-    # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_processo'
-
-    # --- INICIALIZACAO ------------------------------------------------------
-
-    def __init__(self, idp):
-        super().__init__(idp)
-
-    # --- METODOS ------------------------------------------------------------
-
-    def init(self, universo) -> None:
-        pass
-
-    def execute(self) -> None:
-        pass
+    # finalizadas todas as tarefas, informa que o processamento foi ok:
+    logger.info("Finalizada a geracao de boloes de apostas para as loterias.")
+    return 0
 
 # ----------------------------------------------------------------------------

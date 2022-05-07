@@ -1,8 +1,7 @@
 """
-   Test Package
-   Module  conferir_apostas.py
+   Package lothon.process
+   Module  faixa_subsequente.py
 
-   Modulo para executar a conferencia das apostas com os resultados das loterias.
 """
 
 # ----------------------------------------------------------------------------
@@ -14,7 +13,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-# from lothon.conf import app_config
+from lothon.process.abstract_process import AbstractProcess
 
 
 # ----------------------------------------------------------------------------
@@ -31,17 +30,25 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# MAIN ENTRY-POINT
+# CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-# entry-point de execucao para tarefas diarias:
-def run():
-    logger.info("Iniciando a conferencia das apostas com os resultados das loterias...")
+class FaixaSubsequente(AbstractProcess):
+    """
+    Implementacao de classe para .
+    """
 
-    print('Resultados OK!')
+    # --- PROPRIEDADES -------------------------------------------------------
+    __slots__ = '_id_process', '_options'
 
-    # finalizadas todas as tarefas, informa que o processamento foi ok:
-    logger.info("Finalizada a conferencia das apostas com os resultados das loterias.")
-    return 0
+    # --- INICIALIZACAO ------------------------------------------------------
+
+    def __init__(self):
+        super().__init__("Processamento de Faixas Subsequentes")
+
+    # --- METODOS ------------------------------------------------------------
+
+    def execute(self, payload) -> None:
+        pass
 
 # ----------------------------------------------------------------------------

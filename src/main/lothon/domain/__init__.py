@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import typing
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -29,7 +29,7 @@ from .bilhete.cota import Cota
 from .bilhete.volante import Volante
 from .bilhete.bolao import Bolao
 from .bilhete.faixa import Faixa
-from lothon.util.eve import *
+# from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
@@ -50,184 +50,104 @@ def get_tuple_loteria(id_loteria: str) -> tuple[str, ...]:
 # VARIAVEIS SINGLETON
 # ----------------------------------------------------------------------------
 
-_dia_de_sorte: typing.Optional[DiaDeSorte] = None
-_dupla_sena: typing.Optional[DuplaSena] = None
-_lotofacil: typing.Optional[Lotofacil] = None
-_lotomania: typing.Optional[Lotomania] = None
-_mega_sena: typing.Optional[MegaSena] = None
-_quina: typing.Optional[Quina] = None
-_super_sete: typing.Optional[SuperSete] = None
-_timemania: typing.Optional[Timemania] = None
-_mes_da_sorte: typing.Optional[MesDaSorte] = None
-_time_do_coracao: typing.Optional[TimeDoCoracao] = None
+_dia_de_sorte: Optional[DiaDeSorte] = None
+_dupla_sena: Optional[DuplaSena] = None
+_lotofacil: Optional[Lotofacil] = None
+_lotomania: Optional[Lotomania] = None
+_mega_sena: Optional[MegaSena] = None
+_quina: Optional[Quina] = None
+_super_sete: Optional[SuperSete] = None
+_timemania: Optional[Timemania] = None
+_mes_da_sorte: Optional[MesDaSorte] = None
+_time_do_coracao: Optional[TimeDoCoracao] = None
 
 
-def dia_de_sorte() -> DiaDeSorte:
+def get_dia_de_sorte() -> DiaDeSorte:
     global _dia_de_sorte
     if _dia_de_sorte is None:
-        tupla = get_tuple_loteria("diadesorte")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _dia_de_sorte = DiaDeSorte(id_loteria=tupla[0],
-                                   nome_loteria=tupla[1],
-                                   tem_bolas=to_bool(tupla[2]),
-                                   intervalo_bolas=intervalo_bolas,
-                                   qtd_bolas_sorteio=int(tupla[4]),
-                                   dias_sorteio=dias_sorteio,
-                                   faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("diadesorte")
+        _dia_de_sorte = DiaDeSorte.from_tuple(tupla_loteria)
 
     return _dia_de_sorte
 
 
-def dupla_sena() -> DuplaSena:
+def get_dupla_sena() -> DuplaSena:
     global _dupla_sena
     if _dupla_sena is None:
-        tupla = get_tuple_loteria("duplasena")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _dupla_sena = DuplaSena(id_loteria=tupla[0],
-                                nome_loteria=tupla[1],
-                                tem_bolas=to_bool(tupla[2]),
-                                intervalo_bolas=intervalo_bolas,
-                                qtd_bolas_sorteio=int(tupla[4]),
-                                dias_sorteio=dias_sorteio,
-                                faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("duplasena")
+        _dupla_sena = DuplaSena.from_tuple(tupla_loteria)
 
     return _dupla_sena
 
 
-def lotofacil() -> Lotofacil:
+def get_lotofacil() -> Lotofacil:
     global _lotofacil
     if _lotofacil is None:
-        tupla = get_tuple_loteria("lotofacil")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _lotofacil = Lotofacil(id_loteria=tupla[0],
-                               nome_loteria=tupla[1],
-                               tem_bolas=to_bool(tupla[2]),
-                               intervalo_bolas=intervalo_bolas,
-                               qtd_bolas_sorteio=int(tupla[4]),
-                               dias_sorteio=dias_sorteio,
-                               faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("lotofacil")
+        _lotofacil = Lotofacil.from_tuple(tupla_loteria)
 
     return _lotofacil
 
 
-def lotomania() -> Lotomania:
+def get_lotomania() -> Lotomania:
     global _lotomania
     if _lotomania is None:
-        tupla = get_tuple_loteria("lotomania")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _lotomania = Lotomania(id_loteria=tupla[0],
-                               nome_loteria=tupla[1],
-                               tem_bolas=to_bool(tupla[2]),
-                               intervalo_bolas=intervalo_bolas,
-                               qtd_bolas_sorteio=int(tupla[4]),
-                               dias_sorteio=dias_sorteio,
-                               faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("lotomania")
+        _lotomania = Lotomania.from_tuple(tupla_loteria)
 
     return _lotomania
 
 
-def mega_sena() -> MegaSena:
+def get_mega_sena() -> MegaSena:
     global _mega_sena
     if _mega_sena is None:
-        tupla = get_tuple_loteria("megasena")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _mega_sena = MegaSena(id_loteria=tupla[0],
-                              nome_loteria=tupla[1],
-                              tem_bolas=to_bool(tupla[2]),
-                              intervalo_bolas=intervalo_bolas,
-                              qtd_bolas_sorteio=int(tupla[4]),
-                              dias_sorteio=dias_sorteio,
-                              faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("megasena")
+        _mega_sena = MegaSena.from_tuple(tupla_loteria)
 
     return _mega_sena
 
 
-def quina() -> Quina:
+def get_quina() -> Quina:
     global _quina
     if _quina is None:
-        tupla = get_tuple_loteria("quina")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _quina = Quina(id_loteria=tupla[0],
-                       nome_loteria=tupla[1],
-                       tem_bolas=to_bool(tupla[2]),
-                       intervalo_bolas=intervalo_bolas,
-                       qtd_bolas_sorteio=int(tupla[4]),
-                       dias_sorteio=dias_sorteio,
-                       faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("quina")
+        _quina = Quina.from_tuple(tupla_loteria)
 
     return _quina
 
 
-def super_sete() -> SuperSete:
+def get_super_sete() -> SuperSete:
     global _super_sete
     if _super_sete is None:
-        tupla = get_tuple_loteria("supersete")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _super_sete = SuperSete(id_loteria=tupla[0],
-                                nome_loteria=tupla[1],
-                                tem_bolas=to_bool(tupla[2]),
-                                intervalo_bolas=intervalo_bolas,
-                                qtd_bolas_sorteio=int(tupla[4]),
-                                dias_sorteio=dias_sorteio,
-                                faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("supersete")
+        _super_sete = SuperSete.from_tuple(tupla_loteria)
 
     return _super_sete
 
 
-def timemania() -> Timemania:
+def get_timemania() -> Timemania:
     global _timemania
     if _timemania is None:
-        tupla = get_tuple_loteria("timemania")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _timemania = Timemania(id_loteria=tupla[0],
-                               nome_loteria=tupla[1],
-                               tem_bolas=to_bool(tupla[2]),
-                               intervalo_bolas=intervalo_bolas,
-                               qtd_bolas_sorteio=int(tupla[4]),
-                               dias_sorteio=dias_sorteio,
-                               faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("timemania")
+        _timemania = Timemania.from_tuple(tupla_loteria)
 
     return _timemania
 
 
-def mes_da_sorte() -> MesDaSorte:
+def get_mes_da_sorte() -> MesDaSorte:
     global _mes_da_sorte
     if _mes_da_sorte is None:
-        tupla = get_tuple_loteria("mesdasorte")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _mes_da_sorte = MesDaSorte(id_loteria=tupla[0],
-                                   nome_loteria=tupla[1],
-                                   tem_bolas=to_bool(tupla[2]),
-                                   intervalo_bolas=intervalo_bolas,
-                                   qtd_bolas_sorteio=int(tupla[4]),
-                                   dias_sorteio=dias_sorteio,
-                                   faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("mesdasorte")
+        _mes_da_sorte = MesDaSorte.from_tuple(tupla_loteria)
 
     return _mes_da_sorte
 
 
-def time_do_coracao() -> TimeDoCoracao:
+def get_time_do_coracao() -> TimeDoCoracao:
     global _time_do_coracao
     if _time_do_coracao is None:
-        tupla = get_tuple_loteria("timedocoracao")
-        intervalo_bolas = tuple(map(int, tupla[3].split('-')))
-        dias_sorteio = tuple(map(int, tupla[5].split('|')))
-        _time_do_coracao = TimeDoCoracao(id_loteria=tupla[0],
-                                         nome_loteria=tupla[1],
-                                         tem_bolas=to_bool(tupla[2]),
-                                         intervalo_bolas=intervalo_bolas,
-                                         qtd_bolas_sorteio=int(tupla[4]),
-                                         dias_sorteio=dias_sorteio,
-                                         faixas=Faixa.from_str(tupla[6]))
+        tupla_loteria = get_tuple_loteria("timedocoracao")
+        _time_do_coracao = TimeDoCoracao.from_tuple(tupla_loteria)
 
     return _time_do_coracao
 
