@@ -6,7 +6,7 @@
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
-from faixa_subsequente import FaixaSubsequente
+from lothon.process.analyze.faixa_subsequente import FaixaSubsequente
 from lothon.process.abstract_process import AbstractProcess
 
 # ----------------------------------------------------------------------------
