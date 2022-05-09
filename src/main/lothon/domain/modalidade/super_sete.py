@@ -24,6 +24,18 @@ from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
+# CONSTANTES GLOBAIS
+# ----------------------------------------------------------------------------
+
+# A tabela de precos do Super Sete eh linear:
+_TABELA_PRECOS: dict = {7: 1, 8: 2, 9: 4, 10: 8, 11: 16,
+                        12: 32, 13: 64, 14: 128, 15: 192, 16: 288,
+                        17: 432, 18: 648, 19: 972, 20: 1458, 21: 2187}
+
+_PROB_ACERTOS = 10000000
+
+
+# ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
@@ -60,17 +72,30 @@ class SuperSete(Loteria):
 
     @staticmethod
     def from_tuple(value: tuple):
-        if value is not None:
-            _super_sete = SuperSete(id_loteria=value[0],
-                                    nome_loteria=value[1],
-                                    tem_bolas=to_bool(value[2]),
-                                    intervalo_bolas=tuple(map(int, value[3].split('-'))),
-                                    qtd_bolas_sorteio=int(value[4]),
-                                    dias_sorteio=tuple(map(int, value[5].split('|'))),
-                                    faixas=Faixa.from_str(value[6]))
-            return _super_sete
-
-        else:
+        if value is None or len(value) == 0:
             raise ValueError(f"Valor invalido para criar instancia de SuperSete: {value}.")
+
+        # As faixas para o Super Sete seguem um padrao linear...from
+        termos = value[6].split(':')
+        if len(termos) == 0:
+            raise ValueError(f"Valor invalido para criar instancia de Faixa: {value}.")
+
+        preco_min = float(termos[1])
+        faixas: list[Faixa] = []
+
+        for qtd_dezenas, qtd_apostas in _TABELA_PRECOS.items():
+            preco = qtd_apostas * preco_min
+            prob = round(_PROB_ACERTOS / qtd_apostas)
+            fx = Faixa(qtd_dezenas, preco, qtd_apostas, prob)
+            faixas.append(fx)
+
+        _super_sete = SuperSete(id_loteria=value[0],
+                                nome_loteria=value[1],
+                                tem_bolas=to_bool(value[2]),
+                                qtd_bolas=int(value[3]),
+                                qtd_bolas_sorteio=int(value[4]),
+                                dias_sorteio=tuple(map(int, value[5].split('|'))),
+                                faixas=faixas)
+        return _super_sete
 
 # ----------------------------------------------------------------------------

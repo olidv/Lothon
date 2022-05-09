@@ -23,6 +23,7 @@ from lothon.infra import parser_resultados
 from lothon.domain import Loteria
 from lothon.process import simulate
 from lothon.process.abstract_process import AbstractProcess
+from lothon.stats import combinatoria as comb
 
 
 # ----------------------------------------------------------------------------
@@ -68,27 +69,29 @@ def run():
     loterias_caixa = {"diadesorte": domain.get_dia_de_sorte(),
                       "duplasena": domain.get_dupla_sena(),
                       "lotofacil": domain.get_lotofacil(),
-                      "lotomania": domain.get_lotomania(),
                       "megasena": domain.get_mega_sena(),
                       "quina": domain.get_quina(),
                       "supersete": domain.get_super_sete(),
+                      "lotomania": domain.get_lotomania(),
                       "timemania": domain.get_timemania(),
                       "mesdasorte": domain.get_mes_da_sorte(),
                       "timedocoracao": domain.get_time_do_coracao()}
     logger.debug("Criadas instancias das loterias para processamento.")
 
-    # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    for key, value in loterias_caixa.items():
-        logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
-        parser_resultados.parse_concursos_loteria(value)
-    logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
+    # # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
+    # for key, value in loterias_caixa.items():
+    #     logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
+    #     parser_resultados.parse_concursos_loteria(value)
+    # logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
+    #
+    # logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
+    # process_chain = simulate.get_process_chain()
+    # # Efetua a execução de cada processo de análise:
+    # for proc in process_chain:
+    #     invoke_process(proc)
 
-    logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
-    process_chain = simulate.get_process_chain()
-    # Efetua a execução de cada processo de análise:
-    for proc in process_chain:
-        invoke_process(proc)
-
+    mega_sena_total = comb.qtd_combinacoes(60, 6)
+    print(mega_sena_total)
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     logger.info("Finalizada a analise dos dados de sorteios das loterias.")
     return 0

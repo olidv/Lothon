@@ -36,8 +36,7 @@ class Loteria(ABC):
     id_loteria: str
     nome_loteria: str
     tem_bolas: bool
-    intervalo_bolas: tuple[int, ...]
-    qtd_bolas: int = field(init=False)
+    qtd_bolas: int
     qtd_bolas_sorteio: int
     dias_sorteio: tuple[int, ...]
     faixas: list[Faixa]
@@ -48,8 +47,8 @@ class Loteria(ABC):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __post_init__(self):
-        object.__setattr__(self, 'qtd_bolas', self.intervalo_bolas[1] - self.intervalo_bolas[0] + 1)
         object.__setattr__(self, 'sort_index', self.id_loteria)
+        print(self, "\n")
 
     # --- METODOS ------------------------------------------------------------
 
@@ -70,7 +69,7 @@ class Loteria(ABC):
             # print("td[0] = ", type(td[0]), len(td[0]), td[0].text)
 
             concurso = self.parse_concurso(td)
-            print(concurso)
+            # print(concurso)
             list_concursos.append(concurso)
 
         self.concursos = list_concursos

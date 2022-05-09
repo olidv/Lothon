@@ -60,17 +60,16 @@ class Timemania(Loteria):
 
     @staticmethod
     def from_tuple(value: tuple):
-        if value is not None:
-            _timemania = Timemania(id_loteria=value[0],
-                                   nome_loteria=value[1],
-                                   tem_bolas=to_bool(value[2]),
-                                   intervalo_bolas=tuple(map(int, value[3].split('-'))),
-                                   qtd_bolas_sorteio=int(value[4]),
-                                   dias_sorteio=tuple(map(int, value[5].split('|'))),
-                                   faixas=Faixa.from_str(value[6]))
-            return _timemania
-
-        else:
+        if value is None or len(value) == 0:
             raise ValueError(f"Valor invalido para criar instancia de Timemania: {value}.")
+
+        _timemania = Timemania(id_loteria=value[0],
+                               nome_loteria=value[1],
+                               tem_bolas=to_bool(value[2]),
+                               qtd_bolas=int(value[3]),
+                               qtd_bolas_sorteio=int(value[4]),
+                               dias_sorteio=tuple(map(int, value[5].split('|'))),
+                               faixas=Faixa.from_str(value[6], int(value[3]), int(value[4])))
+        return _timemania
 
 # ----------------------------------------------------------------------------

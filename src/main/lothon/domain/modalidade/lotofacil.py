@@ -64,17 +64,16 @@ class Lotofacil(Loteria):
 
     @staticmethod
     def from_tuple(value: tuple):
-        if value is not None:
-            _lotofacil = Lotofacil(id_loteria=value[0],
-                                   nome_loteria=value[1],
-                                   tem_bolas=to_bool(value[2]),
-                                   intervalo_bolas=tuple(map(int, value[3].split('-'))),
-                                   qtd_bolas_sorteio=int(value[4]),
-                                   dias_sorteio=tuple(map(int, value[5].split('|'))),
-                                   faixas=Faixa.from_str(value[6]))
-            return _lotofacil
-
-        else:
+        if value is None or len(value) == 0:
             raise ValueError(f"Valor invalido para criar instancia de Lotofacil: {value}.")
+
+        _lotofacil = Lotofacil(id_loteria=value[0],
+                               nome_loteria=value[1],
+                               tem_bolas=to_bool(value[2]),
+                               qtd_bolas=int(value[3]),
+                               qtd_bolas_sorteio=int(value[4]),
+                               dias_sorteio=tuple(map(int, value[5].split('|'))),
+                               faixas=Faixa.from_str(value[6], int(value[3])))
+        return _lotofacil
 
 # ----------------------------------------------------------------------------

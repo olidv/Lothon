@@ -29,7 +29,8 @@ class Faixa:
     # --- PROPRIEDADES -------------------------------------------------------
     id_faixa: int
     preco: float
-    qtd_apostas: int
+    qtd_jogos: int
+    prb_acertos: int
 
     sort_index: float = field(init=False, repr=False)
 
@@ -41,7 +42,7 @@ class Faixa:
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def from_str(vals: str) -> list:
+    def from_str(vals: str, qtd_bolas: int, qtd_bolas_sorteio: int = None) -> list:
         if vals is None:
             raise ValueError(f"Valor invalido para criar instancia de Faixa: {vals}.")
 
@@ -57,15 +58,22 @@ class Faixa:
         qtd_min = int(interval[0])
         qtd_max = int(interval[1])
         preco_min = float(termos[1])
+        faixas: list[Faixa] = []
 
-        faixas: list[Faixa] = [Faixa(qtd_min, preco_min, 1)]
-        if qtd_max > qtd_min:
-            for qtd in range(qtd_min + 1, qtd_max + 1):
+        if qtd_bolas_sorteio is None or qtd_min == qtd_bolas_sorteio:
+            prob_min = math.comb(qtd_bolas, qtd_min)
+            for qtd in range(qtd_min, qtd_max + 1):
                 jogos = math.comb(qtd, qtd_min)
                 preco = jogos * preco_min
+                prob = round(prob_min / jogos)
 
-                fx = Faixa(qtd, preco, jogos)
+                fx = Faixa(qtd, preco, jogos, prob)
                 faixas.append(fx)
+        else:
+            prob = round(math.comb(qtd_bolas, qtd_bolas_sorteio) /
+                         math.comb(qtd_min, qtd_bolas_sorteio))
+            fx = Faixa(qtd_min, preco_min, 1, prob)
+            faixas.append(fx)
 
         return faixas
 

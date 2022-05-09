@@ -24,16 +24,24 @@ import math
 # FUNCOES UTILITARIAS
 # ----------------------------------------------------------------------------
 
-def combina(n, r):
-    # Number of combinations of 'n' elements for sets of size 'r'
-    return (math.factorial(n) // math.factorial(r) // math.factorial(n-r)) if n - r >= 0 else 0
+# Number of combinations of 'n' elements for sets of size 's'
+def qtd_combinacoes(n: int, s: int) -> int:
+    if s <= n:
+        return math.factorial(n) // (math.factorial(s) * math.factorial(n - s))
+    else:
+        return 0
 
+
+# ----------------------------------------------------------------------------
+# FUNCOES UTILITARIAS PARA MEGA-SENA
+# ----------------------------------------------------------------------------
 
 def rank(c):
     # Rank for C(60, 6). 'c' must be sorted.
     # https://en.wikipedia.org/wiki/Combinatorial_number_system
-    return 50063860 - (combina(60 - c[0], 6) + combina(60 - c[1], 5) + combina(60 - c[2], 4) +
-                       combina(60 - c[3], 3) + combina(60 - c[4], 2) + (60 - c[5]))
+    return 50063860 - (qtd_combinacoes(60 - c[0], 6) + qtd_combinacoes(60 - c[1], 5) +
+                       qtd_combinacoes(60 - c[2], 4) + qtd_combinacoes(60 - c[3], 3) +
+                       qtd_combinacoes(60 - c[4], 2) + (60 - c[5]))
 
 
 def partial_matches(s, n):
