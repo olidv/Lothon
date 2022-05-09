@@ -1,6 +1,6 @@
 """
-   Package lothon.domain.produto
-   Module  lotofacil.py
+   Package lothon.domain.modalidade
+   Module  lotomania.py
 
 """
 
@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from bs4.element import ResultSet
 
 # Own/Project modules
-from lothon.domain.produto.loteria import Loteria
+from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
@@ -28,9 +28,9 @@ from lothon.util.eve import *
 # ----------------------------------------------------------------------------
 
 @dataclass(order=True, slots=True)
-class Lotofacil(Loteria):
+class Lotomania(Loteria):
     """
-    Implementacao de classe para tratamento da logica e regras da produto Lotofacil.
+    Implementacao de classe para tratamento da logica e regras da modalidade Lotomania.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
@@ -50,13 +50,16 @@ class Lotofacil(Loteria):
                                        Bola(int(td[10].text), 9), Bola(int(td[11].text), 10),
                                        Bola(int(td[12].text), 11), Bola(int(td[13].text), 12),
                                        Bola(int(td[14].text), 13), Bola(int(td[15].text), 14),
-                                       Bola(int(td[16].text), 15)]
+                                       Bola(int(td[16].text), 15), Bola(int(td[17].text), 16),
+                                       Bola(int(td[18].text), 17), Bola(int(td[19].text), 18),
+                                       Bola(int(td[20].text), 19), Bola(int(td[21].text), 20)]
 
-        premios: dict[int, Premio] = {15: Premio(15, int(td[18].text), parse_money(td[24].text)),
-                                      14: Premio(14, int(td[20].text), parse_money(td[25].text)),
-                                      13: Premio(13, int(td[21].text), parse_money(td[26].text)),
-                                      12: Premio(12, int(td[22].text), parse_money(td[27].text)),
-                                      11: Premio(11, int(td[23].text), parse_money(td[28].text))}
+        premios: dict[int, Premio] = {20: Premio(20, int(td[23].text), parse_money(td[31].text)),
+                                      19: Premio(19, int(td[26].text), parse_money(td[32].text)),
+                                      18: Premio(18, int(td[27].text), parse_money(td[33].text)),
+                                      17: Premio(17, int(td[28].text), parse_money(td[34].text)),
+                                      16: Premio(16, int(td[29].text), parse_money(td[35].text)),
+                                      15: Premio(15, int(td[30].text), parse_money(td[36].text))}
 
         return Concurso(id_concurso, data_sorteio, bolas_sorteadas=bolas_sorteadas, premios=premios)
 
@@ -65,16 +68,16 @@ class Lotofacil(Loteria):
     @staticmethod
     def from_tuple(value: tuple):
         if value is not None:
-            _lotofacil = Lotofacil(id_loteria=value[0],
+            _lotomania = Lotomania(id_loteria=value[0],
                                    nome_loteria=value[1],
                                    tem_bolas=to_bool(value[2]),
                                    intervalo_bolas=tuple(map(int, value[3].split('-'))),
                                    qtd_bolas_sorteio=int(value[4]),
                                    dias_sorteio=tuple(map(int, value[5].split('|'))),
                                    faixas=Faixa.from_str(value[6]))
-            return _lotofacil
+            return _lotomania
 
         else:
-            raise ValueError(f"Valor invalido para criar instancia de Lotofacil: {value}.")
+            raise ValueError(f"Valor invalido para criar instancia de Lotomania: {value}.")
 
 # ----------------------------------------------------------------------------

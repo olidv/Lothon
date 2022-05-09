@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.universo.numeral import Numeral
+from lothon.domain.basico.numeral import Numeral
 
 
 # ----------------------------------------------------------------------------
@@ -28,8 +28,8 @@ class Bola:
 
     # --- PROPRIEDADES -------------------------------------------------------
     id_bola: int
-    ordem: int
     numeral: Numeral = field(init=False, repr=False)
+    ordem: int
 
     sort_index: int = field(init=False, repr=False)
 

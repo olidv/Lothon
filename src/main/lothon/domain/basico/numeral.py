@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.universo
+   Package lothon.domain.basico
    Module  numeral.py
 
 """
@@ -13,8 +13,8 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.universo.dezena import Dezena
-from lothon.domain.universo.cor import Cor
+from lothon.domain.basico.dezena import Dezena
+from lothon.domain.basico.cor import Cor
 
 
 # ----------------------------------------------------------------------------

@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 # Own/Project modules
 from lothon.domain.bilhete.cota import Cota
 from lothon.domain.bilhete.volante import Volante
-from lothon.domain.produto.loteria import Loteria
+from lothon.domain.modalidade.loteria import Loteria
 
 
 # ----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.produto
+   Package lothon.domain.modalidade
    Module  mes_da_sorte.py
 
 """
@@ -16,7 +16,7 @@ from bs4.element import ResultSet
 
 # Own/Project modules
 from lothon.conf import app_config
-from lothon.domain.produto.loteria import Loteria
+from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
@@ -30,7 +30,7 @@ from lothon.util.eve import *
 @dataclass(order=True, slots=True)
 class MesDaSorte(Loteria):
     """
-    Implementacao de classe para tratamento da logica e regras da produto Mes da Sorte.
+    Implementacao de classe para tratamento da logica e regras da modalidade Mes da Sorte.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------

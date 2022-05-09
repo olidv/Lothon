@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.produto
+   Package lothon.domain.modalidade
    Module  loteria.py
 
 """

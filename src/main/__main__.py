@@ -18,14 +18,14 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import settings
-from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas
+from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas, simular_jogos
 
 # ----------------------------------------------------------------------------
 # CONSTANTES
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "tabrc:"
+CMD_LINE_ARGS = "tabrsc:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -62,6 +62,7 @@ def print_usage():
           '  -a          Efetua analise dos dados de sorteios das loterias\n'
           '  -b          Gera boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
+          '  -s          Simula varios jogos para validar estrategias\n'
           '  -c <path>   Informa o path para os arquivos de configuracao\n')
 
 
@@ -89,6 +90,7 @@ opt_testes = False   # Flag para teste de funcionamento
 opt_anlise = False   # Flag para analise de dados dos sorteios
 opt_boloes = False   # Flag para geracao de boloes de apostas
 opt_result = False   # Flag para conferencia das apostas
+opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_cfpath = ''      # path para os arquivos de configuracao
 
 # identifica o comando/tarefa/job do Lothon a ser executado:
@@ -101,6 +103,8 @@ for opt, val in opts:
         opt_boloes = True
     elif opt == '-r':
         opt_result = True
+    elif opt == '-s':
+        opt_simula = True
     elif opt == '-c':
         opt_cfpath = val
 
@@ -166,6 +170,11 @@ elif opt_boloes:
 elif opt_result:
     logger.debug("Vai iniciar a conferencia das apostas com os resultados das loterias...")
     conferir_apostas.run()
+
+# Opcao para executar a simulacao de varios jogos para validar estrategias:
+elif opt_simula:
+    logger.debug("Vai iniciar a simulacao de varios jogos para validar estrategias...")
+    simular_jogos.run()
 
 # se a opcao de execucao fornecida na linha de comando nao foi reconhecida:
 else:

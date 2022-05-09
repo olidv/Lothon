@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.produto
+   Package lothon.domain.modalidade
    Module  quina.py
 
 """
@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from bs4.element import ResultSet
 
 # Own/Project modules
-from lothon.domain.produto.loteria import Loteria
+from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
@@ -30,7 +30,7 @@ from lothon.util.eve import *
 @dataclass(order=True, slots=True)
 class Quina(Loteria):
     """
-    Implementacao de classe para tratamento da logica e regras da produto Quina.
+    Implementacao de classe para tratamento da logica e regras da modalidade Quina.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------

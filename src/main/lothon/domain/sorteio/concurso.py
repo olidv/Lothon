@@ -15,7 +15,7 @@ from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.universo.numeral import Numeral
+from lothon.domain.basico.numeral import Numeral
 from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
 

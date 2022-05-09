@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.produto
+   Package lothon.domain.modalidade
    Module  time_do_coracao.py
 
 """
@@ -16,7 +16,7 @@ from bs4.element import ResultSet
 
 # Own/Project modules
 from lothon.conf import app_config
-from lothon.domain.produto.loteria import Loteria
+from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
@@ -30,7 +30,7 @@ from lothon.util.eve import *
 @dataclass(order=True, slots=True)
 class TimeDoCoracao(Loteria):
     """
-    Implementacao de classe para tratamento da logica e regras da produto Time do Coracao.
+    Implementacao de classe para tratamento da logica e regras da modalidade Time do Coracao.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------

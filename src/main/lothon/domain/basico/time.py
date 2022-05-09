@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.universo
+   Package lothon.domain.basico
    Module  time.py
 
 """

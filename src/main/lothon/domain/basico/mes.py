@@ -1,6 +1,6 @@
 """
-   Package lothon.domain.universo
-   Module  cor.py
+   Package lothon.domain.basico
+   Module  mes.py
 
 """
 
@@ -13,36 +13,43 @@ from enum import Enum
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.conf import app_config
 
 
 # ----------------------------------------------------------------------------
 # CLASSE ENUMERACAO
 # ----------------------------------------------------------------------------
 
-class Cor(Enum):
+class Mes(Enum):
     """
     Implementacao de classe para .
     """
 
     # --- VALORES ENUMERADOS -------------------------------------------------
-    BRANCA = 0
-    VERMELHA = 1
-    AMARELA = 2
-    VERDE = 3
-    MARROM = 4
-    AZUL = 5
-    ROSA = 6
-    PRETA = 7
-    CINZA = 8
-    LARANJA = 9
+    JANEIRO = 1
+    FEVEREIRO = 2
+    MARCO = 3
+    ABRIL = 4
+    MAIO = 5
+    JUNHO = 6
+    JULHO = 7
+    AGOSTO = 8
+    SETEMBRO = 9
+    OUTUBRO = 10
+    NOVEMBRO = 11
+    DEZEMBRO = 12
 
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def from_int(value: int):
+    def from_str(value: str):
         if value is not None:
-            return Cor(value % 10)
+            value = value.strip().lower()
+
+        if value in app_config.MAP_MESES.keys():
+            numero = app_config.MAP_MESES[value]
+            return Mes(numero)
         else:
-            raise ValueError(f"Valor invalido para criar instancia de Cor: {value}.")
+            raise ValueError(f"Valor invalido para criar instancia de Mes: {value}.")
 
     # ----------------------------------------------------------------------------

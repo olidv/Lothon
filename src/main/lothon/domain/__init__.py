@@ -9,22 +9,22 @@ from typing import Optional
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import app_config
-from .universo.numeral import Numeral
-from .universo.dezena import Dezena
-from .universo.jogo import Jogo
+from .basico.numeral import Numeral
+from .basico.dezena import Dezena
+from .basico.jogo import Jogo
 from .sorteio.bola import Bola
 from .sorteio.concurso import Concurso
-from .produto.loteria import Loteria
-from .produto.dia_de_sorte import DiaDeSorte
-from .produto.dupla_sena import DuplaSena
-from .produto.lotofacil import Lotofacil
-from .produto.lotomania import Lotomania
-from .produto.mega_sena import MegaSena
-from .produto.mes_da_sorte import MesDaSorte
-from .produto.quina import Quina
-from .produto.super_sete import SuperSete
-from .produto.time_do_coracao import TimeDoCoracao
-from .produto.timemania import Timemania
+from .modalidade.loteria import Loteria
+from .modalidade.dia_de_sorte import DiaDeSorte
+from .modalidade.dupla_sena import DuplaSena
+from .modalidade.lotofacil import Lotofacil
+from .modalidade.lotomania import Lotomania
+from .modalidade.mega_sena import MegaSena
+from .modalidade.mes_da_sorte import MesDaSorte
+from .modalidade.quina import Quina
+from .modalidade.super_sete import SuperSete
+from .modalidade.time_do_coracao import TimeDoCoracao
+from .modalidade.timemania import Timemania
 from .bilhete.cota import Cota
 from .bilhete.volante import Volante
 from .bilhete.bolao import Bolao

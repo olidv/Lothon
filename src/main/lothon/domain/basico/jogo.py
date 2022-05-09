@@ -1,5 +1,5 @@
 """
-   Package lothon.domain.universo
+   Package lothon.domain.basico
    Module  jogo.py
 
 """
@@ -13,14 +13,14 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.universo.numeral import Numeral
+from lothon.domain.basico.numeral import Numeral
 
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-@dataclass(frozen=True, order=True, slots=True)
+@dataclass(order=True, slots=True)
 class Jogo:
     """
     Implementacao de classe para .
@@ -38,6 +38,6 @@ class Jogo:
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __post_init__(self):
-        object.__setattr__(self, 'sort_index', self.id_jogo)
+        self.sort_index = self.id_jogo
 
 # ----------------------------------------------------------------------------
