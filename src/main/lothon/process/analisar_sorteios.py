@@ -19,7 +19,7 @@ from typing import Optional, Any
 # Own/Project modules
 # from lothon.conf import app_config
 from lothon import domain
-from lothon import infra
+from lothon.infra import parser_resultados
 from lothon.domain import Loteria
 from lothon.process import analyze
 from lothon.process.abstract_process import AbstractProcess
@@ -80,7 +80,7 @@ def run():
     # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     for key, value in loterias_caixa.items():
         logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
-        infra.parser_resultados.parse_concursos_loteria(value)
+        parser_resultados.parse_concursos_loteria(value)
     logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
 
     logger.debug("Inicializando a cadeia de processos para analise dos resultados...")

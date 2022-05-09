@@ -58,6 +58,8 @@ pip install -U scikit-learn
 pip install -U pingouin
 pip install -U jupyterlab
 pip install -U memory_profiler
+pip install -U plotext
+
 @echo off
 echo.
 
