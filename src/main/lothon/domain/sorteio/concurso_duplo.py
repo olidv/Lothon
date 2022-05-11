@@ -38,18 +38,13 @@ class ConcursoDuplo(Concurso):
         todas_bolas: list[Bola] = [*self.bolas, *self.bolas2]
         return sorted(todas_bolas, key=lambda b: b.ordem)
 
-    def check_premiacao(self, numeros: list[int] | tuple[int, ...]) -> Premio | None:
-        acertos1: int = 0
+    def check_premiacao2(self, numeros: list[int] | tuple[int, ...]) -> Premio | None:
         acertos2: int = 0
         for numero in numeros:
-            if any(item for item in self.bolas if item.id_bola == numero):
-                acertos1 += 1
             if any(item for item in self.bolas2 if item.id_bola == numero):
                 acertos2 += 1
 
-        if acertos1 in self.premios:
-            return self.premios[acertos1]
-        elif acertos2 in self.premios2:
+        if acertos2 in self.premios2:
             return self.premios2[acertos2]
         else:
             return None

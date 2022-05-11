@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -38,7 +38,7 @@ class Jogo:
     # --- INICIALIZACAO ------------------------------------------------------
 
     # def __post_init__(self):
-        # self.qtd_numeros = len(self.numeros)
-        # self.sort_index = self.id_jogo
+    # self.qtd_numeros = len(self.numeros)
+    # self.sort_index = self.id_jogo
 
 # ----------------------------------------------------------------------------

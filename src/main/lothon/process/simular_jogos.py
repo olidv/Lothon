@@ -114,8 +114,9 @@ def run():
     boloes: dict[int, int] = {6: 80, 7: 24, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
     media5: float = 0.00
     mediax: float = 0.00
+    qtdmed: int = 2
 
-    for _ in range(0, 100):
+    for _ in range(0, qtdmed):
         premios5: float = 0.00
         premiosx: float = 0.00
 
@@ -149,8 +150,8 @@ def run():
         media5 += premios5
         mediax += premiosx
 
-    media5 = media5 / 100
-    mediax = mediax / 100
+    media5 = media5 / qtdmed
+    mediax = mediax / qtdmed
 
     print(f"\n\n Comparando apostas de 5 dezenas com boloes de X dezenas:")
     print(f"\t\t Premios para 5 dezenas = {media5:,.2f}")
