@@ -12,8 +12,10 @@ from lothon.conf import app_config
 from .basico.numeral import Numeral
 from .basico.dezena import Dezena
 from .basico.jogo import Jogo
+from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
 from .sorteio.concurso import Concurso
+from .sorteio.premio import Premio
 from .modalidade.loteria import Loteria
 from .modalidade.dia_de_sorte import DiaDeSorte
 from .modalidade.dupla_sena import DuplaSena
@@ -30,6 +32,17 @@ from .bilhete.volante import Volante
 from .bilhete.bolao import Bolao
 from .bilhete.faixa import Faixa
 # from lothon.util.eve import *
+
+
+# ----------------------------------------------------------------------------
+# ESTRUTURA DE DADOS
+# ----------------------------------------------------------------------------
+
+#
+def new_loteria_struct() -> LoteriaStruct:
+    jogos: list[tuple[int, ...]] = []
+    fatores: list[int] = []
+    return LoteriaStruct(jogos, fatores)
 
 
 # ----------------------------------------------------------------------------

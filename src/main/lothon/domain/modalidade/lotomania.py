@@ -43,16 +43,16 @@ class Lotomania(Loteria):
         id_concurso: int = int(td[0].text)
         data_sorteio: date = parse_dmy(td[1].text)
 
-        bolas_sorteadas: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
-                                       Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
-                                       Bola(int(td[6].text), 5), Bola(int(td[7].text), 6),
-                                       Bola(int(td[8].text), 7), Bola(int(td[9].text), 8),
-                                       Bola(int(td[10].text), 9), Bola(int(td[11].text), 10),
-                                       Bola(int(td[12].text), 11), Bola(int(td[13].text), 12),
-                                       Bola(int(td[14].text), 13), Bola(int(td[15].text), 14),
-                                       Bola(int(td[16].text), 15), Bola(int(td[17].text), 16),
-                                       Bola(int(td[18].text), 17), Bola(int(td[19].text), 18),
-                                       Bola(int(td[20].text), 19), Bola(int(td[21].text), 20)]
+        bolas: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
+                             Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
+                             Bola(int(td[6].text), 5), Bola(int(td[7].text), 6),
+                             Bola(int(td[8].text), 7), Bola(int(td[9].text), 8),
+                             Bola(int(td[10].text), 9), Bola(int(td[11].text), 10),
+                             Bola(int(td[12].text), 11), Bola(int(td[13].text), 12),
+                             Bola(int(td[14].text), 13), Bola(int(td[15].text), 14),
+                             Bola(int(td[16].text), 15), Bola(int(td[17].text), 16),
+                             Bola(int(td[18].text), 17), Bola(int(td[19].text), 18),
+                             Bola(int(td[20].text), 19), Bola(int(td[21].text), 20)]
 
         premios: dict[int, Premio] = {20: Premio(20, int(td[23].text), parse_money(td[31].text)),
                                       19: Premio(19, int(td[26].text), parse_money(td[32].text)),
@@ -61,7 +61,7 @@ class Lotomania(Loteria):
                                       16: Premio(16, int(td[29].text), parse_money(td[35].text)),
                                       15: Premio(15, int(td[30].text), parse_money(td[36].text))}
 
-        return Concurso(id_concurso, data_sorteio, bolas_sorteadas=bolas_sorteadas, premios=premios)
+        return Concurso(id_concurso, data_sorteio, bolas=bolas, premios=premios)
 
     # --- METODOS STATIC -----------------------------------------------------
 

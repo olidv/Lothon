@@ -17,6 +17,7 @@ from bs4.element import ResultSet
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
+from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
@@ -50,15 +51,15 @@ class MesDaSorte(Loteria):
         data_sorteio: date = parse_dmy(td[2].text)
 
         mes = td[10].text.strip().lower()
-        if mes in app_config.MAP_MESES.keys():
-            mes_sorteado = app_config.MAP_MESES[mes]
-        else:
+        if mes not in app_config.MAP_MESES.keys():
             raise ValueError(f"*** ATENCAO: MES-DA-SORTE NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {mes} ***")
 
+        bolas: list[Bola] = [Bola(app_config.MAP_MESES[mes], 1)]
+
         premios: dict[int, Premio] = {1: Premio(1, int(td[15].text), parse_money(td[20].text))}
 
-        return Concurso(id_concurso, data_sorteio, numeral_sorteado=mes_sorteado, premios=premios)
+        return Concurso(id_concurso, data_sorteio, bolas=bolas, premios=premios)
 
     # --- METODOS STATIC -----------------------------------------------------
 

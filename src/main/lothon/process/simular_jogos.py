@@ -10,8 +10,12 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+import itertools as itt
+import math
+import random
 import logging
 from typing import Optional, Any
+from collections import namedtuple
 
 # Libs/Frameworks modules
 # from memory_profiler import profile
@@ -20,7 +24,7 @@ from typing import Optional, Any
 # from lothon.conf import app_config
 from lothon import domain
 from lothon.infra import parser_resultados
-from lothon.domain import Loteria
+from lothon.domain import Loteria, Jogo, Numeral, LoteriaStruct, Premio
 from lothon.process import simulate
 from lothon.process.abstract_process import AbstractProcess
 from lothon.stats import combinatoria as comb
@@ -51,8 +55,20 @@ options: dict[str: Any] = {}
 def invoke_process(proc: AbstractProcess):
     # configura o processo antes,
     proc.init(options)
+
     # e depois executa a analise:
     proc.execute(loterias_caixa)
+
+
+#
+def sortear_bolas(qtd_bolas: int, qtd_bolas_sorteadas: int) -> list[int]:
+    list_sorteio: list[int] = []
+    while len(list_sorteio) < qtd_bolas_sorteadas:
+        bola = random.randint(1, qtd_bolas)
+        if bola not in list_sorteio:
+            list_sorteio.append(bola)
+
+    return list_sorteio
 
 
 # ----------------------------------------------------------------------------
@@ -90,8 +106,74 @@ def run():
     # for proc in process_chain:
     #     invoke_process(proc)
 
-    mega_sena_total = comb.qtd_combinacoes(60, 6)
-    print(mega_sena_total)
+    # BolaoStruct = namedtuple('BolaoStruct', 'bolas jogos premios')
+
+    lot_quina = loterias_caixa["quina"]
+    parser_resultados.parse_concursos_loteria(lot_quina)
+
+    boloes: dict[int, int] = {6: 80, 7: 24, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
+    media5: float = 0.00
+    mediax: float = 0.00
+
+    for _ in range(0, 100):
+        premios5: float = 0.00
+        premiosx: float = 0.00
+
+        for qtd_dezenas, qtd_apostas in boloes.items():
+            # gera os jogos para a quantidade de dezenas em cada bolao:
+            bolao5: list[list[int]] = []
+            qtd_jogos5 = math.comb(qtd_dezenas, 5) * qtd_apostas
+            for i in range(0, qtd_jogos5):
+                bolao5.append(sortear_bolas(80, 5))
+
+            bolaox: list[list[int]] = []
+            for i in range(0, qtd_apostas):
+                bolaox.append(sortear_bolas(80, qtd_dezenas))
+
+            # confere os jogos com os concursos da quina:
+            for concurso in lot_quina.concursos:
+                # confere os boloes de 5 jogos
+                for jogo5 in bolao5:
+                    premio = concurso.check_premiacao(jogo5)
+                    if premio is not None:
+                        premios5 += premio.premio
+
+                # confere os boloes de x jogos
+                for jogox in bolaox:
+                    # gera as combinacoes de 5 dezenas para cada jogo com x dezenas:
+                    for jogo5 in itt.combinations(jogox, 5):
+                        premio = concurso.check_premiacao(jogo5)
+                        if premio is not None:
+                            premiosx += premio.premio
+
+        media5 += premios5
+        mediax += premiosx
+
+    media5 = media5 / 100
+    mediax = mediax / 100
+
+    print(f"\n\n Comparando apostas de 5 dezenas com boloes de X dezenas:")
+    print(f"\t\t Premios para 5 dezenas = {media5:,.2f}")
+    print(f"\t\t Premios para X dezenas = {mediax:,.2f}")
+
+    # idx = 0
+    # megasena_struct: LoteriaStruct = domain.new_loteria_struct()
+    # for numeros in itt.combinations(range(1, 61), 6):
+    #     megasena_struct.jogos.append(numeros)
+    #     megasena_struct.fatores.append(1)
+    #     idx += 1
+    #     if idx % 1000 == 0:
+    #         print("indice = ", idx)
+    #     if idx > 1000000:
+    #         break
+    #
+    # del megasena_struct.jogos[2]
+    # del megasena_struct.jogos[20]
+    # del megasena_struct.fatores[2]
+    # del megasena_struct.fatores[20]
+    # print(f"megasena_struct.jogos = {len(megasena_struct.jogos)}")
+    # print(f"megasena_struct.fatores = {len(megasena_struct.fatores)}")
+
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     logger.info("Finalizada a analise dos dados de sorteios das loterias.")
     return 0

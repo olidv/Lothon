@@ -43,10 +43,10 @@ class Timemania(Loteria):
         id_concurso: int = int(td[0].text)
         data_sorteio: date = parse_dmy(td[1].text)
 
-        bolas_sorteadas: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
-                                       Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
-                                       Bola(int(td[6].text), 5), Bola(int(td[7].text), 6),
-                                       Bola(int(td[8].text), 7)]
+        bolas: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
+                             Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
+                             Bola(int(td[6].text), 5), Bola(int(td[7].text), 6),
+                             Bola(int(td[8].text), 7)]
 
         premios: dict[int, Premio] = {7: Premio(7, int(td[11].text), parse_money(td[18].text)),
                                       6: Premio(6, int(td[13].text), parse_money(td[19].text)),
@@ -54,7 +54,7 @@ class Timemania(Loteria):
                                       4: Premio(4, int(td[15].text), parse_money(td[21].text)),
                                       3: Premio(3, int(td[16].text), parse_money(td[22].text))}
 
-        return Concurso(id_concurso, data_sorteio, bolas_sorteadas=bolas_sorteadas, premios=premios)
+        return Concurso(id_concurso, data_sorteio, bolas=bolas, premios=premios)
 
     # --- METODOS STATIC -----------------------------------------------------
 

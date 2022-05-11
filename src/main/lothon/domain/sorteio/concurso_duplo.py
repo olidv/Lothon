@@ -9,13 +9,13 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from datetime import date
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
+from lothon.domain.sorteio.concurso import Concurso
 
 
 # ----------------------------------------------------------------------------
@@ -23,37 +23,34 @@ from lothon.domain.sorteio.premio import Premio
 # ----------------------------------------------------------------------------
 
 @dataclass(frozen=True, order=True, slots=True)
-class Concurso:
+class ConcursoDuplo(Concurso):
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    id_concurso: int
-    data_sorteio: date
-    bolas: list[Bola]
-    premios: dict[int, Premio]
-
-    sort_index: int = field(init=False, repr=False)
-
-    # --- INICIALIZACAO ------------------------------------------------------
-
-    def __post_init__(self):
-        object.__setattr__(self, 'sort_index', self.id_concurso)
+    bolas2: list[Bola]
+    premios2: dict[int, Premio]
 
     # --- METODOS ------------------------------------------------------------
 
     def bolas_ordenadas(self) -> list[Bola]:
-        return sorted(self.bolas, key=lambda b: b.ordem)
+        todas_bolas: list[Bola] = [*self.bolas, *self.bolas2]
+        return sorted(todas_bolas, key=lambda b: b.ordem)
 
     def check_premiacao(self, numeros: list[int] | tuple[int, ...]) -> Premio | None:
-        acertos: int = 0
+        acertos1: int = 0
+        acertos2: int = 0
         for numero in numeros:
             if any(item for item in self.bolas if item.id_bola == numero):
-                acertos += 1
+                acertos1 += 1
+            if any(item for item in self.bolas2 if item.id_bola == numero):
+                acertos2 += 1
 
-        if acertos in self.premios:
-            return self.premios[acertos]
+        if acertos1 in self.premios:
+            return self.premios[acertos1]
+        elif acertos2 in self.premios2:
+            return self.premios2[acertos2]
         else:
             return None
 

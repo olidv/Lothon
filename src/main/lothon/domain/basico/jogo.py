@@ -13,14 +13,13 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.basico.numeral import Numeral
 
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-@dataclass(order=True, slots=True)
+@dataclass(slots=True)  # order=True, slots=True)
 class Jogo:
     """
     Implementacao de classe para .
@@ -28,16 +27,18 @@ class Jogo:
 
     # --- PROPRIEDADES -------------------------------------------------------
     id_jogo: int
-    numeros: list[Numeral]
-    escala: int
-    fator: int
-    metrica: int
+    numeros: tuple[int, ...]
+    # qtd_numeros: int = field(init=False)
+    # escala: int = 0
+    fator: int = 0
+    # metrica: int = 0
 
-    sort_index: int = field(init=False, repr=False)
+    # sort_index: int = field(init=False, repr=False)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __post_init__(self):
-        self.sort_index = self.id_jogo
+    # def __post_init__(self):
+        # self.qtd_numeros = len(self.numeros)
+        # self.sort_index = self.id_jogo
 
 # ----------------------------------------------------------------------------
