@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain .basico.numeral import Numeral
 
 
 # ----------------------------------------------------------------------------
@@ -28,7 +27,7 @@ class Volante:
 
     # --- PROPRIEDADES -------------------------------------------------------
     id_volante: int
-    numeros: list[Numeral]
+    numeros: tuple[int, ...]
     qtd_numeros: int
     valor_aposta: float
 

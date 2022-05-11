@@ -18,7 +18,6 @@ from bs4.element import ResultSet
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso_duplo import ConcursoDuplo
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
 from lothon.util.eve import *
@@ -45,10 +44,10 @@ class Timemania(Loteria):
         data_sorteio: date = parse_dmy(td[1].text)
 
         # Primeiro sorteio, 7 bolas:
-        bolas1: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
-                              Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
-                              Bola(int(td[6].text), 5), Bola(int(td[7].text), 6),
-                              Bola(int(td[8].text), 7)]
+        bolas1: tuple[int, ...] = (int(td[2].text), int(td[3].text),
+                                   int(td[4].text), int(td[5].text),
+                                   int(td[6].text), int(td[7].text),
+                                   int(td[8].text))
 
         premios1: dict[int, Premio] = {7: Premio(7, int(td[11].text), parse_money(td[18].text)),
                                        6: Premio(6, int(td[13].text), parse_money(td[19].text)),
@@ -64,7 +63,7 @@ class Timemania(Loteria):
             raise ValueError(f"*** ATENCAO: TIME-DO-CORACAO NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {time} ***")
 
-        bolas2: list[Bola] = [Bola(app_config.MAP_TIMES[time], 1)]
+        bolas2: tuple[int, ...] = (app_config.MAP_TIMES[time])
 
         premios2: dict[int, Premio] = {1: Premio(1, int(td[17].text), parse_money(td[23].text))}
 

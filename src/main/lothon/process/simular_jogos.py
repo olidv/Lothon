@@ -94,12 +94,12 @@ def run():
                       "timedocoracao": domain.get_time_do_coracao()}
     logger.debug("Criadas instancias das loterias para processamento.")
 
-    # # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    # for key, value in loterias_caixa.items():
-    #     logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
-    #     parser_resultados.parse_concursos_loteria(value)
-    # logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
-    #
+    # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
+    for key, value in loterias_caixa.items():
+        logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
+        parser_resultados.parse_concursos_loteria(value)
+    logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
+
     # logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
     # process_chain = simulate.get_process_chain()
     # # Efetua a execução de cada processo de análise:
@@ -114,7 +114,7 @@ def run():
     boloes: dict[int, int] = {6: 80, 7: 24, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
     media5: float = 0.00
     mediax: float = 0.00
-    qtdmed: int = 2
+    qtdmed: int = 1
 
     for _ in range(0, qtdmed):
         premios5: float = 0.00

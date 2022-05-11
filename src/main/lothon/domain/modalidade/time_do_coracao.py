@@ -17,7 +17,6 @@ from bs4.element import ResultSet
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
@@ -57,7 +56,7 @@ class TimeDoCoracao(Loteria):
             raise ValueError(f"*** ATENCAO: TIME-DO-CORACAO NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {time} ***")
 
-        bolas: list[Bola] = [Bola(app_config.MAP_TIMES[time], 1)]
+        bolas: tuple[int, ...] = (app_config.MAP_TIMES[time])
 
         premios: dict[int, Premio] = {1: Premio(1, int(td[17].text), parse_money(td[23].text))}
 

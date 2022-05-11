@@ -17,7 +17,6 @@ from bs4.element import ResultSet
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
@@ -55,7 +54,7 @@ class MesDaSorte(Loteria):
             raise ValueError(f"*** ATENCAO: MES-DA-SORTE NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {mes} ***")
 
-        bolas: list[Bola] = [Bola(app_config.MAP_MESES[mes], 1)]
+        bolas: tuple[int, ...] = (app_config.MAP_MESES[mes])
 
         premios: dict[int, Premio] = {1: Premio(1, int(td[15].text), parse_money(td[20].text))}
 

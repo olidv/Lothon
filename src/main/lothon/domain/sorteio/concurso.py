@@ -14,7 +14,6 @@ from dataclasses import dataclass, field
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
 
 
@@ -31,7 +30,7 @@ class Concurso:
     # --- PROPRIEDADES -------------------------------------------------------
     id_concurso: int
     data_sorteio: date
-    bolas: list[Bola]
+    bolas: tuple[int, ...]
     premios: dict[int, Premio]
 
     sort_index: int = field(init=False, repr=False)
@@ -43,13 +42,13 @@ class Concurso:
 
     # --- METODOS ------------------------------------------------------------
 
-    def bolas_ordenadas(self) -> list[Bola]:
-        return sorted(self.bolas, key=lambda b: b.ordem)
+    def bolas_ordenadas(self) -> tuple[int, ...]:
+        return tuple(sorted(self.bolas))
 
-    def check_premiacao(self, numeros: list[int] | tuple[int, ...]) -> Premio | None:
+    def check_premiacao(self, numeros: tuple[int, ...]) -> Premio | None:
         acertos: int = 0
         for numero in numeros:
-            if any(item for item in self.bolas if item.id_bola == numero):
+            if any(bola for bola in self.bolas if bola == numero):
                 acertos += 1
 
         if acertos in self.premios:

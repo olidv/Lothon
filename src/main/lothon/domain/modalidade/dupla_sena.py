@@ -17,7 +17,6 @@ from bs4.element import ResultSet
 # Own/Project modules
 from lothon.domain.modalidade.loteria import Loteria
 from lothon.domain.sorteio.concurso_duplo import ConcursoDuplo
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
 from lothon.util.eve import *
@@ -43,13 +42,13 @@ class DuplaSena(Loteria):
         id_concurso: int = int(td[0].text)
         data_sorteio: date = parse_dmy(td[1].text)
 
-        bolas1: list[Bola] = [Bola(int(td[2].text), 1), Bola(int(td[3].text), 2),
-                              Bola(int(td[4].text), 3), Bola(int(td[5].text), 4),
-                              Bola(int(td[6].text), 5), Bola(int(td[7].text), 6)]
+        bolas1: tuple[int, ...] = (int(td[2].text), int(td[3].text),
+                                   int(td[4].text), int(td[5].text),
+                                   int(td[6].text), int(td[7].text))
 
-        bolas2: list[Bola] = [Bola(int(td[20].text), 1), Bola(int(td[21].text), 2),
-                              Bola(int(td[22].text), 3), Bola(int(td[23].text), 4),
-                              Bola(int(td[24].text), 5), Bola(int(td[25].text), 6)]
+        bolas2: tuple[int, ...] = (int(td[20].text), int(td[21].text),
+                                   int(td[22].text), int(td[23].text),
+                                   int(td[24].text), int(td[25].text))
 
         premios1: dict[int, Premio] = {16: Premio(6, int(td[9].text), parse_money(td[11].text)),
                                        15: Premio(5, int(td[14].text), parse_money(td[15].text)),

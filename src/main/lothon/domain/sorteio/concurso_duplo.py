@@ -13,7 +13,6 @@ from dataclasses import dataclass
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain.sorteio.bola import Bola
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.sorteio.concurso import Concurso
 
@@ -29,19 +28,18 @@ class ConcursoDuplo(Concurso):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    bolas2: list[Bola]
+    bolas2: tuple[int, ...]
     premios2: dict[int, Premio]
 
     # --- METODOS ------------------------------------------------------------
 
-    def bolas_ordenadas(self) -> list[Bola]:
-        todas_bolas: list[Bola] = [*self.bolas, *self.bolas2]
-        return sorted(todas_bolas, key=lambda b: b.ordem)
+    def bolas2_ordenadas(self) -> tuple[int, ...]:
+        return tuple(sorted(self.bolas2))
 
-    def check_premiacao2(self, numeros: list[int] | tuple[int, ...]) -> Premio | None:
+    def check_premiacao2(self, numeros: tuple[int, ...]) -> Premio | None:
         acertos2: int = 0
         for numero in numeros:
-            if any(item for item in self.bolas2 if item.id_bola == numero):
+            if any(bola for bola in self.bolas2 if bola == numero):
                 acertos2 += 1
 
         if acertos2 in self.premios2:
