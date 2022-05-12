@@ -10,10 +10,10 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import itertools as itt
 import math
 import random
 import logging
+import itertools as itt
 from typing import Optional, Any
 from collections import namedtuple
 
@@ -24,7 +24,7 @@ from collections import namedtuple
 # from lothon.conf import app_config
 from lothon import domain
 from lothon.infra import parser_resultados
-from lothon.domain import Loteria, Jogo, Numeral, LoteriaStruct, Premio
+from lothon.domain import Loteria, Concurso, Jogo, Numeral, LoteriaStruct, Premio
 from lothon.process import simulate
 from lothon.process.abstract_process import AbstractProcess
 from lothon.stats import combinatoria as comb
@@ -61,14 +61,22 @@ def invoke_process(proc: AbstractProcess):
 
 
 #
-def sortear_bolas(qtd_bolas: int, qtd_bolas_sorteadas: int) -> list[int]:
-    list_sorteio: list[int] = []
-    while len(list_sorteio) < qtd_bolas_sorteadas:
-        bola = random.randint(1, qtd_bolas)
-        if bola not in list_sorteio:
-            list_sorteio.append(bola)
+def sortear_bolas(set_bolas: int, qtd_bolas_sorteadas: int) -> tuple[int, ...]:
+    bolas: tuple[int, ...] = ()
+    count: int = 0
+    while count < qtd_bolas_sorteadas:
+        bola = random.randint(1, set_bolas)
+        if bola not in bolas:
+            bolas = bolas + (bola,)
+            count += 1
 
-    return list_sorteio
+    return bolas
+
+
+#
+def gerar_jogos(set_bolas: int, qtd_bolas_sorteadas: int, qtd_jogos_gerados: int,
+                concursos_passados: list[Concurso]) -> list[tuple[int, ...]]:
+    return []
 
 
 # ----------------------------------------------------------------------------
@@ -82,22 +90,17 @@ def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
-    loterias_caixa = {"diadesorte": domain.get_dia_de_sorte(),
-                      "duplasena": domain.get_dupla_sena(),
-                      "lotofacil": domain.get_lotofacil(),
+    loterias_caixa = {"quina": domain.get_quina(),
                       "megasena": domain.get_mega_sena(),
-                      "quina": domain.get_quina(),
-                      "supersete": domain.get_super_sete(),
-                      "lotomania": domain.get_lotomania(),
-                      "timemania": domain.get_timemania(),
-                      "mesdasorte": domain.get_mes_da_sorte(),
-                      "timedocoracao": domain.get_time_do_coracao()}
+                      "duplasena": domain.get_dupla_sena(),
+                      "diadesorte": domain.get_dia_de_sorte(),
+                      "lotofacil": domain.get_lotofacil()}
     logger.debug("Criadas instancias das loterias para processamento.")
 
     # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    for key, value in loterias_caixa.items():
-        logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
-        parser_resultados.parse_concursos_loteria(value)
+    # for key, value in loterias_caixa.items():
+    #    logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
+    #    parser_resultados.parse_concursos_loteria(value)
     logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
 
     # logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
@@ -105,8 +108,6 @@ def run():
     # # Efetua a execução de cada processo de análise:
     # for proc in process_chain:
     #     invoke_process(proc)
-
-    # BolaoStruct = namedtuple('BolaoStruct', 'bolas jogos premios')
 
     lot_quina = loterias_caixa["quina"]
     parser_resultados.parse_concursos_loteria(lot_quina)
@@ -120,19 +121,23 @@ def run():
         premios5: float = 0.00
         premiosx: float = 0.00
 
-        for qtd_dezenas, qtd_apostas in boloes.items():
-            # gera os jogos para a quantidade de dezenas em cada bolao:
-            bolao5: list[list[int]] = []
-            qtd_jogos5 = math.comb(qtd_dezenas, 5) * qtd_apostas
-            for i in range(0, qtd_jogos5):
-                bolao5.append(sortear_bolas(80, 5))
+        # concursos passados sao usados para gerar novos jogos:
+        concursos_passados: list[Concurso] = []
 
-            bolaox: list[list[int]] = []
-            for i in range(0, qtd_apostas):
-                bolaox.append(sortear_bolas(80, qtd_dezenas))
+        # confere os jogos com os concursos da quina:
+        for concurso in lot_quina.concursos:
+            # para cada concurso, faz a comparacao entre jogos simples e com boloes:
+            for qtd_dezenas, qtd_apostas in boloes.items():
+                # gera os jogos simples, sem bolao:
+                bolao5: list[tuple[int, ...]] = []
+                qtd_jogos5 = math.comb(qtd_dezenas, 5) * qtd_apostas
+                for i in range(0, qtd_jogos5):
+                    bolao5.append(sortear_bolas(80, 5))
 
-            # confere os jogos com os concursos da quina:
-            for concurso in lot_quina.concursos:
+                # gera os jogos para os boloes, usando analise estatistica:
+                bolaox: list[tuple[int, ...]] = gerar_jogos(80, qtd_dezenas, qtd_apostas,
+                                                            concursos_passados)
+
                 # confere os boloes de 5 jogos
                 for jogo5 in bolao5:
                     premio = concurso.check_premiacao(jogo5)
@@ -146,6 +151,9 @@ def run():
                         premio = concurso.check_premiacao(jogo5)
                         if premio is not None:
                             premiosx += premio.premio
+
+            # este concurso sera usado como base para o proximo concurso:
+            concursos_passados.append(concurso)
 
         media5 += premios5
         mediax += premiosx

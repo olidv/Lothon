@@ -61,7 +61,7 @@ class AbstractProcess(ABC):
         self.options = options
 
     @abstractmethod
-    def execute(self, payload) -> None:
+    def execute(self, payload) -> int:
         pass
 
 # ----------------------------------------------------------------------------

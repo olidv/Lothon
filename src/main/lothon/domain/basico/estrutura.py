@@ -25,4 +25,7 @@ LoteriaStruct = namedtuple('LoteriaStruct', 'jogos fatores')
 #
 PremiacaoStruct = namedtuple('PremiacaoStruct', 'acertos premio')
 
+#
+BolaoStruct = namedtuple('BolaoStruct', 'bolas jogos premios')
+
 # ----------------------------------------------------------------------------
