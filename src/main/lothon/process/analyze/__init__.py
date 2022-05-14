@@ -27,8 +27,8 @@ def get_process_chain() -> list[AbstractProcess]:
     global _process_chain
     if len(_process_chain) == 0:
         # _process_chain.append(AnaliseParidade())
-        # _process_chain.append(AnaliseRepetencia())
-        _process_chain.append(AnaliseSequencia())
+        # _process_chain.append(AnaliseSequencia())
+        _process_chain.append(AnaliseRepetencia())
 
     return _process_chain
 

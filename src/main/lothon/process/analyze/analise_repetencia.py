@@ -71,12 +71,37 @@ class AnaliseRepetencia(AbstractProcess):
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
-        print("eh duplo? ", eh_duplo)
         if eh_duplo:
-            qtd_sorteios: int = 2 * len(concursos)
+            fator_sorteios: int = 2
         else:
-            qtd_sorteios: int = len(concursos)
+            fator_sorteios: int = 1
+
+            # efetua analise de todas as combinacoes de jogos da loteria:
+            qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
+            logger.debug(
+                "%s: Executando analise de repetencia dos  %d  jogos combinados da loteria.",
+                payload.nome_loteria, qtd_jogos)
+
+            # zera os contadores de cada sequencia:
+            repetencia_jogos: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
+            percentos_jogos: dict[int, float] = self.new_dict_float(payload.qtd_bolas_sorteio)
+
+            # contabiliza repetencias de cada combinacao de jogo com cada sorteio ja realizado:
+            range_jogos: range = range(1, payload.qtd_bolas + 1)
+            for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+                qt_sequencias = count_sequencias(jogo)
+                sequencias_jogos[qt_sequencias] += 1
+
+            # printa o resultado:
+            output: str = f"\n\t ? SEGUIDO  PERC%     #TOTAL\n"
+            for key, value in sequencias_jogos.items():
+                percent: float = round((value / qtd_jogos) * 1000) / 10
+                percentos_jogos[key] = percent
+                output += f"\t {key} seguido: {percent:0>4.1f}% ... #{value:,}\n"
+            logger.debug("Sequencias Resultantes: %s \n", output)
+
         logger.debug("%s: Executando analise de repetencia nos  %d  sorteios da loteria.",
                      payload.nome_loteria, qtd_sorteios)
 
