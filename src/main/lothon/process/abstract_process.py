@@ -64,4 +64,22 @@ class AbstractProcess(ABC):
     def execute(self, payload) -> int:
         pass
 
+    # --- METODOS STATIC -----------------------------------------------------
+
+    @staticmethod
+    def new_dict_int(qtd_keys: int) -> dict[int, int]:
+        dict_zerado: dict[int, int] = {}
+        for i in range(0, qtd_keys+1):
+            dict_zerado[i] = 0
+
+        return dict_zerado
+
+    @staticmethod
+    def new_dict_float(qtd_keys: int) -> dict[int, float]:
+        dict_zerado: dict[int, float] = {}
+        for i in range(0, qtd_keys+1):
+            dict_zerado[i] = 0.0
+
+        return dict_zerado
+
 # ----------------------------------------------------------------------------
