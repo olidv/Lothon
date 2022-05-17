@@ -28,20 +28,6 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
-
-#
-def count_pares(bolas: tuple[int, ...]) -> int:
-    qtd_pares: int = 0
-    for bola in bolas:
-        if (bola % 2) == 0:
-            qtd_pares += 1
-
-    return qtd_pares
-
-
-# ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
@@ -58,7 +44,22 @@ class AnaliseParidade(AbstractProcess):
     def __init__(self):
         super().__init__("Analise de Paridade das Dezenas")
 
-    # --- METODOS ------------------------------------------------------------
+    # --- METODOS STATIC -----------------------------------------------------
+
+    @staticmethod
+    def count_pares(bolas: tuple[int, ...]) -> int:
+        # valida os parametros:
+        if bolas is None or len(bolas) == 0:
+            return 0
+
+        qtd_pares: int = 0
+        for bola in bolas:
+            if (bola % 2) == 0:
+                qtd_pares += 1
+
+        return qtd_pares
+
+    # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -73,6 +74,7 @@ class AnaliseParidade(AbstractProcess):
             fator_sorteios: int = 2
         else:
             fator_sorteios: int = 1
+        # qtd_sorteios: int = qtd_concursos * fator_sorteios
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
@@ -86,7 +88,7 @@ class AnaliseParidade(AbstractProcess):
         # contabiliza pares (e impares) de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            qtd_pares = count_pares(jogo)
+            qtd_pares = self.count_pares(jogo)
             paridades_jogos[qtd_pares] += 1
 
         # printa o resultado:
@@ -95,7 +97,7 @@ class AnaliseParidade(AbstractProcess):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
             output += f"\t {key} pares: {percent:0>4.1f}% ... #{value:,}\n"
-        logger.debug("Paridades Resultantes: %s \n", output)
+        logger.debug("Paridades Resultantes: %s", output)
 
         #
         logger.debug("%s: Executando analise EVOLUTIVA de paridade dos  %d  concursos da loteria.",
@@ -112,20 +114,20 @@ class AnaliseParidade(AbstractProcess):
 
             # calcula a paridade dos concursos passados até o concurso anterior:
             for concurso_passado in concursos_passados:
-                qtd_pares_passado = count_pares(concurso_passado.bolas)
+                qtd_pares_passado = self.count_pares(concurso_passado.bolas)
                 paridades_passados[qtd_pares_passado] += 1
                 # verifica se o concurso eh duplo (dois sorteios):
                 if eh_duplo:
-                    qtd_pares_passado = count_pares(concurso_passado.bolas2)
+                    qtd_pares_passado = self.count_pares(concurso_passado.bolas2)
                     paridades_passados[qtd_pares_passado] += 1
 
             # calcula a paridade do concurso atual para comparar a evolucao:
-            qtd_pares_atual = count_pares(concurso_atual.bolas)
+            qtd_pares_atual = self.count_pares(concurso_atual.bolas)
             str_pares_atual = str(qtd_pares_atual)
             list6_paridades.append(qtd_pares_atual)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
-                qtd_pares2_atual = count_pares(concurso_atual.bolas2)
+                qtd_pares2_atual = self.count_pares(concurso_atual.bolas2)
                 str_pares_atual += '/' + str(qtd_pares2_atual)
                 list6_paridades.append(qtd_pares2_atual)
             # soh mantem os ultimos 6 pares:
@@ -141,7 +143,7 @@ class AnaliseParidade(AbstractProcess):
                                  / 10
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key} pares: {percent:0>4.1f}% ... {dif:5.1f}%\n"
-            logger.debug("Paridades Resultantes EVOLUTIVA: %s", output)
+            logger.debug("Paridades Resultantes da EVOLUTIVA: %s", output)
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

@@ -28,29 +28,6 @@ logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES HELPERS
-# ----------------------------------------------------------------------------
-
-#
-def count_sequencias(bolas: tuple[int, ...]) -> int:
-    # valida os parametros:
-    if bolas is None or len(bolas) == 0:
-        return 0
-
-    # eh preciso ordenar a tupla para verificar se ha sequencia:
-    bolas: tuple[int, ...] = tuple(sorted(bolas))
-
-    qtd_sequencias: int = 0
-    seq_anterior: int = -1
-    for num in bolas:
-        if num == seq_anterior:
-            qtd_sequencias += 1
-        seq_anterior = num + 1
-
-    return qtd_sequencias
-
-
-# ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
@@ -67,7 +44,27 @@ class AnaliseSequencia(AbstractProcess):
     def __init__(self):
         super().__init__("Analise de Sequência nos Concursos")
 
-    # --- METODOS ------------------------------------------------------------
+    # --- METODOS STATIC -----------------------------------------------------
+
+    @staticmethod
+    def count_sequencias(bolas: tuple[int, ...]) -> int:
+        # valida os parametros:
+        if bolas is None or len(bolas) == 0:
+            return 0
+
+        # eh preciso ordenar a tupla para verificar se ha sequencia:
+        bolas: tuple[int, ...] = tuple(sorted(bolas))
+
+        qtd_sequencias: int = 0
+        seq_anterior: int = -1
+        for num in bolas:
+            if num == seq_anterior:
+                qtd_sequencias += 1
+            seq_anterior = num + 1
+
+        return qtd_sequencias
+
+    # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -82,6 +79,7 @@ class AnaliseSequencia(AbstractProcess):
             fator_sorteios: int = 2
         else:
             fator_sorteios: int = 1
+        # qtd_sorteios: int = qtd_concursos * fator_sorteios
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
@@ -95,7 +93,7 @@ class AnaliseSequencia(AbstractProcess):
         # contabiliza sequencias de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            qt_sequencias = count_sequencias(jogo)
+            qt_sequencias = self.count_sequencias(jogo)
             sequencias_jogos[qt_sequencias] += 1
 
         # printa o resultado:
@@ -104,7 +102,7 @@ class AnaliseSequencia(AbstractProcess):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
             output += f"\t {key} seguido: {percent:0>4.1f}% ... #{value:,}\n"
-        logger.debug("Sequencias Resultantes: %s \n", output)
+        logger.debug("Sequencias Resultantes: %s", output)
 
         #
         logger.debug("%s: Executando analise EVOLUTIVA de sequencia dos  %d  concursos da loteria.",
@@ -121,20 +119,20 @@ class AnaliseSequencia(AbstractProcess):
 
             # calcula a sequencia dos concursos passados até o concurso anterior:
             for concurso_passado in concursos_passados:
-                qt_sequencias_passadas = count_sequencias(concurso_passado.bolas)
+                qt_sequencias_passadas = self.count_sequencias(concurso_passado.bolas)
                 sequencias_passadas[qt_sequencias_passadas] += 1
                 # verifica se o concurso eh duplo (dois sorteios):
                 if eh_duplo:
-                    qt_sequencias_passadas = count_sequencias(concurso_passado.bolas2)
+                    qt_sequencias_passadas = self.count_sequencias(concurso_passado.bolas2)
                     sequencias_passadas[qt_sequencias_passadas] += 1
 
             # calcula a sequencia do concurso atual para comparar a evolucao:
-            qtd_sequencias_atual = count_sequencias(concurso_atual.bolas)
+            qtd_sequencias_atual = self.count_sequencias(concurso_atual.bolas)
             str_sequencias_atual = str(qtd_sequencias_atual)
             list6_sequencias.append(qtd_sequencias_atual)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
-                qtd_sequencias2_atual = count_sequencias(concurso_atual.bolas2)
+                qtd_sequencias2_atual = self.count_sequencias(concurso_atual.bolas2)
                 str_sequencias_atual += '/' + str(qtd_sequencias2_atual)
                 list6_sequencias.append(qtd_sequencias2_atual)
             # soh mantem as ultimas 6 sequencias:
@@ -150,7 +148,7 @@ class AnaliseSequencia(AbstractProcess):
                                  / 10
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key} seguido: {percent:0>4.1f}% ... {dif:5.1f}%\n"
-            logger.debug("Sequencias Resultantes EVOLUTIVA: %s", output)
+            logger.debug("Sequencias Resultantes da EVOLUTIVA: %s", output)
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

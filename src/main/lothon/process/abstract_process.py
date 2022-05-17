@@ -82,4 +82,10 @@ class AbstractProcess(ABC):
 
         return dict_zerado
 
+    @staticmethod
+    def new_list_int(qtd_items: int) -> list[int]:
+        list_zerado: list[int] = [0] * qtd_items
+
+        return list_zerado
+
 # ----------------------------------------------------------------------------
