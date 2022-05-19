@@ -75,8 +75,8 @@ class AnaliseCiclica(AbstractProcess):
         # qtd_sorteios: int = qtd_concursos * fator_sorteios
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
-        logger.debug("%s: Executando analise de TODOS os ciclos fechados nos  %d  concursos "
-                     "da loteria.", payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS os ciclos fechados "
+                     f"nos  {qtd_concursos}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
         dezenas: list[int] = self.new_list_int(payload.qtd_bolas)
@@ -131,7 +131,7 @@ class AnaliseCiclica(AbstractProcess):
         output += f"\t     {qtd_intervalos:0>3,}         {menor_intervalo:0>3,}   " \
                   f"  {maior_intervalo:0>3,}    {media_intervalo:0>4.1f}\n"
 
-        logger.debug("Ciclos Fechados Resultantes: %s", output)
+        logger.debug(f"Ciclos Fechados Resultantes: {output}")
 
         return 0
 

@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.domain import Bola
 
 
 # ----------------------------------------------------------------------------
@@ -87,5 +88,17 @@ class AbstractProcess(ABC):
         list_zerado: list[int] = [0] * qtd_items
 
         return list_zerado
+
+    @staticmethod
+    def new_list_bolas(qtd_items: int) -> list[Bola]:
+        # valida os parametros:
+        if qtd_items is None or qtd_items == 0:
+            return []
+
+        bolas: list[Bola | None] = [None] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+        for i in range(0, qtd_items+1):
+            bolas[i] = Bola(i)
+
+        return bolas
 
 # ----------------------------------------------------------------------------

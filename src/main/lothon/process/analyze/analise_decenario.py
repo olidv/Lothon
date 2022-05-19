@@ -70,9 +70,9 @@ class AnaliseDecenario(AbstractProcess):
             fator_sorteios: int = 1
         qtd_sorteios: int = qtd_concursos * fator_sorteios
 
-        # efetua analise de todas os sorteios da loteria:
-        logger.debug("%s: Executando analise de decenario dos  %d  concursos da loteria.",
-                     payload.nome_loteria, qtd_concursos)
+        # efetua analise de decenarios de todas os sorteios da loteria:
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS decenarios "
+                     f"dos  {qtd_concursos}  concursos da loteria.")
 
         # zera os contadores de cada sequencia:
         decenario_tudo: dict[int, int] = self.new_dict_int((payload.qtd_bolas-1) // 10)
@@ -92,11 +92,11 @@ class AnaliseDecenario(AbstractProcess):
             percent: float = round((value / total) * 10000) / 100
             percentos_tudo[key] = percent
             output += f"\t {key} decenario: {percent:0>5.2f}% ... #{value:,}\n"
-        logger.debug("Decenarios Resultantes: %s", output)
+        logger.debug(f"Decenarios Resultantes: {output}")
 
         #
-        logger.debug("%s: Executando analise EVOLUTIVA de decenario dos  %d  concursos da loteria.",
-                     payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de decenario "
+                     f"dos  {qtd_concursos}  concursos da loteria.")
 
         # contabiliza decenarios de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
@@ -129,7 +129,7 @@ class AnaliseDecenario(AbstractProcess):
                 percent: float = round((value / total) * 10000) / 100
                 dif: float = percent - percentos_tudo[key]
                 output += f"\t {key} decenario: {percent:0>5.2f}% ... {dif:6.2f}%\n"
-            logger.debug("Decenarios Resultantes da EVOLUTIVA: %s", output)
+            logger.debug(f"Decenarios Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

@@ -44,18 +44,6 @@ class AnaliseFrequencia(AbstractProcess):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def new_list_bolas(qtd_bolas: int) -> list[Bola]:
-        # valida os parametros:
-        if qtd_bolas is None or qtd_bolas == 0:
-            return []
-
-        bolas: list[Bola | None] = [None] * (qtd_bolas + 1)  # adiciona 1 para ignorar zero-index
-        for i in range(1, qtd_bolas+1):
-            bolas[i] = Bola(i)
-
-        return bolas
-
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, payload: Loteria) -> int:

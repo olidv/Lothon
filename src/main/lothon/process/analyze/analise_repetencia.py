@@ -74,7 +74,7 @@ class AnaliseRepetencia(AbstractProcess):
             fator_sorteios: int = 1
         qtd_sorteios: int = qtd_concursos * fator_sorteios
 
-        # efetua analise de todas as repetencias nos sorteios da loteria:
+        # efetua analise de repetencias de todos os sorteios da loteria:
         logger.debug(f"{payload.nome_loteria}: Executando analise de TODAS repetencias nos  "
                      f"{qtd_concursos}  concursos da loteria.")
 
@@ -85,30 +85,30 @@ class AnaliseRepetencia(AbstractProcess):
         percentos_max: dict[int, float] = self.new_dict_float(payload.qtd_bolas_sorteio)
 
         # contabiliza repetencias de cada sorteio com todos os sorteios ja realizados:
-        for concurso_atual in concursos:
+        for concurso in concursos:
             max_repete: int = 0
 
             # efetua varredura dupla nos concursos para comparar as dezenas entre os concursos:
             for outro_concurso in concursos:
                 # ignora o concurso atual, nao precisa comparar consigo mesmo:
-                if concurso_atual.id_concurso == outro_concurso.id_concurso:
+                if concurso.id_concurso == outro_concurso.id_concurso:
                     continue
 
-                qt_repeticoes = self.count_repeticoes(concurso_atual.bolas, outro_concurso.bolas)
+                qt_repeticoes: int = self.count_repeticoes(concurso.bolas, outro_concurso.bolas)
                 repetencia_tudo[qt_repeticoes] += 1
                 max_repete = max(max_repete, qt_repeticoes)
                 # verifica se o concurso eh duplo (dois sorteios):
                 if eh_duplo:
                     # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
-                    qt_repeticoes = self.count_repeticoes(concurso_atual.bolas,
+                    qt_repeticoes = self.count_repeticoes(concurso.bolas,
                                                           outro_concurso.bolas2)
                     repetencia_tudo[qt_repeticoes] += 1
                     max_repete = max(max_repete, qt_repeticoes)
-                    qt_repeticoes = self.count_repeticoes(concurso_atual.bolas2,
+                    qt_repeticoes = self.count_repeticoes(concurso.bolas2,
                                                           outro_concurso.bolas)
                     repetencia_tudo[qt_repeticoes] += 1
                     max_repete = max(max_repete, qt_repeticoes)
-                    qt_repeticoes = self.count_repeticoes(concurso_atual.bolas2,
+                    qt_repeticoes = self.count_repeticoes(concurso.bolas2,
                                                           outro_concurso.bolas2)
                     repetencia_tudo[qt_repeticoes] += 1
                     max_repete = max(max_repete, qt_repeticoes)
@@ -126,6 +126,61 @@ class AnaliseRepetencia(AbstractProcess):
             percentos_max[key] = percent_max
             output += f"\t {key} repete: {percent:0>4.1f}%    {percent_max:0>4.1f}% ... #{rmax:,}\n"
         logger.debug(f"Repetencias Resultantes: {output}")
+
+        #
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de repetencias "
+                     f"dos  {qtd_concursos}  concursos da loteria.")
+
+        # contabiliza repetencias de cada evolucao de concurso:
+        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        qtd_concursos_passados: int = 1  # evita division by zero
+        concurso_atual: Concurso | ConcursoDuplo
+        for concurso_atual in payload.concursos:
+            # zera os contadores de cada repetencia:
+            repetencia_passados: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
+
+            # calcula a repetencia dos concursos passados até o concurso anterior:
+            for concurso in concursos_passados:
+                # efetua varredura dupla nos concursos para comparar as dezenas entre os concursos:
+                for outro_concurso in concursos_passados:
+                    # ignora o concurso atual, nao precisa comparar consigo mesmo:
+                    if concurso.id_concurso == outro_concurso.id_concurso:
+                        continue
+
+                    qt_repeticoes: int = self.count_repeticoes(concurso.bolas, outro_concurso.bolas)
+                    repetencia_passados[qt_repeticoes] += 1
+                    # verifica se o concurso eh duplo (dois sorteios):
+                    if eh_duplo:
+                        # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
+                        qt_repeticoes = self.count_repeticoes(concurso.bolas, outro_concurso.bolas2)
+                        repetencia_passados[qt_repeticoes] += 1
+
+            # calcula a repetencia do concurso atual para comparar a evolucao:
+            repetencia_atual: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
+            for concurso in concursos_passados:
+                qt_repeticoes: int = self.count_repeticoes(concurso_atual.bolas, concurso.bolas)
+                repetencia_atual[qt_repeticoes] += 1
+                # verifica se o concurso eh duplo (dois sorteios):
+                if eh_duplo:
+                    # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
+                    qt_repeticoes = self.count_repeticoes(concurso_atual.bolas, concurso.bolas2)
+                    repetencia_atual[qt_repeticoes] += 1
+
+            # printa o resultado:
+            output: str = f"\n\t ? REPETE   PERC%       %DIF%  " \
+                          f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
+                          f"Repetencia Atual == {repetencia_atual}\n"
+            qtd_sorteios = qtd_concursos_passados * fator_sorteios
+            total = max(1, qtd_sorteios * (qtd_sorteios - fator_sorteios))  # evita division by zero
+            for key, value in repetencia_passados.items():
+                percent: float = round((value / total) * 10000) / 100
+                dif: float = percent - percentos_tudo[key]
+                output += f"\t {key} repete: {percent:0>5.2f}% ... {dif:6.2f}%\n"
+            logger.debug(f"Repetencias Resultantes da EVOLUTIVA: {output}")
+
+            # inclui o concurso atual para ser avaliado na proxima iteracao:
+            concursos_passados.append(concurso_atual)
+            qtd_concursos_passados = len(concursos_passados)
 
         return 0
 

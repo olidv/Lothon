@@ -32,11 +32,11 @@ def get_process_chain() -> list[AbstractProcess]:
     if len(_process_chain) == 0:
         # _process_chain.append(AnaliseParidade())
         # _process_chain.append(AnaliseSequencia())
-        # _process_chain.append(AnaliseRepetencia())
+        _process_chain.append(AnaliseRepetencia())
         # _process_chain.append(AnaliseDecenario())
         # _process_chain.append(AnaliseCiclica())
         # _process_chain.append(AnaliseSomatoria())
-        _process_chain.append(AnaliseFrequencia())
+        # _process_chain.append(AnaliseFrequencia())
 
     return _process_chain
 
