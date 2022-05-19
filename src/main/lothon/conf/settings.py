@@ -64,12 +64,12 @@ def setup_logging(config_path: str = '.') -> bool:
         logging.addLevelName(logging.WARNING, 'WARN')
         logging.addLevelName(logging.CRITICAL, 'FATAL')
 
-        logger.debug("O arquivo '%s' foi utilizado para configurar o logging.", file_config_log)
+        logger.debug(f"O arquivo '{file_config_log}' foi utilizado para configurar o logging.")
         return True
 
     else:  # arquivo INI nao existe:
-        logger.critical("O arquivo de configuracao do logging '%s' nao foi localizado.",
-                        file_config_log)
+        logger.critical(f"O arquivo de configuracao do logging '{file_config_log}' nao "
+                        f"foi localizado.")
         return False
 
 
@@ -105,7 +105,7 @@ def setup_config(config_path: str = '.') -> bool:
         # verifica se o arquivo esta valido e possui parametros:
         secoes = parser.sections()
         if len(read_ok) == 0 or len(secoes) == 0:
-            logger.critical("O arquivo de configuracao '%s' esta vazio.", file_config_ini)
+            logger.critical(f"O arquivo de configuracao '{file_config_ini}' esta vazio.")
             return False
 
         # atualiza os principais parametros utilizados na aplicacao:
@@ -114,12 +114,12 @@ def setup_config(config_path: str = '.') -> bool:
 
         # se tudo ok, pode prosseguir com a execucao:
         ini_contents = read_ini(parser)
-        logger.debug("O arquivo de configuracao '%s' foi carregado com os valores:\n%s",
-                     file_config_ini, ini_contents)
+        logger.debug(f"O arquivo de configuracao '{file_config_ini}' foi carregado com os "
+                     f"valores:\n{ini_contents}")
         return True
 
     else:  # arquivo INI nao existe:
-        logger.critical("O arquivo de configuracao '%s' nao foi localizado.", file_config_ini)
+        logger.critical(f"O arquivo de configuracao '{file_config_ini}' nao foi localizado.")
         return False
 
 # ----------------------------------------------------------------------------

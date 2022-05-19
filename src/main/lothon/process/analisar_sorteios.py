@@ -76,7 +76,7 @@ def run():
 
     # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     for key, value in loterias_caixa.items():
-        logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
+        logger.debug(f"Vai efetuar carga dos resultados da loteria: '{key}'.")
         parser_resultados.parse_concursos_loteria(value)
     logger.info("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
 
@@ -86,14 +86,13 @@ def run():
     # Efetua a execução de cada processo de análise:
     logger.debug("Vai executar todos os processos de analise...")
     for proc in process_chain:
-        logger.debug("processo '%s': inicializando configuracao.", proc.id_process)
+        logger.debug(f"processo '{proc.id_process}': inicializando configuracao.")
         # configura o processo antes,
         proc.init(options)
 
         # e depois executa a analise para cada loteria:
         for key, value in loterias_caixa.items():
-            logger.debug("Processo '%s': executando analise da loteria '%s'.",
-                         proc.id_process, key)
+            logger.debug(f"Processo '{proc.id_process}': executando analise da loteria '{key}'.")
             proc.execute(value)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:

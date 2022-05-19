@@ -74,8 +74,8 @@ class AnaliseSomatoria(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug("%s: Executando analise de somatoria dos  %d  jogos combinados da loteria.",
-                     payload.nome_loteria, qtd_jogos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise de somatoria dos  {qtd_jogos}  "
+                     f"jogos combinados da loteria.")
 
         # zera os contadores de cada somatoria:
         maior_soma = sum(range(payload.qtd_bolas - payload.qtd_bolas_sorteio + 1,
@@ -93,11 +93,11 @@ class AnaliseSomatoria(AbstractProcess):
         for key, value in enumerate(somatoria_jogos):
             percent: float = round((value / qtd_jogos) * 100000) / 1000
             output += f"\t {key:0>3} somado:  {percent:0>6.3f}% ... #{value:,}\n"
-        logger.debug("Somatorias Resultantes: %s", output)
+        logger.debug(f"Somatorias Resultantes: {output}")
 
         #
-        logger.debug("%s: Executando analise TOTAL de somatória dos  %d  concursos da loteria.",
-                     payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise TOTAL de somatória dos  "
+                     f"{qtd_concursos}  concursos da loteria.")
 
         # contabiliza a somatoria de cada sorteio dos concursos:
         somatoria_cocursos: list[int] = self.new_list_int(maior_soma)
@@ -115,7 +115,7 @@ class AnaliseSomatoria(AbstractProcess):
         for key, value in enumerate(somatoria_cocursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
             output += f"\t {key:0>3} somado:  {percent:0>6.3f}% ... #{value:,}\n"
-        logger.debug("Somatorias Resultantes: %s", output)
+        logger.debug(f"Somatorias Resultantes: {output}")
 
         return 0
 

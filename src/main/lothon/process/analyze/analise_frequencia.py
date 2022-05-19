@@ -74,8 +74,8 @@ class AnaliseFrequencia(AbstractProcess):
         # qtd_sorteios: int = qtd_concursos * fator_sorteios
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
-        logger.debug("%s: Executando analise de frequencia de TODAS as dezenas nos  %d  concursos "
-                     "da loteria.", payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise de frequencia de TODAS as "
+                     f"dezenas nos  {qtd_concursos}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
         dezenas: list[Bola] = self.new_list_bolas(payload.qtd_bolas)
@@ -103,7 +103,7 @@ class AnaliseFrequencia(AbstractProcess):
                       f"     {bola.maior_atraso:0>3}     {bola.menor_atraso:0>3}  " \
                       f" {bola.media_atraso:0>5.1f}\n"
 
-        logger.debug("Frequencia de Dezenas Resultantes: %s", output)
+        logger.debug(f"Frequencia de Dezenas Resultantes: {output}")
 
         return 0
 

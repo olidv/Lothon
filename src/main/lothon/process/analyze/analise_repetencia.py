@@ -75,8 +75,8 @@ class AnaliseRepetencia(AbstractProcess):
         qtd_sorteios: int = qtd_concursos * fator_sorteios
 
         # efetua analise de todas as repetencias nos sorteios da loteria:
-        logger.debug("%s: Executando analise de TODAS repetencias nos  %d  concursos da loteria.",
-                     payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODAS repetencias nos  "
+                     f"{qtd_concursos}  concursos da loteria.")
 
         # zera os contadores de cada repetencia:
         repetencia_tudo: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
@@ -125,7 +125,7 @@ class AnaliseRepetencia(AbstractProcess):
             percent_max: float = round((rmax / qtd_sorteios) * 1000) / 10
             percentos_max[key] = percent_max
             output += f"\t {key} repete: {percent:0>4.1f}%    {percent_max:0>4.1f}% ... #{rmax:,}\n"
-        logger.debug("Repetencias Resultantes: %s", output)
+        logger.debug(f"Repetencias Resultantes: {output}")
 
         return 0
 

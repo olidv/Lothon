@@ -73,7 +73,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], CMD_LINE_ARGS)
 
 except getopt.GetoptError as ex:
-    print("Erro no parsing dos argumentos da linha de comando:", repr(ex))
+    print(f"Erro no parsing dos argumentos da linha de comando: {repr(ex)}")
     # exibe ao usuario a forma correta de execucao do programa:
     print_usage()
     sys.exit(EXIT_ERROR_INVALID_ARGS)  # aborta apos avisar usuario
@@ -138,7 +138,7 @@ if not settings.setup_config(opt_cfpath):
 
 # tudo ok, prossegue entao com o processamento:
 logger.info("Aplicacao configurada e inicializada com sucesso.")
-logger.debug("Argumentos da linha de comando: " + str(opts).strip('[]'))
+logger.debug(f"Argumentos da linha de comando: {str(opts).strip('[]')}")
 
 
 # ----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ logger.debug("Argumentos da linha de comando: " + str(opts).strip('[]'))
 # Rotina de testes:
 if opt_testes:
     # aborta o processamento se esta apenas testando:
-    logger.info("Modulo main() executado com sucesso! opt_testes = %s", opt_testes)
+    logger.info(f"Modulo main() executado com sucesso! opt_testes = {opt_testes}")
     sys.exit(EXIT_SUCCESS)
 
 

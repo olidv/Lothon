@@ -83,8 +83,8 @@ class AnaliseSequencia(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug("%s: Executando analise de sequencia dos  %d  jogos combinados da loteria.",
-                     payload.nome_loteria, qtd_jogos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise de sequencia dos  "
+                     f"{qtd_jogos}  jogos combinados da loteria.")
 
         # zera os contadores de cada sequencia:
         sequencias_jogos: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
@@ -102,11 +102,11 @@ class AnaliseSequencia(AbstractProcess):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
             output += f"\t {key} seguido: {percent:0>4.1f}% ... #{value:,}\n"
-        logger.debug("Sequencias Resultantes: %s", output)
+        logger.debug(f"Sequencias Resultantes: {output}")
 
         #
-        logger.debug("%s: Executando analise EVOLUTIVA de sequencia dos  %d  concursos da loteria.",
-                     payload.nome_loteria, qtd_concursos)
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de sequencia dos  "
+                     f"{qtd_concursos}  concursos da loteria.")
 
         # contabiliza dezenas sequenciais de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
@@ -148,7 +148,7 @@ class AnaliseSequencia(AbstractProcess):
                                  / 10
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key} seguido: {percent:0>4.1f}% ... {dif:5.1f}%\n"
-            logger.debug("Sequencias Resultantes da EVOLUTIVA: %s", output)
+            logger.debug(f"Sequencias Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

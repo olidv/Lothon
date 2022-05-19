@@ -35,33 +35,33 @@ logger = logging.getLogger(__name__)
 
 # le arquivo de resultados e retorna conteudo HTML:
 def ler_arquivo_htm(path_arquivo: str) -> str:
-    logger.debug("Vai abrir para leitura o arquivo texto '%s'.", path_arquivo)
+    logger.debug(f"Vai abrir para leitura o arquivo texto '{path_arquivo}'.")
     with open(path_arquivo, "rt", encoding='utf-8') as htm:
         content_htm = htm.read()
 
     if len(content_htm) == 0:
-        logger.warning("Este arquivo HTM de resultados esta vazio: '%s'", path_arquivo)
+        logger.warning(f"Este arquivo HTM de resultados esta vazio: '{path_arquivo}'")
     else:
         file_size = os.path.getsize(path_arquivo)
-        logger.debug("Leitura do arquivo '%s' realizada com sucesso: %s bytes lidos.",
-                     path_arquivo, human_format(file_size))
+        logger.debug(f"Leitura do arquivo '{path_arquivo}' realizada com sucesso: "
+                     f"{human_format(file_size)} bytes lidos.")
 
     return content_htm
 
 
 # efetua a verificacao e leitura do arquivo de resultados de determinada loteria:
 def carregar_resultados(nome_loteria: str):
-    logger.debug("Vai ler o arquivo HTM da loteria '%s'.", nome_loteria)
+    logger.debug(f"Vai ler o arquivo HTM da loteria '{nome_loteria}'.")
 
     # identifica o nome e path do arquivo HTM a ser lido:
     loteria_htm_file = app_config.LC_loteria_htm_name.format(nome_loteria)
     loteria_htm_path = os.path.join(app_config.RT_dat_path, loteria_htm_file)
-    logger.debug("Path do Arquivo HTM da loteria '%s': %s", nome_loteria, loteria_htm_path)
+    logger.debug(f"Path do Arquivo HTM da loteria '{nome_loteria}': {loteria_htm_path}")
 
     # precisa certificar que o arquivo existe antes da leitura:
     if not os.path.exists(loteria_htm_path):
-        logger.error("O arquivo '%s' nao foi encontrado na pasta '%s' para leitura.",
-                     loteria_htm_file, app_config.RT_dat_path)
+        logger.error(f"O arquivo '{loteria_htm_file}' nao foi encontrado na pasta "
+                     f"'{app_config.RT_dat_path}' para leitura.")
         return None
 
     # carrega todo o conteudo HTML do arquivo:
@@ -77,21 +77,21 @@ def carregar_resultados(nome_loteria: str):
 def parse_concursos_loteria(loteria: Loteria):
     nome_loteria = loteria.get_file_resultados()
     tag_loteria = loteria.get_tag_resultados()
-    logger.info("Iniciando a carga dos concursos da loteria '%s'.", nome_loteria)
+    logger.info(f"Iniciando a carga dos concursos da loteria '{nome_loteria}'.")
 
     # efetua leitura dos resultados da loteria, verificando se o arquivo existe na pasta 'data'.
     content_htm = carregar_resultados(nome_loteria)
     # print(content_htm)
     if content_htm is None or len(content_htm) == 0:
-        logger.error("Nao foi possivel carregar os resultados da loteria '%s'.", nome_loteria)
+        logger.error(f"Nao foi possivel carregar os resultados da loteria '{nome_loteria}'.")
         return
     else:
-        logger.info("Foram lidos %s caracteres do arquivo de resultados da loteria '%s'.",
-                    human_format(len(content_htm)), nome_loteria)
+        logger.info(f"Foram lidos {human_format(len(content_htm))} caracteres do arquivo de "
+                    f"resultados da loteria '{nome_loteria}'.")
 
     # carrega no BeautifulSoup o HTML contendo uma <TABLE> de resultados:
-    logger.debug("Vai efetuar o parsing do conteudo HTML de resultados da loteria '%s'.",
-                 nome_loteria)
+    logger.debug(f"Vai efetuar o parsing do conteudo HTML de resultados da "
+                 f"loteria '{nome_loteria}'.")
     soup = BeautifulSoup(content_htm, 'html.parser')
     # print(soup.prettify())
 
@@ -101,22 +101,22 @@ def parse_concursos_loteria(loteria: Loteria):
     table = soup.find("table", {"class": table_class})
     # print(len(table))
     if table is None or len(table) == 0:
-        logger.fatal("*** ATENCAO: O formato do arquivo HTM da loteria '%s' foi modificado! ***",
-                     nome_loteria)
+        logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
+                     f"'{nome_loteria}' foi modificado! ***")
         return
     else:
-        logger.info("Parsing do arquivo HTM da loteria '%s' efetuado com sucesso.", nome_loteria)
+        logger.info(f"Parsing do arquivo HTM da loteria '{nome_loteria}' efetuado com sucesso.")
 
     # cada linha de resultado/concurso esta envolta em um TBODY:
     table_body = table.find_all("tbody", recursive=False)
     # print(len(table_body))
     if table_body is None or len(table_body) == 0:
-        logger.fatal("*** ATENCAO: O formato do arquivo HTM da loteria '%s' foi modificado! ***",
-                     nome_loteria)
+        logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
+                     f"'{nome_loteria}' foi modificado! ***")
         return
     else:
-        logger.info("Encontradas %d linhas de resultados no arquivo HTM da loteria '%s'.",
-                    len(table_body), nome_loteria)
+        logger.info(f"Encontradas {len(table_body)} linhas de resultados no arquivo HTM da "
+                    f"loteria '{nome_loteria}'.")
 
     # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
     loteria.set_resultados(table_body)
