@@ -68,29 +68,19 @@ class AbstractProcess(ABC):
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def new_dict_int(qtd_keys: int) -> dict[int, int]:
-        dict_zerado: dict[int, int] = {}
-        for i in range(0, qtd_keys+1):
-            dict_zerado[i] = 0
-
-        return dict_zerado
-
-    @staticmethod
-    def new_dict_float(qtd_keys: int) -> dict[int, float]:
-        dict_zerado: dict[int, float] = {}
-        for i in range(0, qtd_keys+1):
-            dict_zerado[i] = 0.0
-
-        return dict_zerado
-
-    @staticmethod
     def new_list_int(qtd_items: int) -> list[int]:
-        list_zerado: list[int] = [0] * qtd_items
+        list_zerado: list[int] = [0] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
 
         return list_zerado
 
     @staticmethod
-    def new_list_bolas(qtd_items: int) -> list[Bola]:
+    def new_list_float(qtd_items: int) -> list[float]:
+        list_zerado: list[float] = [0.0] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+
+        return list_zerado
+
+    @staticmethod
+    def new_list_bolas(qtd_items: int) -> list[Bola | None]:
         # valida os parametros:
         if qtd_items is None or qtd_items == 0:
             return []

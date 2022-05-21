@@ -1,6 +1,6 @@
 """
    Package lothon.process
-   Module  analise_decenario.py
+   Module  analise_distancia.py
 
 """
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseDecenario(AbstractProcess):
+class AnaliseDistancia(AbstractProcess):
     """
     Implementacao de classe para .
     """
@@ -44,18 +44,18 @@ class AnaliseDecenario(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Decenário nos Concursos")
+        super().__init__("Análise de Distância nos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def count_decenarios(bolas: tuple[int, ...], decenario: list[int]) -> None:
+    def calc_distancia(bolas: tuple[int, ...]) -> int:
         # valida os parametros:
-        if bolas is None or len(bolas) == 0 or decenario is None or len(decenario) == 0:
-            return
+        if bolas is None or len(bolas) == 0:
+            return 0
 
-        for num in bolas:
-            decenario[(num - 1) // 10] += 1
+        # calcula a distancia entre a menor e a maior bola:
+        return max(bolas) - min(bolas)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -69,95 +69,80 @@ class AnaliseDecenario(AbstractProcess):
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = ([0] is ConcursoDuplo)
+        eh_duplo: bool = (concursos[0] is ConcursoDuplo)
         if eh_duplo:
             fator_sorteios: int = 2
         else:
             fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
-        qtd_items: int = (payload.qtd_bolas-1) // 10
+        # qtd_sorteios: int = qtd_concursos * fator_sorteios
+        qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de decenário dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando análise de distância dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
-        # zera os contadores de cada paridade:
-        decenario_jogos: list[int] = self.new_list_int(qtd_items)
+        # zera os contadores de cada distancia:
+        distancias_jogos: list[int] = self.new_list_int(qtd_items)
         percentos_jogos: list[float] = self.new_list_float(qtd_items)
 
-        # contabiliza pares (e impares) de cada combinacao de jogo:
+        # calcula a distancia de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            self.count_decenarios(jogo, decenario_jogos)
+            vl_distancia = self.calc_distancia(jogo)
+            distancias_jogos[vl_distancia] += 1
 
         # printa o resultado:
-        output: str = f"\n\t ? DEZENA    PERC%     #TOTAL\n"
-        total: int = payload.qtd_bolas_sorteio * qtd_jogos
-        for key, value in enumerate(decenario_jogos):
-            percent: float = round((value / total) * 1000) / 10
+        output: str = f"\n\t  ? DISTANTE    PERC%     #TOTAL\n"
+        for key, value in enumerate(distancias_jogos):
+            percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
-            output += f"\t {key} dezena:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Decenários Resultantes: {output}")
-
-        # efetua analise de decenarios de todos os sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando análise de TODOS decenários dos  "
-                     f"{qtd_concursos:,}  concursos da loteria.")
-
-        # zera os contadores de cada sequencia:
-        decenario_tudo: list[int] = self.new_list_int(qtd_items)
-
-        # contabiliza decenarios de cada sorteio ja realizado:
-        for concurso in concursos:
-            self.count_decenarios(concurso.bolas, decenario_tudo)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                self.count_decenarios(concurso.bolas2, decenario_tudo)
-
-        # printa o resultado:
-        output: str = f"\n\t ? DEZENA     PERC%     #TOTAL\n"
-        total: int = payload.qtd_bolas_sorteio * qtd_sorteios
-        for key, value in enumerate(decenario_tudo):
-            percent: float = round((value / total) * 10000) / 100
-            output += f"\t {key} dezena:  {percent:0>6.2f}% ... #{value:,}\n"
-        logger.debug(f"Decenários Resultantes: {output}")
+            output += f"\t {key:0>2} distante:  {percent:0>5.1f}% ... #{value:,}\n"
+        logger.debug(f"Distâncias Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de decenário dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de distância dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
-        # contabiliza decenarios de cada evolucao de concurso:
+        # calcula distancias dos extremos de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
         qtd_concursos_passados = 1  # evita divisao por zero
+        list6_distancias: list[int] = []
         concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
-            # zera os contadores de cada decenario:
-            decenarios_passados: list[int] = self.new_list_int(qtd_items)
+            # zera os contadores de cada distancia:
+            distancias_passadas: list[int] = self.new_list_int(qtd_items)
 
-            # calcula a decenario dos concursos passados até o concurso anterior:
+            # calcula a distancia nos concursos passados até o concurso anterior:
             for concurso_passado in concursos_passados:
-                self.count_decenarios(concurso_passado.bolas, decenarios_passados)
+                vl_distancia_passada = self.calc_distancia(concurso_passado.bolas)
+                distancias_passadas[vl_distancia_passada] += 1
                 # verifica se o concurso eh duplo (dois sorteios):
                 if eh_duplo:
-                    self.count_decenarios(concurso_passado.bolas2, decenarios_passados)
+                    vl_distancia_passada = self.calc_distancia(concurso_passado.bolas2)
+                    distancias_passadas[vl_distancia_passada] += 1
 
-            # calcula a decenario do concurso atual para comparar a evolucao:
-            decenario_atual: list[int] = self.new_list_int(qtd_items)
-            self.count_decenarios(concurso_atual.bolas, decenario_atual)
+            # calcula a distancia do concurso atual para comparar a evolucao:
+            vl_distancia_atual = self.calc_distancia(concurso_atual.bolas)
+            list6_distancias.append(vl_distancia_atual)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
-                self.count_decenarios(concurso_atual.bolas2, decenario_atual)
+                vl_distancia_atual = self.calc_distancia(concurso_atual.bolas2)
+                list6_distancias.append(vl_distancia_atual)
+            # soh mantem as ultimas 6 distancias:
+            while len(list6_distancias) > 6:
+                del list6_distancias[0]
 
             # printa o resultado:
-            output: str = f"\n\t ? DEZENA     PERC%       %DIF%  " \
+            output: str = f"\n\t  ? DISTANTE    PERC%      %DIF%  " \
                           f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Último Decenário == {decenario_atual}\n"
-            total: int = payload.qtd_bolas_sorteio * (qtd_concursos_passados * fator_sorteios)
-            for key, value in enumerate(decenarios_passados):
-                percent: float = round((value / total) * 10000) / 100
+                          f"Últimas Distâncias == { list(reversed(list6_distancias))}\n"
+            for key, value in enumerate(distancias_passadas):
+                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
+                                 / 10
                 dif: float = percent - percentos_jogos[key]
-                output += f"\t {key} dezena:  {percent:0>6.2f}% ... {dif:6.2f}%\n"
-            logger.debug(f"Decenários Resultantes da EVOLUTIVA: {output}")
+                output += f"\t {key:0>2} distante:  {percent:0>5.1f}% ... {dif:5.1f}%\n"
+            logger.debug(f"Distâncias Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

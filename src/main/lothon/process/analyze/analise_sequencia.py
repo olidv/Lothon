@@ -9,6 +9,8 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+import datetime
+import time
 import math
 import itertools as itt
 import logging
@@ -70,6 +72,8 @@ class AnaliseSequencia(AbstractProcess):
         # valida se possui concursos a serem analisados:
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
+        else:
+            _startTime: float = time.time()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
@@ -80,15 +84,16 @@ class AnaliseSequencia(AbstractProcess):
         else:
             fator_sorteios: int = 1
         # qtd_sorteios: int = qtd_concursos * fator_sorteios
+        qtd_items: int = payload.qtd_bolas_sorteio - 1
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando analise de sequencia dos  "
-                     f"{qtd_jogos}  jogos combinados da loteria.")
+        logger.debug(f"{payload.nome_loteria}: Executando analise de sequência dos  "
+                     f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada sequencia:
-        sequencias_jogos: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio)
-        percentos_jogos: dict[int, float] = self.new_dict_float(payload.qtd_bolas_sorteio)
+        sequencias_jogos: list[int] = self.new_list_int(qtd_items)
+        percentos_jogos: list[float] = self.new_list_float(qtd_items)
 
         # contabiliza sequencias de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
@@ -97,16 +102,16 @@ class AnaliseSequencia(AbstractProcess):
             sequencias_jogos[qt_sequencias] += 1
 
         # printa o resultado:
-        output: str = f"\n\t ? SEGUIDO  PERC%     #TOTAL\n"
-        for key, value in sequencias_jogos.items():
+        output: str = f"\n\t  ? SEGUIDO    PERC%     #TOTAL\n"
+        for key, value in enumerate(sequencias_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
-            output += f"\t {key} seguido: {percent:0>4.1f}% ... #{value:,}\n"
-        logger.debug(f"Sequencias Resultantes: {output}")
+            output += f"\t {key:0>2} seguido:  {percent:0>5.1f}% ... #{value:,}\n"
+        logger.debug(f"Sequências Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de sequencia dos  "
-                     f"{qtd_concursos}  concursos da loteria.")
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de sequência dos  "
+                     f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza dezenas sequenciais de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
@@ -115,7 +120,7 @@ class AnaliseSequencia(AbstractProcess):
         concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada sequencia:
-            sequencias_passadas: dict[int, int] = self.new_dict_int(payload.qtd_bolas_sorteio - 1)
+            sequencias_passadas: list[int] = self.new_list_int(qtd_items)
 
             # calcula a sequencia dos concursos passados até o concurso anterior:
             for concurso_passado in concursos_passados:
@@ -140,20 +145,23 @@ class AnaliseSequencia(AbstractProcess):
                 del list6_sequencias[0]
 
             # printa o resultado:
-            output: str = f"\n\t ? SEGUIDO  PERC%      %DIF%  " \
+            output: str = f"\n\t  ? SEGUIDO    PERC%      %DIF%  " \
                           f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Ultimas Sequencias == { list(reversed(list6_sequencias))}\n"
-            for key, value in sequencias_passadas.items():
+                          f"Ultimas Sequências == { list(reversed(list6_sequencias))}\n"
+            for key, value in enumerate(sequencias_passadas):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
                 dif: float = percent - percentos_jogos[key]
-                output += f"\t {key} seguido: {percent:0>4.1f}% ... {dif:5.1f}%\n"
-            logger.debug(f"Sequencias Resultantes da EVOLUTIVA: {output}")
+                output += f"\t {key:0>2} seguido:  {percent:0>5.1f}% ... {dif:5.1f}%\n"
+            logger.debug(f"Sequências Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
 
+        _totalTime: int = round(time.time() - _startTime)
+        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
         return 0
 
 # ----------------------------------------------------------------------------

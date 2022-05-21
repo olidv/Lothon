@@ -14,10 +14,7 @@ import logging
 from typing import Optional, Any
 
 # Libs/Frameworks modules
-# from memory_profiler import profile
-
 # Own/Project modules
-# from lothon.conf import app_config
 from lothon import domain
 from lothon.infra import parser_resultados
 from lothon.domain import Loteria
@@ -65,12 +62,15 @@ def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
-    loterias_caixa = {"megasena": domain.get_mega_sena()}
+    loterias_caixa = {
+        "quina": domain.get_quina(),
+    }
     """
-                  "quina": domain.get_quina(),
-                  "duplasena": domain.get_dupla_sena(),
-                  "lotofacil": domain.get_lotofacil(),
-                  "diadesorte": domain.get_dia_de_sorte()}
+        "quina": domain.get_quina(),
+        "megasena": domain.get_mega_sena(),
+        "duplasena": domain.get_dupla_sena(),
+        "diadesorte": domain.get_dia_de_sorte(),
+        "lotofacil": domain.get_lotofacil()
     """
     logger.info("Criadas instancias das loterias para processamento.")
 
