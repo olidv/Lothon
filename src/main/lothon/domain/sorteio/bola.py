@@ -10,6 +10,7 @@
 
 # Built-in/Generic modules
 from dataclasses import dataclass, field
+import statistics as stts
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -27,19 +28,25 @@ class Bola:
 
     # --- PROPRIEDADES -------------------------------------------------------
     id_bola: int
-
-    sorteios: list[int] = field(init=False, default_factory=list)
-    qtd_sorteios: int = field(init=False, default=0)
-    ultimo_sorteio: int = field(init=False, default=0)
-
-    atrasos: list[int] = field(init=False, default_factory=list)
-    qtd_atrasos: int = field(init=False, default=0)
-    ultimo_atraso: int = field(init=False, default=0)
-    maior_atraso: int = field(init=False, default=0)
-    menor_atraso: int = field(init=False, default=9999)
-    media_atraso: float = field(init=False, default=0.0)
-
     sort_index: int = field(init=False, repr=False)
+
+    ultimo_sorteio: int = field(init=False, default=0)
+    sorteios: list[int] = field(init=False, default_factory=list)
+    ultimo_atraso: int = field(init=False, default=0)
+    atrasos: list[int] = field(init=False, default_factory=list)
+
+    # medidas estatisticas
+    len_sorteios: int = field(init=False, default=0)
+    len_atrasos: int = field(init=False, default=0)
+    max_atraso: int = field(init=False, default=0)
+    min_atraso: int = field(init=False, default=0)
+    mode_atraso: int = field(init=False, default=0)
+    mean_atraso: float = field(init=False, default=0.0)
+    hmean_atraso: float = field(init=False, default=0.0)
+    gmean_atraso: float = field(init=False, default=0.0)
+    median_atraso: float = field(init=False, default=0.0)
+    varia_atraso: float = field(init=False, default=0.0)
+    stdev_atraso: float = field(init=False, default=0.0)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -58,33 +65,40 @@ class Bola:
 
         # atualiza os atrasos da bola:
         if atraso > 0:
-            self.atrasos.append(atraso)
-            self.qtd_atrasos += 1
             self.ultimo_atraso = atraso
-            self.maior_atraso = max(self.maior_atraso, atraso)
-            self.menor_atraso = min(self.menor_atraso, atraso)
-            self.media_atraso = round((sum(self.atrasos) / self.qtd_atrasos) * 10) / 10
+            self.atrasos.append(atraso)
 
-        # atualiza os sorteios da bola:
-        self.sorteios.append(id_concurso)
-        self.qtd_sorteios += 1
-        self.ultimo_sorteio = id_concurso
+        # nao registra o ultimo sorteio mais de uma vez:
+        if self.ultimo_sorteio != id_concurso:
+            self.ultimo_sorteio = id_concurso
+            self.sorteios.append(id_concurso)
 
     # ultimo concurso ocorrido da loteria, ainda sem sorteio (atraso) desta bola:
     def last_concurso(self, id_concurso: int):
         # verifica se a bola ainda nao foi sorteada:
         if self.ultimo_sorteio == 0:
             atraso: int = id_concurso
-        else:  # ou se a bola ja foi sorteada antes:
+        elif self.ultimo_sorteio == id_concurso:  # a bola foi sorteada no ultimo concurso:
+            atraso: int = 0  # nao ha atraso aqui, ja foi calculado antes
+        else:  # ou se a bola ja foi sorteada antes, mas nao no ultimo concurso:
             atraso: int = id_concurso - self.ultimo_sorteio
 
         # atualiza os atrasos da bola:
         if atraso > 0:
-            self.atrasos.append(atraso)
-            self.qtd_atrasos += 1
             self.ultimo_atraso = atraso
-            self.maior_atraso = max(self.maior_atraso, atraso)
-            self.menor_atraso = min(self.menor_atraso, atraso)
-            self.media_atraso = round((sum(self.atrasos) / self.qtd_atrasos) * 10) / 10
+            self.atrasos.append(atraso)
+
+        # atualiza as medidas estatisticas, para nao ficar calculando quando adiciona sorteio:
+        self.len_sorteios = len(self.sorteios)
+        self.len_atrasos = len(self.atrasos)
+        self.max_atraso = max(self.atrasos)
+        self.min_atraso = min(self.atrasos)
+        self.mode_atraso = stts.mode(self.atrasos)
+        self.mean_atraso = stts.fmean(self.atrasos)
+        self.hmean_atraso = stts.harmonic_mean(self.atrasos)
+        self.gmean_atraso = stts.geometric_mean(self.atrasos)
+        self.median_atraso = stts.median(self.atrasos)
+        self.varia_atraso = stts.pvariance(self.atrasos)
+        self.stdev_atraso = stts.pstdev(self.atrasos)
 
 # ----------------------------------------------------------------------------

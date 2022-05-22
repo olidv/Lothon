@@ -25,7 +25,7 @@ from lothon.domain import Loteria
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 

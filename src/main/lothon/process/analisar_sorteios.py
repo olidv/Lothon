@@ -26,7 +26,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 # relacao de instancias das loterias da caixa:
@@ -64,13 +64,17 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     loterias_caixa = {
         "quina": domain.get_quina(),
+        "lotofacil": domain.get_lotofacil(),
+        "megasena": domain.get_mega_sena(),
+        "duplasena": domain.get_dupla_sena(),
+        "diadesorte": domain.get_dia_de_sorte(),
     }
     """
         "quina": domain.get_quina(),
         "megasena": domain.get_mega_sena(),
         "duplasena": domain.get_dupla_sena(),
         "diadesorte": domain.get_dia_de_sorte(),
-        "lotofacil": domain.get_lotofacil()
+        "lotofacil": domain.get_lotofacil(),
     """
     logger.info("Criadas instancias das loterias para processamento.")
 
@@ -83,7 +87,7 @@ def run():
     logger.debug("Inicializando a cadeia de processos para analise dos resultados...")
     process_chain = analyze.get_process_chain()
 
-    # Efetua a execução de cada processo de análise:
+    # Efetua a execucao de cada processo de analise:
     logger.debug("Vai executar todos os processos de analise...")
     for proc in process_chain:
         logger.debug(f"processo '{proc.id_process}': inicializando configuracao.")

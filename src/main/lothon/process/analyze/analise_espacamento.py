@@ -25,7 +25,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ class AnaliseEspacamento(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Espaçamentos nos Concursos")
+        super().__init__("Analise de Espacamentos nos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -54,7 +54,7 @@ class AnaliseEspacamento(AbstractProcess):
         if bolas is None or len(bolas) == 0:
             return 0
 
-        # calcula o espaçamento medio entre cada bola:
+        # calcula o espacamento medio entre cada bola:
         qtd: int = 0
         soma: int = 0
         aux: int = 0
@@ -91,32 +91,32 @@ class AnaliseEspacamento(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de espaçamento dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de espacamento dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada espacada:
         espacamento_jogos: list[int] = self.new_list_int(qtd_items)
         percentos_jogos: list[float] = self.new_list_float(qtd_items)
 
-        # calcula o espaçamento medio de cada combinacao de jogo:
+        # calcula o espacamento medio de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             vl_espacamento = self.calc_espacada(jogo)
             espacamento_jogos[vl_espacamento] += 1
 
         # printa o resultado:
-        output: str = f"\n\t  ? ESPAÇO    PERC%     #TOTAL\n"
+        output: str = f"\n\t  ? ESPACO    PERC%     #TOTAL\n"
         for key, value in enumerate(espacamento_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
-            output += f"\t {key:0>2} espaço:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Espaçamentos Resultantes: {output}")
+            output += f"\t {key:0>2} espaco:  {percent:0>5.1f}% ... #{value:,}\n"
+        logger.debug(f"Espacamentos Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de espaçamento dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de espacamento dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
-        # calcula espaçamentos de cada evolucao de concurso:
+        # calcula espacamentos de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_espacamentos: list[int] = []
@@ -125,7 +125,7 @@ class AnaliseEspacamento(AbstractProcess):
             # zera os contadores de cada sequencia:
             espacamentos_passados: list[int] = self.new_list_int(qtd_items)
 
-            # calcula o espaçamento nos concursos passados até o concurso anterior:
+            # calcula o espacamento nos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
                 vl_espacamento_passado = self.calc_espacada(concurso_passado.bolas)
                 espacamentos_passados[vl_espacamento_passado] += 1
@@ -146,15 +146,15 @@ class AnaliseEspacamento(AbstractProcess):
                 del list6_espacamentos[0]
 
             # printa o resultado:
-            output: str = f"\n\t  ? ESPAÇO    PERC%       %DIF%  " \
-                          f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Últimos Espaçamentos == { list(reversed(list6_espacamentos))}\n"
+            output: str = f"\n\t  ? ESPACO    PERC%       %DIF%  " \
+                          f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
+                          f"Ultimos Espacamentos == { list(reversed(list6_espacamentos))}\n"
             for key, value in enumerate(espacamentos_passados):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
                 dif: float = percent - percentos_jogos[key]
-                output += f"\t {key:0>2} espaço:  {percent:0>5.1f}% ... {dif:6.1f}%\n"
-            logger.debug(f"Espaçamentos Resultantes da EVOLUTIVA: {output}")
+                output += f"\t {key:0>2} espaco:  {percent:0>5.1f}% ... {dif:6.1f}%\n"
+            logger.debug(f"Espacamentos Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

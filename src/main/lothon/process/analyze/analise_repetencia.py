@@ -15,7 +15,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, Bola
 from lothon.process.abstract_process import AbstractProcess
 
 
@@ -23,7 +23,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +42,7 @@ class AnaliseRepetencia(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Repetência nos Concursos")
+        super().__init__("Analise de Repetencia nos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -80,7 +80,7 @@ class AnaliseRepetencia(AbstractProcess):
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise de repetencias de todos os sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando análise de TODAS repetências nos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODAS repetencias nos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores de cada repetencia:
@@ -128,7 +128,59 @@ class AnaliseRepetencia(AbstractProcess):
             percentos_max[key] = percent_max
             output += f"\t {key:0>2} repete:  {percent_max:0>5.1f}%     {percent:0>5.1f}% ... " \
                       f"#{value:,}\n"
-        logger.debug(f"Repetências Resultantes: {output}")
+        logger.debug(f"Repetencias Resultantes: {output}")
+
+        # efetua analise de todas as repeticoes dos sorteios da loteria:
+        logger.debug(f"{payload.nome_loteria}: Executando analise de FREQUENCIA de repetencias"
+                     f"de dezenas nos  {qtd_concursos:,}  concursos da loteria.")
+
+        # zera os contadores de frequencias e atrasos das repetencias:
+        repetencias: list[Bola | None] = self.new_list_bolas(qtd_items)
+        repetencias[0] = Bola(0)  # neste caso especifico tem a repetencia zero!
+
+        # contabiliza as frequencias e atrasos das repetencias em todos os sorteios ja realizados:
+        concurso_anterior: Concurso | ConcursoDuplo | None = None
+        for concurso in concursos:
+            # o primeiro concurso soh eh registrado para teste no proximo:
+            if concurso_anterior is None:
+                concurso_anterior = concurso
+                continue
+
+            # verifica se o concurso eh duplo (dois sorteios) pois tem ordem de comparacao:
+            if eh_duplo:  # se for concurso duplo, precisa registrar as repetencias na ordem:
+                # o primeiro sorteio do concurso atual segue o segundo sorteio do concurdo anterior:
+                qt_repeticoes: int = self.count_repeticoes(concurso.bolas,
+                                                           concurso_anterior.bolas2)
+                repetencias[qt_repeticoes].add_sorteio(concurso.id_concurso)
+                # o segundo sorteio do concurso atual segue o primeiro sorteio do concurso atual:
+                qt_repeticoes: int = self.count_repeticoes(concurso.bolas2,
+                                                           concurso.bolas)
+                repetencias[qt_repeticoes].add_sorteio(concurso.id_concurso)
+            else:
+                # contabiliza o numero de dezenas repetidas desde o ultimo concurso:
+                qt_repeticoes: int = self.count_repeticoes(concurso.bolas, concurso_anterior.bolas)
+                repetencias[qt_repeticoes].add_sorteio(concurso.id_concurso)
+
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for bola in repetencias:
+            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
+            bola.last_concurso(ultimo_concurso.id_concurso)
+
+        # printa o resultado:
+        output: str = f"\n\tREPETE:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MAIOR   " \
+                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
+        for bola in repetencias:
+            output += f"\t    {bola.id_bola:0>2}:       {bola.len_sorteios:0>5,}    " \
+                      f"{bola.ultimo_sorteio:0>5,}        {bola.len_atrasos:0>5,}    " \
+                      f"{bola.ultimo_atraso:0>5,}   {bola.max_atraso:0>5,}   " \
+                      f"{bola.min_atraso:0>5,}  {bola.mode_atraso:0>5,}   " \
+                      f"{bola.mean_atraso:0>6.1f}    {bola.hmean_atraso:0>6.1f}    " \
+                      f"{bola.gmean_atraso:0>6.1f}    {bola.median_atraso:0>6.1f}    " \
+                      f"{bola.varia_atraso:0>8.1f}          {bola.stdev_atraso:0>6.1f} \n"
+
+        logger.debug(f"FREQUENCIA de Repetencias Resultantes: {output}")
 
         _totalTime: int = round(time.time() - _startTime)
         tempo_total: str = str(datetime.timedelta(seconds=_totalTime))

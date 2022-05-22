@@ -25,7 +25,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ class AnaliseDecenario(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Decenário nos Concursos")
+        super().__init__("Analise de Decenario nos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -79,7 +79,7 @@ class AnaliseDecenario(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de decenário dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de decenario dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
@@ -98,10 +98,10 @@ class AnaliseDecenario(AbstractProcess):
             percent: float = round((value / total) * 1000) / 10
             percentos_jogos[key] = percent
             output += f"\t {key} dezena:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Decenários Resultantes: {output}")
+        logger.debug(f"Decenarios Resultantes: {output}")
 
         # efetua analise de decenarios de todos os sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando análise de TODOS decenários dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS decenarios dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores de cada sequencia:
@@ -120,10 +120,10 @@ class AnaliseDecenario(AbstractProcess):
         for key, value in enumerate(decenario_tudo):
             percent: float = round((value / total) * 10000) / 100
             output += f"\t {key} dezena:  {percent:0>6.2f}% ... #{value:,}\n"
-        logger.debug(f"Decenários Resultantes: {output}")
+        logger.debug(f"Decenarios Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de decenário dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de decenario dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza decenarios de cada evolucao de concurso:
@@ -134,7 +134,7 @@ class AnaliseDecenario(AbstractProcess):
             # zera os contadores de cada decenario:
             decenarios_passados: list[int] = self.new_list_int(qtd_items)
 
-            # calcula a decenario dos concursos passados até o concurso anterior:
+            # calcula a decenario dos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
                 self.count_decenarios(concurso_passado.bolas, decenarios_passados)
                 # verifica se o concurso eh duplo (dois sorteios):
@@ -150,14 +150,14 @@ class AnaliseDecenario(AbstractProcess):
 
             # printa o resultado:
             output: str = f"\n\t ? DEZENA     PERC%       %DIF%  " \
-                          f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Último Decenário == {decenario_atual}\n"
+                          f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
+                          f"Ultimo Decenario == {decenario_atual}\n"
             total: int = payload.qtd_bolas_sorteio * (qtd_concursos_passados * fator_sorteios)
             for key, value in enumerate(decenarios_passados):
                 percent: float = round((value / total) * 10000) / 100
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key} dezena:  {percent:0>6.2f}% ... {dif:6.2f}%\n"
-            logger.debug(f"Decenários Resultantes da EVOLUTIVA: {output}")
+            logger.debug(f"Decenarios Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

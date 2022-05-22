@@ -17,7 +17,7 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, Bola
 from lothon.process.abstract_process import AbstractProcess
 
 
@@ -25,7 +25,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ class AnaliseParidade(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Paridade das Dezenas")
+        super().__init__("Analise de Paridade das Dezenas")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -83,7 +83,7 @@ class AnaliseParidade(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de paridade dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de paridade dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
@@ -105,7 +105,7 @@ class AnaliseParidade(AbstractProcess):
         logger.debug(f"Paridades Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de paridade dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de paridade dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza pares (e impares) de cada evolucao de concurso:
@@ -117,7 +117,7 @@ class AnaliseParidade(AbstractProcess):
             # zera os contadores de cada paridade:
             paridades_passados: list[int] = self.new_list_int(qtd_items)
 
-            # calcula a paridade dos concursos passados até o concurso anterior:
+            # calcula a paridade dos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
                 qtd_pares_passado = self.count_pares(concurso_passado.bolas)
                 paridades_passados[qtd_pares_passado] += 1
@@ -141,8 +141,8 @@ class AnaliseParidade(AbstractProcess):
 
             # printa o resultado:
             output: str = f"\n\t  ? PARES    PERC%      %DIF%  " \
-                          f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Últimos Pares == { list(reversed(list6_paridades))}\n"
+                          f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
+                          f"Ultimos Pares == { list(reversed(list6_paridades))}\n"
             for key, value in enumerate(paridades_passados):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
@@ -153,6 +153,52 @@ class AnaliseParidade(AbstractProcess):
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
+
+        # efetua analise de todas as repeticoes dos sorteios da loteria:
+        logger.debug(f"{payload.nome_loteria}: Executando analise de FREQUENCIA de paridades"
+                     f"de dezenas nos  {qtd_concursos:,}  concursos da loteria.")
+
+        # zera os contadores de frequencias e atrasos das repetencias:
+        paridades: list[Bola | None] = self.new_list_bolas(qtd_items)
+        paridades[0] = Bola(0)  # neste caso especifico tem a repetencia zero!
+
+        # contabiliza as frequencias e atrasos das paridades em todos os sorteios ja realizados:
+        concurso_anterior: Concurso | ConcursoDuplo | None = None
+        for concurso in concursos:
+            # o primeiro concurso soh eh registrado para teste no proximo:
+            if concurso_anterior is None:
+                concurso_anterior = concurso
+                continue
+
+            # contabiliza o numero de paridades do concurso:
+            qtd_pares = self.count_pares(concurso.bolas)
+            paridades[qtd_pares].add_sorteio(concurso.id_concurso)
+
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                qtd_pares = self.count_pares(concurso.bolas2)
+                paridades[qtd_pares].add_sorteio(concurso.id_concurso)
+
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for bola in paridades:
+            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
+            bola.last_concurso(ultimo_concurso.id_concurso)
+
+        # printa o resultado:
+        output: str = f"\n\tPARES:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MAIOR   " \
+                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
+        for bola in paridades:
+            output += f"\t   {bola.id_bola:0>2}:       {bola.len_sorteios:0>5,}    " \
+                      f"{bola.ultimo_sorteio:0>5,}        {bola.len_atrasos:0>5,}    " \
+                      f"{bola.ultimo_atraso:0>5,}   {bola.max_atraso:0>5,}   " \
+                      f"{bola.min_atraso:0>5,}  {bola.mode_atraso:0>5,}   " \
+                      f"{bola.mean_atraso:0>6.1f}    {bola.hmean_atraso:0>6.1f}    " \
+                      f"{bola.gmean_atraso:0>6.1f}    {bola.median_atraso:0>6.1f}    " \
+                      f"{bola.varia_atraso:0>8.1f}          {bola.stdev_atraso:0>6.1f} \n"
+
+        logger.debug(f"FREQUENCIA de Paridades Resultantes: {output}")
 
         _totalTime: int = round(time.time() - _startTime)
         tempo_total: str = str(datetime.timedelta(seconds=_totalTime))

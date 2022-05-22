@@ -23,7 +23,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -42,7 +42,7 @@ class AnaliseFrequencia(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Frequência dos Concursos")
+        super().__init__("Analise de Frequencia dos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -59,21 +59,21 @@ class AnaliseFrequencia(AbstractProcess):
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
+        # if eh_duplo:
+        #     fator_sorteios: int = 2
+        # else:
+        #     fator_sorteios: int = 1
         # qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando análise de frequência de TODAS as "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de frequencia de TODAS as "
                      f"dezenas nos  {qtd_concursos:,}  concursos da loteria.")
 
-        # zera os contadores dos ciclos fechados:
+        # zera os contadores de frequencias e atrasos:
         dezenas: list[Bola | None] = self.new_list_bolas(qtd_items)
 
-        # contabiliza os ciclos fechados em todos os sorteios ja realizados:
+        # contabiliza as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
         for concurso in concursos:
             # registra o concurso para cada dezena sorteada:
             for bola in concurso.bolas:
@@ -85,18 +85,33 @@ class AnaliseFrequencia(AbstractProcess):
                 for bola in concurso.bolas2:
                     dezenas[bola].add_sorteio(concurso.id_concurso)
 
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for bola in dezenas:
+            # ignora o primeiro item, criado apenas para evitar acesso zero-index
+            if bola is None or bola.id_bola == 0:
+                continue
+
+            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
+            bola.last_concurso(ultimo_concurso.id_concurso)
+
         # printa o resultado:
-        output: str = f"\n\t BOLA:   #SORTEIOS   ÚLTIMO     #ATRASOS:   MAIOR   MENOR    MÉDIA\n"
+        output: str = f"\n\t BOLA:   #SORTEIOS   ULTIMO      #ATRASOS   ULTIMO   MAIOR   " \
+                      f"MENOR   MODA   MEDIA   H.MEDIA   G.MEDIA      MEDIANA   " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
         for bola in dezenas:
             if bola is None or bola.id_bola == 0:
                 continue
 
-            output += f"\t  {bola.id_bola:0>3}:         {bola.qtd_sorteios:0>3,}" \
-                      f"    {bola.ultimo_sorteio:0>3,}          {bola.qtd_atrasos:0>3,} " \
-                      f"     {bola.maior_atraso:0>3}     {bola.menor_atraso:0>3}   " \
-                      f" {bola.media_atraso:0>5.1f}\n"
+            output += f"\t  {bola.id_bola:0>3}:       {bola.len_sorteios:0>5,}    " \
+                      f"{bola.ultimo_sorteio:0>5,}           {bola.len_atrasos:0>3,}      " \
+                      f"{bola.ultimo_atraso:0>3}     {bola.max_atraso:0>3}     " \
+                      f"{bola.min_atraso:0>3}    {bola.mode_atraso:0>3}   " \
+                      f"{bola.mean_atraso:0>5.1f}     {bola.hmean_atraso:0>5.1f}     " \
+                      f"{bola.gmean_atraso:0>5.1f}        {bola.median_atraso:0>5.1f}       " \
+                      f"{bola.varia_atraso:0>5.1f}           {bola.stdev_atraso:0>5.1f} \n"
 
-        logger.debug(f"Frequência de Dezenas Resultantes: {output}")
+        logger.debug(f"Frequencia de Dezenas Resultantes: {output}")
 
         _totalTime: int = round(time.time() - _startTime)
         tempo_total: str = str(datetime.timedelta(seconds=_totalTime))

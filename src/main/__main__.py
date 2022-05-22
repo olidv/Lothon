@@ -122,7 +122,7 @@ if not settings.setup_logging(opt_cfpath):
     print("Erro ao configurar o logging da aplicacao...")
     sys.exit(EXIT_ERROR_CONFIG_LOGGING)  # nao ha porque prosseguir...
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 logger.info("O logging foi configurado com sucesso para a aplicacao.")
 

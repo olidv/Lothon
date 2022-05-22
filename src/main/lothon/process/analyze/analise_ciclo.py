@@ -12,7 +12,7 @@
 import datetime
 import time
 import logging
-import statistics
+import statistics as stts
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -24,7 +24,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +43,7 @@ class AnaliseCiclo(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Ciclo Fechado dos Concursos")
+        super().__init__("AnAlise de Ciclo Fechado dos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -71,28 +71,25 @@ class AnaliseCiclo(AbstractProcess):
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
+        # if eh_duplo:
+        #     fator_sorteios: int = 2
+        # else:
+        #     fator_sorteios: int = 1
         # qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando análise de TODOS os ciclos fechados nos  "
+        logger.debug(f"{payload.nome_loteria}: Executando anAlise de TODOS os ciclos fechados nos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        dezenas: list[int | None] = self.new_list_int(qtd_items)
-        dezenas[0] = None
-        ciclos: list[tuple[int, ...]] = []
-        maior_intervalo: int = 0
-        menor_intervalo: int = 10000
-        qtd_intervalos: int = 0
-        sum_intervalos: int = 0
+        intervalos: list[int] = []
+        ciclos: list[tuple[int, int, int]] = []
 
         # contabiliza os ciclos fechados em todos os sorteios ja realizados:
         init_intervalo: int = 0
+        dezenas: list[int | None] = self.new_list_int(qtd_items)
+        dezenas[0] = None
         for concurso in concursos:
             # registra o inicio do intervalo:
             if init_intervalo == 0:
@@ -109,27 +106,40 @@ class AnaliseCiclo(AbstractProcess):
                 continue
 
             # fechando o ciclo, contabiliza o ciclo fechado:
-            intervalo_ciclo: int = concurso.id_concurso - init_intervalo + 1
-            maior_intervalo = max(maior_intervalo, intervalo_ciclo)
-            menor_intervalo = min(menor_intervalo, intervalo_ciclo)
-            qtd_intervalos += 1
-            sum_intervalos += intervalo_ciclo
-            ciclos.append((init_intervalo, concurso.id_concurso, intervalo_ciclo))
+            intervalo_atual: int = concurso.id_concurso - init_intervalo + 1
+            intervalos.append(intervalo_atual)
+            ciclos.append((init_intervalo, concurso.id_concurso, intervalo_atual))
 
             # zera contadores para proximo ciclo:
-            dezenas: list[int | None] = self.new_list_int(qtd_items)
-            dezenas[0] = None
             init_intervalo = 0
+            dezenas = self.new_list_int(qtd_items)
+            dezenas[0] = None  # para nao conflitar com o teste de fechamento do ciclo
+
+        # calcula as medidas estatisticas:
+        intervalos = sorted(intervalos)  # ja ordena para facilitar os calculos seguintes
+        max_intervalo: int = max(intervalos)
+        min_intervalo: int = min(intervalos)
+        len_intervalos: int = len(intervalos)
+        mode_intervalo: int = stts.mode(intervalos)
+        mean_intervalo: float = stts.fmean(intervalos)
+        hmean_intervalo: float = stts.harmonic_mean(intervalos)
+        gmean_intervalo: float = stts.geometric_mean(intervalos)
+        median_intervalo: float = stts.median(intervalos)
+        varia_intervalo: float = stts.pvariance(intervalos)
+        stdev_intervalo: float = stts.pstdev(intervalos)
 
         # printa o resultado:
         output: str = f"\n\t INICIO     FINAL   INTERVALO \n"
         for (inicio, final, intervalo) in ciclos:
             output += f"\t  {inicio:0>5,} ... {final:0>5,}         {intervalo:0>3}\n"
 
-        output += f"\n\t #INTERVALOS   MENOR   MAIOR   MÉDIA\n"
-        media_intervalo: float = round((sum_intervalos / qtd_intervalos) * 10) / 10
-        output += f"\t     {qtd_intervalos:0>3,}         {menor_intervalo:0>3,}   " \
-                  f"  {maior_intervalo:0>3,}    {media_intervalo:0>4.1f}\n"
+        output += f"\n\t #INTERVALOS   MENOR   MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA   " \
+                  f"MEDIANA   VARIANCIA   DESVIO-PADRAO\n"
+        output += f"\t         {len_intervalos:0>3,}     {min_intervalo:0>3,}     " \
+                  f"{max_intervalo:0>3,}    {mode_intervalo:0>3,}   " \
+                  f"{mean_intervalo:0>5.1f}     {hmean_intervalo:0>5.1f}     " \
+                  f"{gmean_intervalo:0>5.1f}     {median_intervalo:0>5.1f}       " \
+                  f"{varia_intervalo:0>5.1f}           {stdev_intervalo:0>5.1f} \n"
 
         logger.debug(f"Ciclos Fechados Resultantes: {output}")
 

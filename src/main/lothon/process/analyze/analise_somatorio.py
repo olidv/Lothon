@@ -25,7 +25,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ class AnaliseSomatorio(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Somatório das Dezenas")
+        super().__init__("Analise de Somatorio das Dezenas")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -80,7 +80,7 @@ class AnaliseSomatorio(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de somatório dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de somatorio dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada somatorio:
@@ -100,26 +100,52 @@ class AnaliseSomatorio(AbstractProcess):
         logger.debug(f"Somatorios Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise TOTAL de somatório dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise TOTAL de somatorio dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza a somatorio de cada sorteio dos concursos:
-        somatorio_cocursos: list[int] = self.new_list_int(qtd_items)
+        somatorio_concursos: list[int] = self.new_list_int(qtd_items)
+        percentos_concursos: list[float] = self.new_list_float(qtd_items)
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
-            somatorio_cocursos[soma_dezenas] += 1
+            somatorio_concursos[soma_dezenas] += 1
 
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                somatorio_cocursos[soma_dezenas] += 1
+                somatorio_concursos[soma_dezenas] += 1
 
         # printa o resultado:
         output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
-        for key, value in enumerate(somatorio_cocursos):
+        for key, value in enumerate(somatorio_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percentos_concursos[key] = percent
             output += f"\t {key:0>3} somado:  {percent:0>7.3f}% ... #{value:,}\n"
-        logger.debug(f"Somatórios Resultantes: {output}")
+        logger.debug(f"Somatorios Resultantes: {output}")
+
+        #
+        logger.debug(f"{payload.nome_loteria}: Executando analise COMPARATIVA de somatorio dos  "
+                     f"{qtd_concursos:,}  concursos da loteria.")
+
+        # contabiliza a somatorio de cada sorteio dos concursos para exibicao em lista sequencial:
+        output: str = f"\n\t #CONCURSO   SOMA          PERC%    #TOTAL\n"
+        for concurso in concursos:
+            soma_dezenas = self.soma_dezenas(concurso.bolas)
+            percent = percentos_concursos[soma_dezenas]
+            total = somatorio_concursos[soma_dezenas]
+            output += f"\t     {concurso.id_concurso:0>5,}    {soma_dezenas:0>3}  ...  " \
+                      f"{percent:0>7.3f}%    #{total:,}\n"
+
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                soma_dezenas = self.soma_dezenas(concurso.bolas2)
+                percent = percentos_concursos[soma_dezenas]
+                total = somatorio_concursos[soma_dezenas]
+                output += f"\t                          {soma_dezenas:0>3}  ...  " \
+                          f"{percent:0>7.3f}%   #{total:,}\n"
+
+        # printa o resultado:
+        logger.debug(f"COMPARATIVA dos Somatorios Resultantes: {output}")
 
         _totalTime: int = round(time.time() - _startTime)
         tempo_total: str = str(datetime.timedelta(seconds=_totalTime))

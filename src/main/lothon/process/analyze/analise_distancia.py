@@ -25,7 +25,7 @@ from lothon.process.abstract_process import AbstractProcess
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +44,7 @@ class AnaliseDistancia(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Análise de Distância nos Concursos")
+        super().__init__("Analise de Distancia nos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -79,7 +79,7 @@ class AnaliseDistancia(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando análise de distância dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de distancia dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada distancia:
@@ -98,10 +98,10 @@ class AnaliseDistancia(AbstractProcess):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
             output += f"\t {key:0>2} distante:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Distâncias Resultantes: {output}")
+        logger.debug(f"Distancias Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando análise EVOLUTIVA de distância dos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de distancia dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # calcula distancias dos extremos de cada evolucao de concurso:
@@ -113,7 +113,7 @@ class AnaliseDistancia(AbstractProcess):
             # zera os contadores de cada distancia:
             distancias_passadas: list[int] = self.new_list_int(qtd_items)
 
-            # calcula a distancia nos concursos passados até o concurso anterior:
+            # calcula a distancia nos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
                 vl_distancia_passada = self.calc_distancia(concurso_passado.bolas)
                 distancias_passadas[vl_distancia_passada] += 1
@@ -135,14 +135,14 @@ class AnaliseDistancia(AbstractProcess):
 
             # printa o resultado:
             output: str = f"\n\t  ? DISTANTE    PERC%      %DIF%  " \
-                          f"----->  CONCURSO Nº {concurso_atual.id_concurso} :  " \
-                          f"Últimas Distâncias == { list(reversed(list6_distancias))}\n"
+                          f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
+                          f"Ultimas Distancias == { list(reversed(list6_distancias))}\n"
             for key, value in enumerate(distancias_passadas):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key:0>2} distante:  {percent:0>5.1f}% ... {dif:5.1f}%\n"
-            logger.debug(f"Distâncias Resultantes da EVOLUTIVA: {output}")
+            logger.debug(f"Distancias Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

@@ -34,7 +34,7 @@ from lothon.stats import combinatoria as comb
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 # relacao de instancias das loterias da caixa:
@@ -105,7 +105,7 @@ def run():
 
     # logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
     # process_chain = simulate.get_process_chain()
-    # # Efetua a execução de cada processo de análise:
+    # # Efetua a execucao de cada processo de analise:
     # for proc in process_chain:
     #     invoke_process(proc)
 

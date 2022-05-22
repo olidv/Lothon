@@ -37,7 +37,7 @@ APP_CONFIG_INI = "app_config.ini"
 # VARIAVEIS GLOBAIS
 # ----------------------------------------------------------------------------
 
-# obtem uma instância do logger para o modulo corrente:
+# obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
 # instancia global para leitura das configuracoes da aplicacao:

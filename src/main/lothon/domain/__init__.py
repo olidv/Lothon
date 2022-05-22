@@ -32,7 +32,6 @@ from typing import Optional
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import app_config
-from .basico.numeral import Numeral
 from .basico.dezena import Dezena
 from .basico.jogo import Jogo
 from .basico.estrutura import LoteriaStruct
