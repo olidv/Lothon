@@ -12,6 +12,7 @@
 import datetime
 import time
 import logging
+import statistics
 
 # Libs/Frameworks modules
 # Own/Project modules

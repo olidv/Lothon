@@ -1,3 +1,13 @@
+"""
+   Package lothon.process.analyze
+   Module  __init__.py
+
+"""
+
+__all__ = [
+    'get_process_chain'
+]
+
 
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS

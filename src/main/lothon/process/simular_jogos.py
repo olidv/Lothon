@@ -24,7 +24,7 @@ from collections import namedtuple
 # from lothon.conf import app_config
 from lothon import domain
 from lothon.infra import parser_resultados
-from lothon.domain import Loteria, Concurso, Jogo, Numeral, LoteriaStruct, Premio
+from lothon.domain import Loteria, Concurso
 from lothon.process import simulate
 from lothon.process.abstract_process import AbstractProcess
 from lothon.stats import combinatoria as comb

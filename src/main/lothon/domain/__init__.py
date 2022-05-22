@@ -1,3 +1,26 @@
+"""
+   Package lothon.domain
+   Module  __init__.py
+
+"""
+
+__all__ = [
+    'Loteria',
+    'Concurso',
+    'ConcursoDuplo',
+    'Bola',
+    'get_dia_de_sorte',
+    'get_dupla_sena',
+    'get_lotofacil',
+    'get_lotomania',
+    'get_mega_sena',
+    'get_quina',
+    'get_super_sete',
+    'get_timemania',
+    'get_mes_da_sorte',
+    'get_time_do_coracao'
+]
+
 
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
