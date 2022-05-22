@@ -43,6 +43,7 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
+pip install -U setuptools
 pip install -U wheel
 pip install -U PyYAML
 pip install -U beautifulsoup4
