@@ -64,10 +64,6 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     loterias_caixa = {
         "quina": domain.get_quina(),
-        "lotofacil": domain.get_lotofacil(),
-        "megasena": domain.get_mega_sena(),
-        "duplasena": domain.get_dupla_sena(),
-        "diadesorte": domain.get_dia_de_sorte(),
     }
     """
         "quina": domain.get_quina(),

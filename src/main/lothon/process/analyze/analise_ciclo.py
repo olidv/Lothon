@@ -79,7 +79,7 @@ class AnaliseCiclo(AbstractProcess):
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando anAlise de TODOS os ciclos fechados nos  "
+        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS os ciclos fechados nos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:

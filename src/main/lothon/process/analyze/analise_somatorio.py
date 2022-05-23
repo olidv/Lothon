@@ -85,6 +85,7 @@ class AnaliseSomatorio(AbstractProcess):
 
         # zera os contadores de cada somatorio:
         somatorio_jogos: list[int] = self.new_list_int(qtd_items)
+        percentos_jogos: list[float] = self.new_list_float(qtd_items)
 
         # contabiliza a somatorio de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
@@ -96,6 +97,7 @@ class AnaliseSomatorio(AbstractProcess):
         output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
         for key, value in enumerate(somatorio_jogos):
             percent: float = round((value / qtd_jogos) * 100000) / 1000
+            percentos_jogos[key] = percent
             output += f"\t {key:0>3} somado:  {percent:0>7.3f}% ... #{value:,}\n"
         logger.debug(f"Somatorios Resultantes: {output}")
 
@@ -105,7 +107,6 @@ class AnaliseSomatorio(AbstractProcess):
 
         # contabiliza a somatorio de cada sorteio dos concursos:
         somatorio_concursos: list[int] = self.new_list_int(qtd_items)
-        percentos_concursos: list[float] = self.new_list_float(qtd_items)
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
             somatorio_concursos[soma_dezenas] += 1
@@ -119,7 +120,6 @@ class AnaliseSomatorio(AbstractProcess):
         output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
         for key, value in enumerate(somatorio_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
-            percentos_concursos[key] = percent
             output += f"\t {key:0>3} somado:  {percent:0>7.3f}% ... #{value:,}\n"
         logger.debug(f"Somatorios Resultantes: {output}")
 
@@ -131,7 +131,7 @@ class AnaliseSomatorio(AbstractProcess):
         output: str = f"\n\t #CONCURSO   SOMA          PERC%    #TOTAL\n"
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
-            percent = percentos_concursos[soma_dezenas]
+            percent = percentos_jogos[soma_dezenas]
             total = somatorio_concursos[soma_dezenas]
             output += f"\t     {concurso.id_concurso:0>5,}    {soma_dezenas:0>3}  ...  " \
                       f"{percent:0>7.3f}%    #{total:,}\n"
@@ -139,7 +139,7 @@ class AnaliseSomatorio(AbstractProcess):
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                percent = percentos_concursos[soma_dezenas]
+                percent = percentos_jogos[soma_dezenas]
                 total = somatorio_concursos[soma_dezenas]
                 output += f"\t                          {soma_dezenas:0>3}  ...  " \
                           f"{percent:0>7.3f}%   #{total:,}\n"
