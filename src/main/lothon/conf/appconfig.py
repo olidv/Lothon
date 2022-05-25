@@ -12,6 +12,7 @@
 # Built-in/Generic modules
 from dataclasses import dataclass
 from configparser import ConfigParser
+from typing import Optional
 
 
 # Libs/Frameworks modules
@@ -41,7 +42,7 @@ class AppConfig:
     RT_files_all_mask: str = ''
 
     # Parametrizacao das loterias da Caixa EF:
-    LC_loterias_caixa: list[tuple[str, ...]] = None
+    LC_loterias_caixa: Optional[list[tuple[str, ...]]] = None
     LC_loteria_htm_name: str = ''
     LC_table_class_find: str = ''
 
@@ -49,7 +50,7 @@ class AppConfig:
     BA_bolao_csv_name: str = ''
 
     # .
-    def load_properties(self, parser: ConfigParser) -> None:
+    def load_properties(self, parser: ConfigParser):
         # nao faz nada se nao forneceu o parser...
         if parser is None:
             return

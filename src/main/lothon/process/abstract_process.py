@@ -10,6 +10,7 @@
 
 # Built-in/Generic modules
 from abc import ABC, abstractmethod
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -58,7 +59,7 @@ class AbstractProcess(ABC):
 
     # --- METODOS ------------------------------------------------------------
 
-    def init(self, options: dict) -> None:
+    def init(self, options: dict):
         self.options = options
 
     @abstractmethod
@@ -80,12 +81,12 @@ class AbstractProcess(ABC):
         return list_zerado
 
     @staticmethod
-    def new_list_bolas(qtd_items: int) -> list[Bola | None]:
+    def new_list_bolas(qtd_items: int) -> list[Optional[Bola]]:
         # valida os parametros:
         if qtd_items is None or qtd_items == 0:
             return []
 
-        bolas: list[Bola | None] = [None] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+        bolas: list[Optional[Bola]] = [None] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
         for i in range(0, qtd_items+1):
             bolas[i] = Bola(i)
 

@@ -49,7 +49,7 @@ class AnaliseColunario(AbstractProcess):
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def count_colunarios(bolas: tuple[int, ...], colunario: list[int]) -> None:
+    def count_colunarios(bolas: tuple[int, ...], colunario: list[int]):
         # valida os parametros:
         if bolas is None or len(bolas) == 0 or colunario is None or len(colunario) == 0:
             return

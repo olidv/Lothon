@@ -14,8 +14,7 @@ import math
 import random
 import logging
 import itertools as itt
-from typing import Optional, Any
-from collections import namedtuple
+from typing import Any
 
 # Libs/Frameworks modules
 # from memory_profiler import profile
@@ -23,12 +22,11 @@ from collections import namedtuple
 # Own/Project modules
 # from lothon.conf import app_config
 from lothon import domain
-from lothon.infra import parser_resultados
-from lothon.domain import Loteria, Concurso
-from lothon.process import simulate
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, Faixa, Premio
 from lothon.process.abstract_process import AbstractProcess
-from lothon.stats import combinatoria as comb
-
+# from lothon.process import simulate
+# from lothon.stats import combinatoria as comb
+from lothon.util.eve import *
 
 # ----------------------------------------------------------------------------
 # VARIAVEIS GLOBAIS
@@ -38,7 +36,7 @@ from lothon.stats import combinatoria as comb
 logger = logging.getLogger(__name__)
 
 # relacao de instancias das loterias da caixa:
-loterias_caixa: dict[str: Loteria] = None
+loterias_caixa: Optional[dict[str: Loteria]] = None
 
 # relacao de processos de analise, a serem executados sequencialmente:
 process_chain: Optional[list[AbstractProcess]] = None
@@ -74,9 +72,42 @@ def sortear_bolas(set_bolas: int, qtd_bolas_sorteadas: int) -> tuple[int, ...]:
 
 
 #
-def gerar_jogos(set_bolas: int, qtd_bolas_sorteadas: int, qtd_jogos_gerados: int,
-                concursos_passados: list[Concurso]) -> list[tuple[int, ...]]:
-    return []
+def gerar_bolao(qtd_bolas: int, qtd_dezenas: int, qtd_jogos: int,
+                concursos_passados: list[Concurso] = None) -> list[tuple[int, ...]]:
+    bolao: list[tuple[int, ...]] = []
+
+    # se nao ha concursos passados para analisar, entao gera jogos com dezenas aleatorias:
+    if concursos_passados is None:
+        for i in range(0, qtd_jogos):
+            bolao.append(sortear_bolas(qtd_bolas, qtd_dezenas))
+
+    return bolao
+
+
+# confere relacao de jogos de um bolao com o(s) sorteio(s) de determinado concurso:
+def check_premiacao_jogos(concurso: Concurso | ConcursoDuplo,
+                          bolao: list[tuple[int, ...]], qt_base: int = None) -> float:
+    premiof: float = 0.00
+
+    # confere cada jogo do bolao e soma o valor das premiacoes:
+    for jogo in bolao:
+        # se o numero de bolas de cada jogo corresponde ao numero basico de dezenas da loteria:
+        qt_bolas_jogo: int = len(jogo)
+        if qt_base is None or qt_base == qt_bolas_jogo:
+            # basta conferir cada jogo com o concurso:
+            premio: Optional[Premio] = concurso.check_premiacao(jogo)
+            if premio is not None:
+                premiof += premio.premio
+
+        # se o numero de bolas for inferior ao tamanho de cada jogo,
+        elif qt_base < qt_bolas_jogo:  # # entao o bolao esta com jogos combinados,
+            # deve-se gerar as combinacoes de BASE dezenas para cada jogo com x dezenas:
+            for jogob in itt.combinations(jogo, qt_base):
+                premio: Optional[Premio] = concurso.check_premiacao(jogob)
+                if premio is not None:
+                    premiof += premio.premio
+
+    return premiof
 
 
 # ----------------------------------------------------------------------------
@@ -90,17 +121,26 @@ def run():
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
-    loterias_caixa = {"quina": domain.get_quina(),
-                      "megasena": domain.get_mega_sena(),
-                      "duplasena": domain.get_dupla_sena(),
-                      "diadesorte": domain.get_dia_de_sorte(),
-                      "lotofacil": domain.get_lotofacil()}
-    logger.debug("Criadas instancias das loterias para processamento.")
+    loterias_caixa = {
+        "quina": domain.get_quina(),
+        # "megasena": domain.get_mega_sena(),
+        # "duplasena": domain.get_dupla_sena(),
+        # "diadesorte": domain.get_dia_de_sorte(),
+        # "lotofacil": domain.get_lotofacil()
+    }
+    boloes_caixa = {
+        "quina": {6: 80, 7: 25, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
+        "megasena": {7: 50, 8: 12, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
+        "duplasena": {7: 60, 8: 15, 9: 5, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
+        "diadesorte": {8: 60, 9: 15, 10: 5, 11: 2, 12: 1, 13: 1, 14: 1, 15: 1},
+        "lotofacil": {16: 40, 17: 5, 18: 1, 19: 1, 20: 1}
+    }
+    logger.debug("Criadas instancias das loterias e boloes para processamento.")
 
     # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    # for key, value in loterias_caixa.items():
-    #    logger.debug("Vai efetuar carga dos resultados da loteria: '%s'.", key)
-    #    parser_resultados.parse_concursos_loteria(value)
+    for key, loteria in loterias_caixa.items():
+        logger.debug(f"Vai efetuar carga dos resultados da loteria: '{key}'.")
+        domain.load_concursos(loteria)
     logger.debug("Ultimos sorteios das loterias carregados dos arquivos HTML de resultados.")
 
     # logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
@@ -109,82 +149,81 @@ def run():
     # for proc in process_chain:
     #     invoke_process(proc)
 
-    lot_quina = loterias_caixa["quina"]
-    parser_resultados.parse_concursos_loteria(lot_quina)
+    for key, loteria in loterias_caixa.items():
+        logger.debug(f"{loteria.nome_loteria}: Iniciando processamento de simulacao de apostas...")
 
-    boloes: dict[int, int] = {6: 80, 7: 24, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
-    media5: float = 0.00
-    mediax: float = 0.00
-    qtdmed: int = 1
+        boloes: dict[int, int] = boloes_caixa[key]
+        qtd_concursos: int = len(loteria.concursos)
+        bolas: int = loteria.qtd_bolas
+        base: int = loteria.qtd_bolas_sorteio
+        faixas: dict[int, Faixa] = loteria.faixas
+        precob: float = faixas[base].preco
 
-    for _ in range(0, qtdmed):
-        premios5: float = 0.00
-        premiosx: float = 0.00
+        total_gastosb: float = 0.00
+        total_premiosb: float = 0.00
+        total_premiosx: float = 0.00
 
         # concursos passados sao usados para gerar novos jogos:
         concursos_passados: list[Concurso] = []
 
-        # confere os jogos com os concursos da quina:
-        for concurso in lot_quina.concursos:
+        # efetua apostas em todos os concursos, de forma acumulativa:
+        for concurso in loteria.concursos:
+            output: str = f"\t#DEZENAS      #APOSTAS        GASTO R$          PREMIOS R$\n"
+
             # para cada concurso, faz a comparacao entre jogos simples e com boloes:
             for qtd_dezenas, qtd_apostas in boloes.items():
+                # *** APOSTAS BASE: MENOR PRECO ***
+                qtd_jogosb: int = math.comb(qtd_dezenas, base) * qtd_apostas
+                gastosb: float = precob * qtd_jogosb
+
                 # gera os jogos simples, sem bolao:
-                bolao5: list[tuple[int, ...]] = []
-                qtd_jogos5 = math.comb(qtd_dezenas, 5) * qtd_apostas
-                for i in range(0, qtd_jogos5):
-                    bolao5.append(sortear_bolas(80, 5))
+                bolaob: list[tuple[int, ...]] = gerar_bolao(bolas, base, qtd_jogosb)
+
+                # confere os boloes de BASE jogos
+                premiosb: float = check_premiacao_jogos(concurso, bolaob)
+
+                output += f"\t      {base:0>2}         {formatn(qtd_jogosb,6)}       " \
+                          f"{formatf(gastosb,'9.2')}      {formatf(premiosb)}\n"
+
+                # *** APOSTAS COM XX DEZENAS ***
+                gastosx: float = faixas[qtd_dezenas].preco * qtd_apostas
 
                 # gera os jogos para os boloes, usando analise estatistica:
-                bolaox: list[tuple[int, ...]] = gerar_jogos(80, qtd_dezenas, qtd_apostas,
-                                                            concursos_passados)
-
-                # confere os boloes de 5 jogos
-                for jogo5 in bolao5:
-                    premio = concurso.check_premiacao(jogo5)
-                    if premio is not None:
-                        premios5 += premio.premio
+                bolaox: list[tuple[int, ...]] = gerar_bolao(bolas, qtd_dezenas, qtd_apostas)
 
                 # confere os boloes de x jogos
-                for jogox in bolaox:
-                    # gera as combinacoes de 5 dezenas para cada jogo com x dezenas:
-                    for jogo5 in itt.combinations(jogox, 5):
-                        premio = concurso.check_premiacao(jogo5)
-                        if premio is not None:
-                            premiosx += premio.premio
+                premiosx: float = check_premiacao_jogos(concurso, bolaox, base)
+
+                output += f"\t      {qtd_dezenas:0>2}        {formatn(qtd_apostas,6)}    " \
+                          f"   {formatf(gastosx,'9.2')}      {formatf(premiosx)}\n\n"
+                total_gastosb += gastosb
+                total_premiosb += premiosb
+                total_premiosx += premiosx
+
+            logger.debug(f"{loteria.nome_loteria}: CONCURSO #{concurso.id_concurso}  .:.  "
+                         f"Data: {concurso.data_sorteio}\n"
+                         f"{output}")
 
             # este concurso sera usado como base para o proximo concurso:
             concursos_passados.append(concurso)
 
-        media5 += premios5
-        mediax += premiosx
+        media_gastosb: float = total_gastosb / qtd_concursos
+        media_premiosb: float = total_premiosb / qtd_concursos
+        media_premiosx: float = total_premiosx / qtd_concursos
 
-    media5 = media5 / qtdmed
-    mediax = mediax / qtdmed
-
-    print(f"\n\n Comparando apostas de 5 dezenas com boloes de X dezenas:")
-    print(f"\t\t Premios para 5 dezenas = {media5:,.2f}")
-    print(f"\t\t Premios para X dezenas = {mediax:,.2f}")
-
-    # idx = 0
-    # megasena_struct: LoteriaStruct = domain.new_loteria_struct()
-    # for numeros in itt.combinations(range(1, 61), 6):
-    #     megasena_struct.jogos.append(numeros)
-    #     megasena_struct.fatores.append(1)
-    #     idx += 1
-    #     if idx % 1000 == 0:
-    #         print("indice = ", idx)
-    #     if idx > 1000000:
-    #         break
-    #
-    # del megasena_struct.jogos[2]
-    # del megasena_struct.jogos[20]
-    # del megasena_struct.fatores[2]
-    # del megasena_struct.fatores[20]
-    # print(f"megasena_struct.jogos = {len(megasena_struct.jogos)}")
-    # print(f"megasena_struct.fatores = {len(megasena_struct.fatores)}")
+        logger.info(f"{loteria.nome_loteria}: Comparando apostas de {base} dezenas com boloes de "
+                    f"X dezenas:\n"
+                    
+                    f"\t\t MEDIA: Gasto medio com apostas = {formatf(media_gastosb)}\n"
+                    f"\t\t MEDIA: Premios para {base:0>2} dezenas = {formatf(media_premiosb)}\n"
+                    f"\t\t MEDIA: Premios para XX dezenas = {formatf(media_premiosx)}\n\n"
+                    
+                    f"\t\t TOTAL: Gasto total com apostas = {formatf(total_gastosb)}\n"
+                    f"\t\t TOTAL: Premios para {base:0>2} dezenas = {formatf(total_premiosb)}\n"
+                    f"\t\t TOTAL: Premios para XX dezenas = {formatf(total_premiosx)}\n")
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
-    logger.info("Finalizada a analise dos dados de sorteios das loterias.")
+    logger.info("Finalizada a simulacao de apostas para todos os concursos das loterias.")
     return 0
 
 # ----------------------------------------------------------------------------

@@ -6,8 +6,12 @@
 
 __all__ = [
     'Loteria',
+    'MegaSena',
+    'Quina',
     'Concurso',
     'ConcursoDuplo',
+    'Faixa',
+    'Premio',
     'Bola',
     'get_dia_de_sorte',
     'get_dupla_sena',
@@ -32,6 +36,7 @@ from typing import Optional
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import app_config
+from lothon.infra import parser_resultados
 from .basico.dezena import Dezena
 from .basico.jogo import Jogo
 from .basico.estrutura import LoteriaStruct
@@ -80,6 +85,11 @@ def get_tuple_loteria(id_loteria: str) -> tuple[str, ...]:
         return list_item[0]
     else:
         raise ValueError(f"Erro ao pesquisar loteria '{id_loteria}' na configuracao INI.")
+
+
+# Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
+def load_concursos(loteria: Loteria):
+    parser_resultados.parse_concursos_loteria(loteria)
 
 
 # ----------------------------------------------------------------------------

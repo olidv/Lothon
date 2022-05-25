@@ -10,12 +10,17 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+import locale
 import unicodedata
 from math import log, floor
 from datetime import date, datetime
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
+
+
+locale.setlocale(locale.LC_ALL, '')
 
 
 # ----------------------------------------------------------------------------
@@ -119,7 +124,23 @@ def parse_money(val: str) -> float:
     return float(val)
 
 
-def parse_dmy(val: str) -> date | None:
+def format_money(val: float) -> str:
+    return locale.currency(val, grouping=True)
+
+
+def formatn(val, size: int = None) -> str:
+    str_val: str = locale.format_string('%d', val, grouping=True)
+    if size is not None and size > len(str_val):
+        return str_val.rjust(size, ' ')
+    else:
+        return str_val
+
+
+def formatf(val, fmt: str = '14.2') -> str:
+    return locale.format_string(f"%{fmt}f", val, grouping=True)
+
+
+def parse_dmy(val: str) -> Optional[date]:
     # se o valor for nulo (None), entao considera tudo nulo:
     if val is None:
         return

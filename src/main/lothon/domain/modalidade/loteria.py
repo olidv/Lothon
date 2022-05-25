@@ -39,7 +39,7 @@ class Loteria(ABC):
     qtd_bolas: int
     qtd_bolas_sorteio: int
     dias_sorteio: tuple[int, ...]
-    faixas: list[Faixa]
+    faixas: dict[int, Faixa]
     concursos: Optional[list[Concurso]] = None
 
     sort_index: str = field(init=False, repr=False)
@@ -58,7 +58,7 @@ class Loteria(ABC):
     def get_file_resultados(self) -> str:
         return self.nome_loteria
 
-    def set_resultados(self, table_body: ResultSet) -> None:
+    def set_resultados(self, table_body: ResultSet):
         # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
         list_concursos: list[Concurso] = []
         for tbody in table_body:

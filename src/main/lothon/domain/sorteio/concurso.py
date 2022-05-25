@@ -11,6 +11,7 @@
 # Built-in/Generic modules
 from datetime import date
 from dataclasses import dataclass, field
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -45,7 +46,7 @@ class Concurso:
     def bolas_ordenadas(self) -> tuple[int, ...]:
         return tuple(sorted(self.bolas))
 
-    def check_premiacao(self, numeros: tuple[int, ...]) -> Premio | None:
+    def check_premiacao(self, numeros: tuple[int, ...]) -> Optional[Premio]:
         acertos: int = 0
         for numero in numeros:
             if any(bola for bola in self.bolas if bola == numero):

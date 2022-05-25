@@ -30,7 +30,7 @@ from lothon.process.abstract_process import AbstractProcess
 logger = logging.getLogger(__name__)
 
 # relacao de instancias das loterias da caixa:
-loterias_caixa: dict[str: Loteria] = None
+loterias_caixa: Optional[dict[str: Loteria]] = None
 
 # relacao de processos de analise, a serem executados sequencialmente:
 process_chain: Optional[list[AbstractProcess]] = None

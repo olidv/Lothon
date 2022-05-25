@@ -80,13 +80,13 @@ class SuperSete(Loteria):
             raise ValueError(f"Valor invalido para criar instancia de Faixa: {value}.")
 
         preco_min = float(termos[1])
-        faixas: list[Faixa] = []
+        faixas: dict[int, Faixa] = {}
 
         for qtd_dezenas, qtd_apostas in _TABELA_PRECOS.items():
             preco = qtd_apostas * preco_min
             prob = round(_PROB_ACERTOS / qtd_apostas)
             fx = Faixa(qtd_dezenas, preco, qtd_apostas, prob)
-            faixas.append(fx)
+            faixas[qtd_dezenas] = fx
 
         _super_sete = SuperSete(id_loteria=value[0],
                                 nome_loteria=value[1],

@@ -10,6 +10,7 @@
 
 # Built-in/Generic modules
 from dataclasses import dataclass
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -36,7 +37,7 @@ class ConcursoDuplo(Concurso):
     def bolas2_ordenadas(self) -> tuple[int, ...]:
         return tuple(sorted(self.bolas2))
 
-    def check_premiacao2(self, numeros: tuple[int, ...]) -> Premio | None:
+    def check_premiacao2(self, numeros: tuple[int, ...]) -> Optional[Premio]:
         acertos2: int = 0
         for numero in numeros:
             if any(bola for bola in self.bolas2 if bola == numero):

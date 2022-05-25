@@ -42,7 +42,7 @@ class Faixa:
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def from_str(vals: str, qtd_bolas: int, qtd_bolas_sorteio: int = None) -> list:
+    def from_str(vals: str, qtd_bolas: int, qtd_bolas_sorteio: int = None) -> dict:
         if vals is None:
             raise ValueError(f"Valor invalido para criar instancia de Faixa: {vals}.")
 
@@ -58,7 +58,7 @@ class Faixa:
         qtd_min = int(interval[0])
         qtd_max = int(interval[1])
         preco_min = float(termos[1])
-        faixas: list[Faixa] = []
+        faixas: dict[int, Faixa] = {}
 
         if qtd_bolas_sorteio is None or qtd_min == qtd_bolas_sorteio:
             prob_min = math.comb(qtd_bolas, qtd_min)
@@ -68,12 +68,12 @@ class Faixa:
                 prob = round(prob_min / jogos)
 
                 fx = Faixa(qtd, preco, jogos, prob)
-                faixas.append(fx)
+                faixas[qtd] = fx
         else:
             prob = round(math.comb(qtd_bolas, qtd_bolas_sorteio) /
                          math.comb(qtd_min, qtd_bolas_sorteio))
             fx = Faixa(qtd_min, preco_min, 1, prob)
-            faixas.append(fx)
+            faixas[qtd_min] = fx
 
         return faixas
 

@@ -25,7 +25,7 @@ from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas, si
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "tabrsc:"
+CMD_LINE_ARGS = "asbrc:t"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -58,12 +58,12 @@ def print_usage():
           '  python lothon.zip [opcoes]\n'
           '\n'
           'Opcoes Gerais:\n'
-          '  -t          Executa teste de funcionamento\n'
           '  -a          Efetua analise dos dados de sorteios das loterias\n'
+          '  -s          Simula varios jogos para validar estrategias\n'
           '  -b          Gera boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
-          '  -s          Simula varios jogos para validar estrategias\n'
-          '  -c <path>   Informa o path para os arquivos de configuracao\n')
+          '  -c <path>   Informa o path para os arquivos de configuracao\n'
+          '  -t <proc>   Executa teste de funcionamento de algum processo\n')
 
 
 # faz o parsing das opcoes e argumentos da linha de comando:
@@ -86,27 +86,29 @@ if (opts is None) or (len(opts) == 0):
     sys.exit(EXIT_ERROR_NO_ARGS)  # nao ha porque prosseguir...
 
 # comandos e opcoes de execucao:
-opt_testes = False   # Flag para teste de funcionamento
 opt_anlise = False   # Flag para analise de dados dos sorteios
+opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_boloes = False   # Flag para geracao de boloes de apostas
 opt_result = False   # Flag para conferencia das apostas
-opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_cfpath = ''      # path para os arquivos de configuracao
+opt_testef = False   # Flag para teste de funcionamento
+opt_tstprc = ''      # id do processo a ser executado para testes
 
 # identifica o comando/tarefa/job do Lothon a ser executado:
 for opt, val in opts:
-    if opt == '-t':
-        opt_testes = True
-    elif opt == '-a':
+    if opt == '-a':
         opt_anlise = True
+    elif opt == '-s':
+        opt_simula = True
     elif opt == '-b':
         opt_boloes = True
     elif opt == '-r':
         opt_result = True
-    elif opt == '-s':
-        opt_simula = True
     elif opt == '-c':
         opt_cfpath = val
+    elif opt == '-t':
+        opt_testef = True
+        opt_tstprc = val
 
 # valida o path para os arquivos de configuracao:
 if len(opt_cfpath) == 0:
@@ -146,9 +148,10 @@ logger.debug(f"Argumentos da linha de comando: {str(opts).strip('[]')}")
 # ----------------------------------------------------------------------------
 
 # Rotina de testes:
-if opt_testes:
+if opt_testef:
+    # Informa que tudo ok ate aqui, Lothon funcionando normalmente:
+    logger.info(f"Modulo main() executado com sucesso! opt_testef = {opt_testef}")
     # aborta o processamento se esta apenas testando:
-    logger.info(f"Modulo main() executado com sucesso! opt_testes = {opt_testes}")
     sys.exit(EXIT_SUCCESS)
 
 
@@ -161,6 +164,11 @@ if opt_anlise:
     logger.debug("Vai iniciar a analise dos dados de sorteios das loterias...")
     analisar_sorteios.run()
 
+# Opcao para executar a simulacao de varios jogos para validar estrategias:
+elif opt_simula:
+    logger.debug("Vai iniciar a simulacao de varios jogos para validar estrategias...")
+    simular_jogos.run()
+
 # Opcao para executar a geracao de boloes de apostas para as loterias:
 elif opt_boloes:
     logger.debug("Vai iniciar a geracao de boloes de apostas para as loterias...")
@@ -170,11 +178,6 @@ elif opt_boloes:
 elif opt_result:
     logger.debug("Vai iniciar a conferencia das apostas com os resultados das loterias...")
     conferir_apostas.run()
-
-# Opcao para executar a simulacao de varios jogos para validar estrategias:
-elif opt_simula:
-    logger.debug("Vai iniciar a simulacao de varios jogos para validar estrategias...")
-    simular_jogos.run()
 
 # se a opcao de execucao fornecida na linha de comando nao foi reconhecida:
 else:

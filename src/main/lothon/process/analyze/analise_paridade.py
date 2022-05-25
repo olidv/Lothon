@@ -14,6 +14,7 @@ import time
 import math
 import itertools as itt
 import logging
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -159,11 +160,11 @@ class AnaliseParidade(AbstractProcess):
                      f"de dezenas nos  {qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos das repetencias:
-        paridades: list[Bola | None] = self.new_list_bolas(qtd_items)
+        paridades: list[Optional[Bola]] = self.new_list_bolas(qtd_items)
         paridades[0] = Bola(0)  # neste caso especifico tem a repetencia zero!
 
         # contabiliza as frequencias e atrasos das paridades em todos os sorteios ja realizados:
-        concurso_anterior: Concurso | ConcursoDuplo | None = None
+        concurso_anterior: Optional[Concurso | ConcursoDuplo] = None
         for concurso in concursos:
             # o primeiro concurso soh eh registrado para teste no proximo:
             if concurso_anterior is None:

@@ -13,6 +13,7 @@ import datetime
 import time
 import logging
 import statistics as stts
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -48,7 +49,7 @@ class AnaliseCiclo(AbstractProcess):
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def count_dezenas(bolas: tuple[int, ...], dezenas: list[int]) -> None:
+    def count_dezenas(bolas: tuple[int, ...], dezenas: list[int]):
         # valida os parametros:
         if bolas is None or len(bolas) == 0 or dezenas is None or len(dezenas) == 0:
             return
@@ -88,7 +89,7 @@ class AnaliseCiclo(AbstractProcess):
 
         # contabiliza os ciclos fechados em todos os sorteios ja realizados:
         init_intervalo: int = 0
-        dezenas: list[int | None] = self.new_list_int(qtd_items)
+        dezenas: list[Optional[int]] = self.new_list_int(qtd_items)
         dezenas[0] = None
         for concurso in concursos:
             # registra o inicio do intervalo:

@@ -62,7 +62,7 @@ def carregar_resultados(nome_loteria: str):
     if not os.path.exists(loteria_htm_path):
         logger.error(f"O arquivo '{loteria_htm_file}' nao foi encontrado na pasta "
                      f"'{app_config.RT_dat_path}' para leitura.")
-        return None
+        return
 
     # carrega todo o conteudo HTML do arquivo:
     content_htm = ler_arquivo_htm(loteria_htm_path)
