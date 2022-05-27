@@ -9,9 +9,9 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional, Any
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Optional, Any
 import logging
 
 # Libs/Frameworks modules

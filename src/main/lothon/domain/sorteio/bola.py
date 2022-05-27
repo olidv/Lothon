@@ -74,7 +74,7 @@ class Bola:
             self.sorteios.append(id_concurso)
 
     # ultimo concurso ocorrido da loteria, ainda sem sorteio (atraso) desta bola:
-    def last_concurso(self, id_concurso: int):
+    def last_sorteio(self, id_concurso: int):
         # verifica se a bola ainda nao foi sorteada:
         if self.ultimo_sorteio == 0:
             atraso: int = id_concurso

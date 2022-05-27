@@ -9,6 +9,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from datetime import date
 from dataclasses import dataclass
 
 # Libs/Frameworks modules

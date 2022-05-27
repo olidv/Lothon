@@ -172,8 +172,8 @@ class AnaliseNumerologia(AbstractAnalyze):
                 if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
                     continue
 
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
-                                 / 10
+                percent: float = round((value / (qtd_concursos_passados*fator_sorteios))
+                                       * 1000) / 10
                 dif: float = percent - percentos_jogos[key]
                 output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'6.2')}%\n"
@@ -214,11 +214,11 @@ class AnaliseNumerologia(AbstractAnalyze):
                 continue
 
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
-            bola.last_concurso(ultimo_concurso.id_concurso)
+            bola.last_sorteio(ultimo_concurso.id_concurso)
 
         # printa o resultado:
-        output: str = f"\n\tNUMERO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MAIOR   " \
-                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+        output: str = f"\n\tNUMERO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
         for bola in numelogias:
             if bola is None:
@@ -229,8 +229,8 @@ class AnaliseNumerologia(AbstractAnalyze):
                       f"{formatd(bola.ultimo_sorteio,5)}        " \
                       f"{formatd(bola.len_atrasos,5)}    " \
                       f"{formatd(bola.ultimo_atraso,5)}   " \
-                      f"{formatd(bola.max_atraso,5)}   " \
                       f"{formatd(bola.min_atraso,5)}  " \
+                      f"{formatd(bola.max_atraso,5)}   " \
                       f"{formatd(bola.mode_atraso,5)}   " \
                       f"{formatf(bola.mean_atraso,'6.1')}    " \
                       f"{formatf(bola.hmean_atraso,'6.1')}    " \

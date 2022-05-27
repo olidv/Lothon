@@ -166,11 +166,11 @@ class AnaliseRepetencia(AbstractAnalyze):
         ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
         for bola in repetencias:
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
-            bola.last_concurso(ultimo_concurso.id_concurso)
+            bola.last_sorteio(ultimo_concurso.id_concurso)
 
         # printa o resultado:
-        output: str = f"\n\tREPETE:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MAIOR   " \
-                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+        output: str = f"\n\tREPETE:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
         for bola in repetencias:
             output += f"\t    {formatd(bola.id_bola,2)}:       " \
@@ -178,8 +178,8 @@ class AnaliseRepetencia(AbstractAnalyze):
                       f"{formatd(bola.ultimo_sorteio,5)}        " \
                       f"{formatd(bola.len_atrasos,5)}    " \
                       f"{formatd(bola.ultimo_atraso,5)}   " \
-                      f"{formatd(bola.max_atraso,5)}   " \
                       f"{formatd(bola.min_atraso,5)}  " \
+                      f"{formatd(bola.max_atraso,5)}   " \
                       f"{formatd(bola.mode_atraso,5)}  " \
                       f"{formatf(bola.mean_atraso,'7.1')}   " \
                       f"{formatf(bola.hmean_atraso,'7.1')}   " \
