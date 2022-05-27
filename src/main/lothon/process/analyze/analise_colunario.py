@@ -9,16 +9,15 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import datetime
-import time
 import math
 import itertools as itt
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseColunario(AbstractProcess):
+class AnaliseColunario(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -64,9 +63,10 @@ class AnaliseColunario(AbstractProcess):
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
         else:
-            _startTime: float = time.time()
+            _startWatch = startwatch()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
@@ -79,7 +79,7 @@ class AnaliseColunario(AbstractProcess):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando analise de colunario dos  "
+        logger.debug(f"{nmlot}: Executando analise de colunario dos  "
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
@@ -92,16 +92,16 @@ class AnaliseColunario(AbstractProcess):
             self.count_colunarios(jogo, colunario_jogos)
 
         # printa o resultado:
-        output: str = f"\n\t ? COLUNA    PERC%     #TOTAL\n"
+        output: str = f"\n\t ? COLUNA     PERC%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_jogos
         for key, value in enumerate(colunario_jogos):
             percent: float = round((value / total) * 1000) / 10
             percentos_jogos[key] = percent
-            output += f"\t {key} coluna:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Colunarios Resultantes: {output}")
+            output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Colunarios Resultantes: {output}")
 
         # efetua analise de colunarios de todos os sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS colunarios dos  "
+        logger.debug(f"{nmlot}: Executando analise TOTAL de colunarios dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores de cada sequencia:
@@ -115,15 +115,17 @@ class AnaliseColunario(AbstractProcess):
                 self.count_colunarios(concurso.bolas2, colunario_tudo)
 
         # printa o resultado:
-        output: str = f"\n\t ? COLUNA     PERC%     #TOTAL\n"
+        output: str = f"\n\t ? COLUNA     PERC%       %DIF%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_sorteios
         for key, value in enumerate(colunario_tudo):
             percent: float = round((value / total) * 10000) / 100
-            output += f"\t {key} coluna:  {percent:0>6.2f}% ... #{value:,}\n"
-        logger.debug(f"Colunarios Resultantes: {output}")
+            dif: float = percent - percentos_jogos[key]
+            output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%  " \
+                      f"   #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Colunarios Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de colunario dos  "
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de colunario dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza colunarios de cada evolucao de concurso:
@@ -156,16 +158,15 @@ class AnaliseColunario(AbstractProcess):
             for key, value in enumerate(colunarios_passados):
                 percent: float = round((value / total) * 10000) / 100
                 dif: float = percent - percentos_jogos[key]
-                output += f"\t {key} coluna:  {percent:0>6.2f}% ... {dif:6.2f}%\n"
-            logger.debug(f"Colunarios Resultantes da EVOLUTIVA: {output}")
+                output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%\n"
+            logger.debug(f"{nmlot}: Colunarios Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
 
-        _totalTime: int = round(time.time() - _startTime)
-        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
+        _stopWatch = stopwatch(_startWatch)
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
 # ----------------------------------------------------------------------------

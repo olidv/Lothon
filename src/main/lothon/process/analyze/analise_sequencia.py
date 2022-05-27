@@ -9,16 +9,15 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import datetime
-import time
 import math
 import itertools as itt
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo, Bola
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseSequencia(AbstractProcess):
+class AnaliseSequencia(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -73,9 +72,10 @@ class AnaliseSequencia(AbstractProcess):
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
         else:
-            _startTime: float = time.time()
+            _startWatch = startwatch()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = (concursos[0] is ConcursoDuplo)
@@ -83,13 +83,13 @@ class AnaliseSequencia(AbstractProcess):
             fator_sorteios: int = 2
         else:
             fator_sorteios: int = 1
-        # qtd_sorteios: int = qtd_concursos * fator_sorteios
+        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas_sorteio - 1
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{payload.nome_loteria}: Executando analise de sequencia dos  "
-                     f"{qtd_jogos:,}  jogos combinados da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de sequencia dos  "
+                     f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada sequencia:
         sequencias_jogos: list[int] = self.new_list_int(qtd_items)
@@ -102,16 +102,40 @@ class AnaliseSequencia(AbstractProcess):
             sequencias_jogos[qt_sequencias] += 1
 
         # printa o resultado:
-        output: str = f"\n\t  ? SEGUIDO    PERC%     #TOTAL\n"
+        output: str = f"\n\t  ? SEGUIDO     PERC%     #TOTAL\n"
         for key, value in enumerate(sequencias_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
             percentos_jogos[key] = percent
-            output += f"\t {key:0>2} seguido:  {percent:0>5.1f}% ... #{value:,}\n"
-        logger.debug(f"Sequencias Resultantes: {output}")
+            output += f"\t {formatd(key,2)} seguido:  {formatf(percent,'6.2')}% ... " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Sequencias Resultantes: {output}")
 
         #
-        logger.debug(f"{payload.nome_loteria}: Executando analise EVOLUTIVA de sequencia dos  "
-                     f"{qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise TOTAL de sequencia dos  "
+                     f"{formatd(qtd_concursos)}  concursos da loteria.")
+
+        # contabiliza sequencias de cada sorteio dos concursos:
+        sequencias_concursos: list[int] = self.new_list_int(qtd_items)
+        for concurso in concursos:
+            qt_sequencias: int = self.count_sequencias(concurso.bolas)
+            sequencias_concursos[qt_sequencias] += 1
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                qt_sequencias: int = self.count_sequencias(concurso.bolas2)
+                sequencias_concursos[qt_sequencias] += 1
+
+        # printa o resultado:
+        output: str = f"\n\t  ? SEGUIDO     PERC%       %DIF%     #TOTAL\n"
+        for key, value in enumerate(sequencias_concursos):
+            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            dif: float = percent - percentos_jogos[key]
+            output += f"\t {formatd(key,2)} seguido:  {formatf(percent,'6.2')}% ... " \
+                      f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Sequencias Resultantes: {output}")
+
+        #
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de sequencia dos  "
+                     f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza dezenas sequenciais de cada evolucao de concurso:
         concursos_passados: list[Concurso | ConcursoDuplo] = []
@@ -145,23 +169,24 @@ class AnaliseSequencia(AbstractProcess):
                 del list6_sequencias[0]
 
             # printa o resultado:
-            output: str = f"\n\t  ? SEGUIDO    PERC%      %DIF%  " \
+            output: str = f"\n\t  ? SEGUIDO     PERC%       %DIF%  " \
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimas Sequencias == { list(reversed(list6_sequencias))}\n"
             for key, value in enumerate(sequencias_passadas):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
                 dif: float = percent - percentos_jogos[key]
-                output += f"\t {key:0>2} seguido:  {percent:0>5.1f}% ... {dif:5.1f}%\n"
-            logger.debug(f"Sequencias Resultantes da EVOLUTIVA: {output}")
+                output += f"\t {formatd(key,2)} seguido:  {formatf(percent,'6.2')}% ... " \
+                          f"{formatf(dif,'6.2')}%\n"
+            logger.debug(f"{nmlot}: Sequencias Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
 
         # efetua analise de todas as sequencias dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de FREQUENCIA de sequencias"
-                     f"de dezenas nos  {qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de sequencias"
+                     f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos das sequencias:
         sequencias: list[Bola | None] = self.new_list_bolas(qtd_items)
@@ -192,22 +217,28 @@ class AnaliseSequencia(AbstractProcess):
 
         # printa o resultado:
         output: str = f"\n\tSEGUIDO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MAIOR   " \
-                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+                      f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA     " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
         for bola in sequencias:
-            output += f"\t     {bola.id_bola:0>2}:       {bola.len_sorteios:0>5,}    " \
-                      f"{bola.ultimo_sorteio:0>5,}        {bola.len_atrasos:0>5,}    " \
-                      f"{bola.ultimo_atraso:0>5,}   {bola.max_atraso:0>5,}   " \
-                      f"{bola.min_atraso:0>5,}  {bola.mode_atraso:0>5,}   " \
-                      f"{bola.mean_atraso:0>6.1f}    {bola.hmean_atraso:0>6.1f}    " \
-                      f"{bola.gmean_atraso:0>6.1f}    {bola.median_atraso:0>6.1f}    " \
-                      f"{bola.varia_atraso:0>8.1f}          {bola.stdev_atraso:0>6.1f} \n"
+            output += f"\t     {formatd(bola.id_bola,2)}:       " \
+                      f"{formatd(bola.len_sorteios,5)}    " \
+                      f"{formatd(bola.ultimo_sorteio,5)}        " \
+                      f"{formatd(bola.len_atrasos,5)}    " \
+                      f"{formatd(bola.ultimo_atraso,5)}   " \
+                      f"{formatd(bola.max_atraso,5)}   " \
+                      f"{formatd(bola.min_atraso,5)}  " \
+                      f"{formatd(bola.mode_atraso,5)}  " \
+                      f"{formatf(bola.mean_atraso,'7.1')}   " \
+                      f"{formatf(bola.hmean_atraso,'7.1')}   " \
+                      f"{formatf(bola.gmean_atraso,'7.1')}   " \
+                      f"{formatf(bola.median_atraso,'7.1')}   " \
+                      f"{formatf(bola.varia_atraso,'11.1')}         " \
+                      f"{formatf(bola.stdev_atraso,'7.1')} \n"
 
-        logger.debug(f"FREQUENCIA de Sequencias Resultantes: {output}")
+        logger.debug(f"{nmlot}: FREQUENCIA de Sequencias Resultantes: {output}")
 
-        _totalTime: int = round(time.time() - _startTime)
-        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
+        _stopWatch = stopwatch(_startWatch)
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
 # ----------------------------------------------------------------------------

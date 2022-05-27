@@ -15,6 +15,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 # from lothon.conf import app_config
+from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
@@ -36,10 +37,14 @@ logger = logging.getLogger(__name__)
 
 # entry-point de execucao para tarefas diarias:
 def run():
+    _startWatch = startwatch()
     logger.info("Iniciando a conferencia das apostas com os resultados das loterias...")
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
-    logger.info("Finalizada a conferencia das apostas com os resultados das loterias.")
+    _stopWatch = stopwatch(_startWatch)
+    logger.info(f"Finalizada a conferencia das apostas com os resultados das loterias. "
+                f"Tempo de Processamento: {_stopWatch}")
+
     return 0
 
 # ----------------------------------------------------------------------------

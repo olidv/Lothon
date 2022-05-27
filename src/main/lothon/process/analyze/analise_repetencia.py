@@ -9,14 +9,13 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import datetime
-import time
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo, Bola
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseRepetencia(AbstractProcess):
+class AnaliseRepetencia(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -66,9 +65,10 @@ class AnaliseRepetencia(AbstractProcess):
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
         else:
-            _startTime: float = time.time()
+            _startWatch = startwatch()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
@@ -80,8 +80,8 @@ class AnaliseRepetencia(AbstractProcess):
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise de repetencias de todos os sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de TODAS repetencias nos  "
-                     f"{qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de TODAS repetencias nos  "
+                     f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de cada repetencia:
         repetencia_tudo: list[int] = self.new_list_int(qtd_items)
@@ -126,13 +126,14 @@ class AnaliseRepetencia(AbstractProcess):
             rmax: int = repetencia_max[key]
             percent_max: float = round((rmax / qtd_sorteios) * 1000) / 10
             percentos_max[key] = percent_max
-            output += f"\t {key:0>2} repete:  {percent_max:0>5.1f}%     {percent:0>5.1f}% ... " \
-                      f"#{value:,}\n"
-        logger.debug(f"Repetencias Resultantes: {output}")
+            output += f"\t {formatd(key,2)} repete:  {formatf(percent_max,'5.1')}%     " \
+                      f"{formatf(percent,'5.1')}% ... " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Repetencias Resultantes: {output}")
 
         # efetua analise de todas as repeticoes dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de FREQUENCIA de repetencias"
-                     f"de dezenas nos  {qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de repetencias"
+                     f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos das repetencias:
         repetencias: list[Bola | None] = self.new_list_bolas(qtd_items)
@@ -172,19 +173,25 @@ class AnaliseRepetencia(AbstractProcess):
                       f"MENOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
         for bola in repetencias:
-            output += f"\t    {bola.id_bola:0>2}:       {bola.len_sorteios:0>5,}    " \
-                      f"{bola.ultimo_sorteio:0>5,}        {bola.len_atrasos:0>5,}    " \
-                      f"{bola.ultimo_atraso:0>5,}   {bola.max_atraso:0>5,}   " \
-                      f"{bola.min_atraso:0>5,}  {bola.mode_atraso:0>5,}   " \
-                      f"{bola.mean_atraso:0>6.1f}    {bola.hmean_atraso:0>6.1f}    " \
-                      f"{bola.gmean_atraso:0>6.1f}    {bola.median_atraso:0>6.1f}    " \
-                      f"{bola.varia_atraso:0>8.1f}          {bola.stdev_atraso:0>6.1f} \n"
+            output += f"\t    {formatd(bola.id_bola,2)}:       " \
+                      f"{formatd(bola.len_sorteios,5)}    " \
+                      f"{formatd(bola.ultimo_sorteio,5)}        " \
+                      f"{formatd(bola.len_atrasos,5)}    " \
+                      f"{formatd(bola.ultimo_atraso,5)}   " \
+                      f"{formatd(bola.max_atraso,5)}   " \
+                      f"{formatd(bola.min_atraso,5)}  " \
+                      f"{formatd(bola.mode_atraso,5)}  " \
+                      f"{formatf(bola.mean_atraso,'7.1')}   " \
+                      f"{formatf(bola.hmean_atraso,'7.1')}   " \
+                      f"{formatf(bola.gmean_atraso,'7.1')}   " \
+                      f"{formatf(bola.median_atraso,'7.1')}   " \
+                      f"{formatf(bola.varia_atraso,'9.1')}         " \
+                      f"{formatf(bola.stdev_atraso,'7.1')} \n"
 
-        logger.debug(f"FREQUENCIA de Repetencias Resultantes: {output}")
+        logger.debug(f"{nmlot}: FREQUENCIA de Repetencias Resultantes: {output}")
 
-        _totalTime: int = round(time.time() - _startTime)
-        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
+        _stopWatch = stopwatch(_startWatch)
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
 # ----------------------------------------------------------------------------

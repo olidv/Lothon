@@ -9,14 +9,13 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import datetime
-import time
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo, Bola
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -31,7 +30,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseFrequencia(AbstractProcess):
+class AnaliseFrequencia(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -53,9 +52,10 @@ class AnaliseFrequencia(AbstractProcess):
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
         else:
-            _startTime: float = time.time()
+            _startWatch = startwatch()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
@@ -67,8 +67,8 @@ class AnaliseFrequencia(AbstractProcess):
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de frequencia de TODAS as "
-                     f"dezenas nos  {qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de frequencia de TODAS as "
+                     f"dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos:
         dezenas: list[Bola | None] = self.new_list_bolas(qtd_items)
@@ -103,19 +103,25 @@ class AnaliseFrequencia(AbstractProcess):
             if bola is None or bola.id_bola == 0:
                 continue
 
-            output += f"\t  {bola.id_bola:0>3}:       {bola.len_sorteios:0>5,}    " \
-                      f"{bola.ultimo_sorteio:0>5,}           {bola.len_atrasos:0>3,}      " \
-                      f"{bola.ultimo_atraso:0>3}     {bola.max_atraso:0>3}     " \
-                      f"{bola.min_atraso:0>3}    {bola.mode_atraso:0>3}   " \
-                      f"{bola.mean_atraso:0>5.1f}     {bola.hmean_atraso:0>5.1f}     " \
-                      f"{bola.gmean_atraso:0>5.1f}        {bola.median_atraso:0>5.1f}       " \
-                      f"{bola.varia_atraso:0>5.1f}           {bola.stdev_atraso:0>5.1f} \n"
+            output += f"\t  {formatd(bola.id_bola,3)}:       " \
+                      f"{formatd(bola.len_sorteios,5)}    " \
+                      f"{formatd(bola.ultimo_sorteio,5)}           " \
+                      f"{formatd(bola.len_atrasos,3)}      " \
+                      f"{formatd(bola.ultimo_atraso,3)}     " \
+                      f"{formatd(bola.max_atraso,3)}     " \
+                      f"{formatd(bola.min_atraso,3)}    " \
+                      f"{formatd(bola.mode_atraso,3)}   " \
+                      f"{formatf(bola.mean_atraso,'5.1')}     " \
+                      f"{formatf(bola.hmean_atraso,'5.1')}     " \
+                      f"{formatf(bola.gmean_atraso,'5.1')}        " \
+                      f"{formatf(bola.median_atraso,'5.1')}       " \
+                      f"{formatf(bola.varia_atraso,'5.1')}           " \
+                      f"{formatf(bola.stdev_atraso,'5.1')} \n"
 
-        logger.debug(f"Frequencia de Dezenas Resultantes: {output}")
+        logger.debug(f"{nmlot}: Frequencia de Dezenas Resultantes: {output}")
 
-        _totalTime: int = round(time.time() - _startTime)
-        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
+        _stopWatch = stopwatch(_startWatch)
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
 # ----------------------------------------------------------------------------

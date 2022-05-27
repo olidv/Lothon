@@ -25,7 +25,7 @@ from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas, si
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "asbrc:t"
+CMD_LINE_ARGS = "asbrtc:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -62,8 +62,8 @@ def print_usage():
           '  -s          Simula varios jogos para validar estrategias\n'
           '  -b          Gera boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
-          '  -c <path>   Informa o path para os arquivos de configuracao\n'
-          '  -t <proc>   Executa teste de funcionamento de algum processo\n')
+          '  -t <proc>   Executa teste de funcionamento de algum processo\n'
+          '  -c <path>   Informa o path para os arquivos de configuracao\n')
 
 
 # faz o parsing das opcoes e argumentos da linha de comando:
@@ -90,29 +90,40 @@ opt_anlise = False   # Flag para analise de dados dos sorteios
 opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_boloes = False   # Flag para geracao de boloes de apostas
 opt_result = False   # Flag para conferencia das apostas
-opt_cfpath = ''      # path para os arquivos de configuracao
 opt_testef = False   # Flag para teste de funcionamento
 opt_tstprc = ''      # id do processo a ser executado para testes
+opt_cfpath = ''      # path para os arquivos de configuracao
+opt_valido = False   # Flag para identificar se argumentos estao ok
 
 # identifica o comando/tarefa/job do Lothon a ser executado:
 for opt, val in opts:
     if opt == '-a':
         opt_anlise = True
+        opt_valido = True
     elif opt == '-s':
         opt_simula = True
+        opt_valido = True
     elif opt == '-b':
         opt_boloes = True
+        opt_valido = True
     elif opt == '-r':
         opt_result = True
-    elif opt == '-c':
-        opt_cfpath = val
+        opt_valido = True
     elif opt == '-t':
         opt_testef = True
         opt_tstprc = val
+        opt_valido = True
+    elif opt == '-c':
+        opt_cfpath = val
+        # valida o path para os arquivos de configuracao:
+        if len(opt_cfpath) == 0:
+            opt_cfpath = '.'  # utiliza o proprio diretorio do executavel.
 
-# valida o path para os arquivos de configuracao:
-if len(opt_cfpath) == 0:
-    opt_cfpath = '.'  # utiliza o proprio diretorio do executavel.
+# se nenhuma opcao de execucao fornecida na linha de comando foi reconhecida:
+if not opt_valido:
+    # exibe ao usuario a forma correta de execucao do programa:
+    print_usage()
+    sys.exit(EXIT_ERROR_NO_ARGS)
 
 
 # ----------------------------------------------------------------------------
@@ -147,11 +158,11 @@ logger.debug(f"Argumentos da linha de comando: {str(opts).strip('[]')}")
 # TESTES
 # ----------------------------------------------------------------------------
 
-# Rotina de testes:
+# Rotina de testes - processo exclusivo em relacao aos outros processos:
 if opt_testef:
     # Informa que tudo ok ate aqui, Lothon funcionando normalmente:
     logger.info(f"Modulo main() executado com sucesso! opt_testef = {opt_testef}")
-    # aborta o processamento se esta apenas testando:
+    # finaliza por aqui o processamento se esta apenas testando (exclusivo):
     sys.exit(EXIT_SUCCESS)
 
 
@@ -165,24 +176,22 @@ if opt_anlise:
     analisar_sorteios.run()
 
 # Opcao para executar a simulacao de varios jogos para validar estrategias:
-elif opt_simula:
+if opt_simula:
     logger.debug("Vai iniciar a simulacao de varios jogos para validar estrategias...")
     simular_jogos.run()
 
 # Opcao para executar a geracao de boloes de apostas para as loterias:
-elif opt_boloes:
+if opt_boloes:
     logger.debug("Vai iniciar a geracao de boloes de apostas para as loterias...")
     gerar_boloes.run()
 
 # Opcao para executar a conferencia das apostas com os resultados das loterias:
-elif opt_result:
+if opt_result:
     logger.debug("Vai iniciar a conferencia das apostas com os resultados das loterias...")
     conferir_apostas.run()
 
-# se a opcao de execucao fornecida na linha de comando nao foi reconhecida:
-else:
-    # exibe ao usuario a forma correta de execucao do programa:
-    print_usage()
-    sys.exit(EXIT_ERROR_NO_ARGS)
+# finaliza o processamento informando que tudo foi ok:
+sys.exit(EXIT_SUCCESS)
+
 
 # ----------------------------------------------------------------------------

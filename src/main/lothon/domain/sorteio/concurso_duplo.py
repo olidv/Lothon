@@ -48,4 +48,19 @@ class ConcursoDuplo(Concurso):
         else:
             return None
 
+    def check_premiacao_total(self, numeros: tuple[int, ...]) -> float:
+        premio_total: float = 0.00
+
+        # confere o jogo com o primeiro sorteio do concurso:
+        premio: Optional[Premio] = self.check_premiacao(numeros)
+        if premio is not None:
+            premio_total = premio.premio
+
+        # como eh concurso duplo, confere o jogo tambem com o segundo sorteio:
+        premio = self.check_premiacao2(numeros)
+        if premio is not None:
+            premio_total += premio.premio
+
+        return premio_total
+
 # ----------------------------------------------------------------------------

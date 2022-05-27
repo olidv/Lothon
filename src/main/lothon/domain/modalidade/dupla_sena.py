@@ -50,15 +50,15 @@ class DuplaSena(Loteria):
                                    int(td[22].text), int(td[23].text),
                                    int(td[24].text), int(td[25].text))
 
-        premios1: dict[int, Premio] = {16: Premio(6, int(td[9].text), parse_money(td[11].text)),
-                                       15: Premio(5, int(td[14].text), parse_money(td[15].text)),
-                                       14: Premio(4, int(td[16].text), parse_money(td[17].text)),
-                                       13: Premio(3, int(td[18].text), parse_money(td[19].text))}
+        premios1: dict[int, Premio] = {6: Premio(6, int(td[9].text), parse_money(td[11].text)),
+                                       5: Premio(5, int(td[14].text), parse_money(td[15].text)),
+                                       4: Premio(4, int(td[16].text), parse_money(td[17].text)),
+                                       3: Premio(3, int(td[18].text), parse_money(td[19].text))}
 
-        premios2: dict[int, Premio] = {26: Premio(6, int(td[26].text), parse_money(td[27].text)),
-                                       25: Premio(5, int(td[28].text), parse_money(td[29].text)),
-                                       24: Premio(4, int(td[30].text), parse_money(td[31].text)),
-                                       23: Premio(3, int(td[32].text), parse_money(td[33].text))}
+        premios2: dict[int, Premio] = {6: Premio(6, int(td[26].text), parse_money(td[27].text)),
+                                       5: Premio(5, int(td[28].text), parse_money(td[29].text)),
+                                       4: Premio(4, int(td[30].text), parse_money(td[31].text)),
+                                       3: Premio(3, int(td[32].text), parse_money(td[33].text))}
 
         return ConcursoDuplo(id_concurso, data_sorteio,
                              bolas=bolas1, premios=premios1,

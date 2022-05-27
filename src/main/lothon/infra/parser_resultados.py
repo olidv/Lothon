@@ -16,9 +16,9 @@ import os
 from bs4 import BeautifulSoup
 
 # Own/Project modules
-from lothon.util.eve import *
 from lothon.conf import app_config
-from lothon.domain import Loteria
+from lothon.domain.modalidade.loteria import Loteria
+from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
@@ -44,7 +44,7 @@ def ler_arquivo_htm(path_arquivo: str) -> str:
     else:
         file_size = os.path.getsize(path_arquivo)
         logger.debug(f"Leitura do arquivo '{path_arquivo}' realizada com sucesso: "
-                     f"{human_format(file_size)} bytes lidos.")
+                     f"{formatb(file_size)} bytes lidos.")
 
     return content_htm
 
@@ -81,25 +81,25 @@ def parse_concursos_loteria(loteria: Loteria):
 
     # efetua leitura dos resultados da loteria, verificando se o arquivo existe na pasta 'data'.
     content_htm = carregar_resultados(nome_loteria)
-    # print(content_htm)
+    # logger.debug(f"content_htm = {content_htm}")
     if content_htm is None or len(content_htm) == 0:
         logger.error(f"Nao foi possivel carregar os resultados da loteria '{nome_loteria}'.")
         return
     else:
-        logger.info(f"Foram lidos {human_format(len(content_htm))} caracteres do arquivo de "
+        logger.info(f"Foram lidos {formatb(len(content_htm))} caracteres do arquivo de "
                     f"resultados da loteria '{nome_loteria}'.")
 
     # carrega no BeautifulSoup o HTML contendo uma <TABLE> de resultados:
     logger.debug(f"Vai efetuar o parsing do conteudo HTML de resultados da "
                  f"loteria '{nome_loteria}'.")
     soup = BeautifulSoup(content_htm, 'html.parser')
-    # print(soup.prettify())
+    # logger.debug(f"soup.prettify() = {soup.prettify()}")
 
     # pesquisa o elemento <TABLE> contendo a relacao de resultados / concursos da loteria:
     table_class = app_config.LC_table_class_find.format(tag_loteria)
     # formato do HTML atual:  <table class="tabela-resultado supersete">
     table = soup.find("table", {"class": table_class})
-    # print(len(table))
+    # logger.debug(f"len(table) = {len(table)}")
     if table is None or len(table) == 0:
         logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
                      f"'{nome_loteria}' foi modificado! ***")
@@ -109,7 +109,7 @@ def parse_concursos_loteria(loteria: Loteria):
 
     # cada linha de resultado/concurso esta envolta em um TBODY:
     table_body = table.find_all("tbody", recursive=False)
-    # print(len(table_body))
+    # logger.debug(f"len(table_body) = {len(table_body)}")
     if table_body is None or len(table_body) == 0:
         logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
                      f"'{nome_loteria}' foi modificado! ***")

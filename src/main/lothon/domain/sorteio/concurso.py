@@ -57,4 +57,12 @@ class Concurso:
         else:
             return None
 
+    def check_premiacao_total(self, numeros: tuple[int, ...]) -> float:
+        # confere o jogo com o sorteio do concurso:
+        premio: Optional[Premio] = self.check_premiacao(numeros)
+        if premio is None:
+            return 0.00
+        else:
+            return premio.premio
+
 # ----------------------------------------------------------------------------

@@ -5,6 +5,22 @@
    Funcoes utilitarias para manipulacao de valores (enumerators e evaluators).
 """
 
+__all__ = [
+    'numerology',
+    'str_to_bool',
+    'to_bool',
+    'strip_accents',
+    'parse_money',
+    'parse_dmy',
+    'formatd',
+    'formatf',
+    'formatc',
+    'formatb',
+    'startwatch',
+    'stopwatch'
+]
+
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -13,7 +29,7 @@
 import locale
 import unicodedata
 from math import log, floor
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional
 
 # Libs/Frameworks modules
@@ -24,7 +40,31 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 # ----------------------------------------------------------------------------
-# FUNCOES UTILITARIAS
+# FUNCOES PARA CALCULOS ESPECIAIS
+# ----------------------------------------------------------------------------
+
+def numerology(numeros: tuple[int, ...]) -> int:
+    # condicao de saida da recursividade:
+    if numeros is None or len(numeros) == 0:
+        return 0
+    elif len(numeros) == 1 and numeros[0] < 10:
+        return numeros[0]
+
+    # calcula a soma os numeros:
+    soma: int = sum(numeros)
+
+    # extrai os digitos da soma:
+    digitos: tuple[int, ...] = ()
+    while soma > 0:
+        digito: int = soma % 10
+        digitos += (digito,)
+        soma = soma // 10
+
+    return numerology(digitos)
+
+
+# ----------------------------------------------------------------------------
+# FUNCOES PARA CONVERSAO DE VALORES
 # ----------------------------------------------------------------------------
 
 def str_to_bool(val: str) -> bool:
@@ -86,14 +126,6 @@ def to_bool(val) -> bool:
         return bool(val)
 
 
-def human_format(number):
-    units = ['', 'K', 'M', 'G', 'T', 'P']
-    k = 1000.0
-    magnitude = int(floor(log(number, k)))
-
-    return '%.2f%s' % (number / k**magnitude, units[magnitude])
-
-
 def strip_accents(text) -> str:
     """
     Strip accents from input String.
@@ -114,6 +146,10 @@ def strip_accents(text) -> str:
     return str(text)
 
 
+# ----------------------------------------------------------------------------
+# FUNCOES PARA PARSING DE VALORES
+# ----------------------------------------------------------------------------
+
 def parse_money(val: str) -> float:
     # se o valor for nulo (None), entao considera zero:
     if val is None:
@@ -124,11 +160,20 @@ def parse_money(val: str) -> float:
     return float(val)
 
 
-def format_money(val: float) -> str:
-    return locale.currency(val, grouping=True)
+def parse_dmy(val: str) -> Optional[date]:
+    # se o valor for nulo (None), entao considera tudo nulo:
+    if val is None:
+        return
+
+    # converte para data a partir do formato  DD/MM/YYYY:
+    return datetime.strptime(val, "%d/%m/%Y").date()
 
 
-def formatn(val, size: int = None) -> str:
+# ----------------------------------------------------------------------------
+# FUNCOES PARA FORMATACAO DE VALORES
+# ----------------------------------------------------------------------------
+
+def formatd(val, size: int = None) -> str:
     str_val: str = locale.format_string('%d', val, grouping=True)
     if size is not None and size > len(str_val):
         return str_val.rjust(size, ' ')
@@ -140,12 +185,53 @@ def formatf(val, fmt: str = '14.2') -> str:
     return locale.format_string(f"%{fmt}f", val, grouping=True)
 
 
-def parse_dmy(val: str) -> Optional[date]:
-    # se o valor for nulo (None), entao considera tudo nulo:
-    if val is None:
-        return
+def formatc(val: float) -> str:
+    return locale.currency(val, grouping=True)
 
-    # converte para data a partir do formato  DD/MM/YYYY:
-    return datetime.strptime(val, "%d/%m/%Y").date()
+
+def formatb(number):
+    units = ['', 'K', 'M', 'G', 'T', 'P']
+    k = 1000.0
+    magnitude = int(floor(log(number, k)))
+
+    return '%.2f%s' % (number / k**magnitude, units[magnitude])
+
+
+# ----------------------------------------------------------------------------
+# FUNCOES PARA MEDICAO DE TEMPO DE PROCESSAMENTO
+# ----------------------------------------------------------------------------
+
+# 
+def startwatch() -> datetime:
+    return datetime.now()
+
+
+#
+def stopwatch(start: datetime) -> str:
+    # evita erros e retorno de nulos
+    if start is None:
+        return ''
+
+    difer: timedelta = datetime.now() - start
+    dias: int = difer.days
+    segundos: int = difer.seconds
+    milisegs: int = difer.microseconds // 1000
+
+    tempo: str = ''
+    if dias > 0:
+        tempo += f"{dias} dia, "
+
+    horas: int = segundos // 3600
+    if horas > 0:
+        tempo += f"{horas} hor, "
+        segundos -= horas * 3600
+
+    minutos: int = segundos // 60
+    if minutos > 0:
+        tempo += f"{minutos} min, "
+        segundos -= minutos * 60
+
+    tempo += f"{segundos} seg, {milisegs} ms"
+    return tempo
 
 # ----------------------------------------------------------------------------

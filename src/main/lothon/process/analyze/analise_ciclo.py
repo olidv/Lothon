@@ -9,16 +9,15 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import datetime
-import time
 import logging
 import statistics as stts
 from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseCiclo(AbstractProcess):
+class AnaliseCiclo(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -44,7 +43,7 @@ class AnaliseCiclo(AbstractProcess):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("AnAlise de Ciclo Fechado dos Concursos")
+        super().__init__("Analise de Ciclo Fechado dos Concursos")
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -66,9 +65,10 @@ class AnaliseCiclo(AbstractProcess):
         if payload is None or payload.concursos is None or len(payload.concursos) == 0:
             return -1
         else:
-            _startTime: float = time.time()
+            _startWatch = startwatch()
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
         eh_duplo: bool = ([0] is ConcursoDuplo)
@@ -80,8 +80,8 @@ class AnaliseCiclo(AbstractProcess):
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
-        logger.debug(f"{payload.nome_loteria}: Executando analise de TODOS os ciclos fechados nos  "
-                     f"{qtd_concursos:,}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de TODOS os ciclos fechados nos  "
+                     f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
         intervalos: list[int] = []
@@ -132,21 +132,21 @@ class AnaliseCiclo(AbstractProcess):
         # printa o resultado:
         output: str = f"\n\t INICIO     FINAL   INTERVALO \n"
         for (inicio, final, intervalo) in ciclos:
-            output += f"\t  {inicio:0>5,} ... {final:0>5,}         {intervalo:0>3}\n"
+            output += f"\t  {formatd(inicio,5)} ... {formatd(final,5)}         " \
+                      f"{formatd(intervalo,3)}\n"
 
         output += f"\n\t #INTERVALOS   MENOR   MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA   " \
                   f"MEDIANA   VARIANCIA   DESVIO-PADRAO\n"
-        output += f"\t         {len_intervalos:0>3,}     {min_intervalo:0>3,}     " \
-                  f"{max_intervalo:0>3,}    {mode_intervalo:0>3,}   " \
-                  f"{mean_intervalo:0>5.1f}     {hmean_intervalo:0>5.1f}     " \
-                  f"{gmean_intervalo:0>5.1f}     {median_intervalo:0>5.1f}       " \
-                  f"{varia_intervalo:0>5.1f}           {stdev_intervalo:0>5.1f} \n"
+        output += f"\t         {formatd(len_intervalos,3)}     {formatd(min_intervalo,3)}     " \
+                  f"{formatd(max_intervalo,3)}    {formatd(mode_intervalo,3)}   " \
+                  f"{formatf(mean_intervalo,'5.1')}     {formatf(hmean_intervalo,'5.1')}     " \
+                  f"{formatf(gmean_intervalo,'5.1')}     {formatf(median_intervalo,'5.1')}       " \
+                  f"{formatf(varia_intervalo,'5.1')}           {formatf(stdev_intervalo,'5.1')} \n"
 
-        logger.debug(f"Ciclos Fechados Resultantes: {output}")
+        logger.debug(f"{nmlot}: Ciclos Fechados Resultantes: {output}")
 
-        _totalTime: int = round(time.time() - _startTime)
-        tempo_total: str = str(datetime.timedelta(seconds=_totalTime))
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {tempo_total} segundos.")
+        _stopWatch = stopwatch(_startWatch)
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
 # ----------------------------------------------------------------------------
