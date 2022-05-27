@@ -10,13 +10,12 @@
 
 # Built-in/Generic modules
 import logging
-import statistics as stts
 from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -83,19 +82,14 @@ class AnaliseCiclo(AbstractAnalyze):
         logger.debug(f"{nmlot}: Executando analise de TODOS os ciclos fechados nos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
-        # zera os contadores dos ciclos fechados:
-        intervalos: list[int] = []
-        ciclos: list[tuple[int, int, int]] = []
+        # inicializa a serie para os ciclos fechados:
+        ciclos: SerieSorteio = SerieSorteio(0)
 
         # contabiliza os ciclos fechados em todos os sorteios ja realizados:
-        init_intervalo: int = 0
         dezenas: list[Optional[int]] = self.new_list_int(qtd_items)
         dezenas[0] = None
         for concurso in concursos:
-            # registra o inicio do intervalo:
-            if init_intervalo == 0:
-                init_intervalo = concurso.id_concurso
-
+            # identifica as bolas sorteadas para fechar o ciclo:
             self.count_dezenas(concurso.bolas, dezenas)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
@@ -107,44 +101,46 @@ class AnaliseCiclo(AbstractAnalyze):
                 continue
 
             # fechando o ciclo, contabiliza o ciclo fechado:
-            intervalo_atual: int = concurso.id_concurso - init_intervalo + 1
-            intervalos.append(intervalo_atual)
-            ciclos.append((init_intervalo, concurso.id_concurso, intervalo_atual))
+            ciclos.add_sorteio(concurso.id_concurso, True)  # onde fecha o ciclo eh inclusivo
 
             # zera contadores para proximo ciclo:
-            init_intervalo = 0
             dezenas = self.new_list_int(qtd_items)
             dezenas[0] = None  # para nao conflitar com o teste de fechamento do ciclo
 
         # calcula as medidas estatisticas:
-        intervalos = sorted(intervalos)  # ja ordena para facilitar os calculos seguintes
-        max_intervalo: int = max(intervalos)
-        min_intervalo: int = min(intervalos)
-        len_intervalos: int = len(intervalos)
-        mode_intervalo: int = stts.mode(intervalos)
-        mean_intervalo: float = stts.fmean(intervalos)
-        hmean_intervalo: float = stts.harmonic_mean(intervalos)
-        gmean_intervalo: float = stts.geometric_mean(intervalos)
-        median_intervalo: float = stts.median(intervalos)
-        varia_intervalo: float = stts.pvariance(intervalos)
-        stdev_intervalo: float = stts.pstdev(intervalos)
+        ciclos.update_stats()
 
         # printa o resultado:
-        output: str = f"\n\t INICIO     FINAL   INTERVALO \n"
-        for (inicio, final, intervalo) in ciclos:
+        output: str = f"\n\n\t INICIO     FINAL   ATRASO \n"
+        inicio: int = 1
+        for i in range(0, len(ciclos.sorteios)):
+            final: int = ciclos.sorteios[i]
+            intervalo: int = ciclos.atrasos[i]
             output += f"\t  {formatd(inicio,5)} ... {formatd(final,5)}         " \
                       f"{formatd(intervalo,3)}\n"
+            inicio = final + 1
 
-        output += f"\n\t #INTERVALOS   MENOR   MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA   " \
-                  f"MEDIANA   VARIANCIA   DESVIO-PADRAO\n"
-        output += f"\t         {formatd(len_intervalos,3)}     {formatd(min_intervalo,3)}     " \
-                  f"{formatd(max_intervalo,3)}    {formatd(mode_intervalo,3)}   " \
-                  f"{formatf(mean_intervalo,'5.1')}     {formatf(hmean_intervalo,'5.1')}     " \
-                  f"{formatf(gmean_intervalo,'5.1')}     {formatf(median_intervalo,'5.1')}       " \
-                  f"{formatf(varia_intervalo,'5.1')}           {formatf(stdev_intervalo,'5.1')} \n"
-
+        output += f"\n\t #SORTEIOS   ULTIMO      #ATRASOS   ULTIMO   MENOR   MAIOR   MODA   " \
+                  f"MEDIA   H.MEDIA   G.MEDIA   MEDIANA   VARIANCIA   DESVIO-PADRAO\n"
+        output += f"\t     {formatd(ciclos.len_sorteios,5)}    " \
+                  f"{formatd(ciclos.ultimo_sorteio,5)}         " \
+                  f"{formatd(ciclos.len_atrasos,5)}    " \
+                  f"{formatd(ciclos.ultimo_atraso,5)}   " \
+                  f"{formatd(ciclos.min_atraso,5)}   " \
+                  f"{formatd(ciclos.max_atraso,5)}  " \
+                  f"{formatd(ciclos.mode_atraso,5)} " \
+                  f"{formatf(ciclos.mean_atraso,'7.1')}   " \
+                  f"{formatf(ciclos.hmean_atraso,'7.1')}   " \
+                  f"{formatf(ciclos.gmean_atraso,'7.1')}   " \
+                  f"{formatf(ciclos.median_atraso,'7.1')}   " \
+                  f"{formatf(ciclos.varia_atraso,'9.1')}         " \
+                  f"{formatf(ciclos.stdev_atraso,'7.1')} \n"
         logger.debug(f"{nmlot}: Ciclos Fechados Resultantes: {output}")
 
+        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
+        payload.statis["ciclos"] = ciclos
+
+        # indica o tempo do processamento:
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0

@@ -14,7 +14,7 @@ from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain import Bola
+from lothon.domain import SerieSorteio
 from lothon.process.abstract_process import AbstractProcess
 
 
@@ -52,14 +52,14 @@ class AbstractAnalyze(AbstractProcess, ABC):
         return list_zerado
 
     @staticmethod
-    def new_list_bolas(qtd_items: int) -> list[Optional[Bola]]:
+    def new_list_series(qtd_items: int) -> list[Optional[SerieSorteio]]:
         # valida os parametros:
         if qtd_items is None or qtd_items == 0:
             return []
 
-        bolas: list[Optional[Bola]] = [None] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+        bolas: list[Optional[SerieSorteio]] = [None] * (qtd_items + 1)  # +1 para ignorar zero-index
         for i in range(0, qtd_items+1):
-            bolas[i] = Bola(i)
+            bolas[i] = SerieSorteio(i)
 
         return bolas
 

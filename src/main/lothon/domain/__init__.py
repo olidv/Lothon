@@ -13,6 +13,7 @@ __all__ = [
     'Faixa',
     'Premio',
     'Bola',
+    'SerieSorteio',
     'get_dia_de_sorte',
     'get_dupla_sena',
     'get_lotofacil',
@@ -41,6 +42,7 @@ from .basico.dezena import Dezena
 from .basico.jogo import Jogo
 from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
+from .sorteio.serie_sorteio import SerieSorteio
 from .sorteio.concurso import Concurso
 from .sorteio.concurso_duplo import ConcursoDuplo
 from .sorteio.premio import Premio
