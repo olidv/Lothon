@@ -5,6 +5,10 @@
    Modulo para executar a conferencia das apostas com os resultados das loterias.
 """
 
+__all__ = [
+    'run'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------

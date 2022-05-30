@@ -4,6 +4,10 @@
 
 """
 
+__all__ = [
+    'SimuladoAnalisado'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -12,13 +16,15 @@
 import math
 import random
 import logging
+from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo, Faixa
-from lothon.process.simulate.abstract_simulate import AbstractSimulate
 from lothon.process import analyze
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
 
 # ----------------------------------------------------------------------------
@@ -28,8 +34,10 @@ from lothon.process import analyze
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-analise_chain = analyze.get_process_chain()
+# cadeia de processos para analise de jogos na simulacao:
+analise_chain: Optional[list[AbstractAnalyze]] = None
 
+# medidas otimas de equilibrio de paridades para boloes:
 pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
 
 
@@ -54,6 +62,7 @@ class SimuladoAnalisado(AbstractSimulate):
 
     @staticmethod
     def sortear_bolas(set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
+        global pares
         bolas: tuple[int, ...] = ()
 
         # verifica a proporcao do numero de pares e impares:
@@ -91,6 +100,15 @@ class SimuladoAnalisado(AbstractSimulate):
                 bolao.append(SimuladoAnalisado.sortear_bolas(set_bolas, qtd_sorteadas))
 
         return bolao
+
+    # --- INICIALIZACAO ------------------------------------------------------
+
+    def init(self, options: dict):
+        global analise_chain
+        self.options = options
+
+        logger.debug("Inicializando a cadeia de processos para analise de jogos...")
+        analise_chain = analyze.get_process_chain()
 
     # --- PROCESSAMENTO ------------------------------------------------------
 

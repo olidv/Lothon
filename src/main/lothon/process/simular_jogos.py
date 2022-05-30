@@ -5,6 +5,10 @@
    Modulo para executar a simulacao de varios jogos para validar estrategias.
 """
 
+__all__ = [
+    'run'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -21,9 +25,10 @@ from typing import Optional, Any
 from lothon.util.eve import *
 from lothon import domain
 from lothon.domain import Loteria
-from lothon.process.abstract_process import AbstractProcess
 from lothon.process import analyze
 from lothon.process import simulate
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
 
 # ----------------------------------------------------------------------------
@@ -51,7 +56,8 @@ boloes_945: dict[int: int] = {  # combinacoes de boloes para gasto diario maximo
 }
 
 # relacao de processos de simulacao, a serem executados sequencialmente:
-analise_chain: Optional[list[AbstractProcess]] = None
+analise_chain: Optional[list[AbstractAnalyze]] = None
+simulacao_chain: Optional[list[AbstractSimulate]] = None
 
 # parametros para configuracao dos processos de simulacao:
 options: dict[str: Any] = {}
@@ -61,15 +67,6 @@ options: dict[str: Any] = {}
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
 
-# configura e executa o processo de simulacao:
-def invoke_process(proc: AbstractProcess):
-    # configura o processo antes,
-    proc.init(options)
-
-    # e depois executa a simulacao:
-    proc.execute(loterias_caixa)
-
-
 # ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT
 # ----------------------------------------------------------------------------
@@ -77,7 +74,7 @@ def invoke_process(proc: AbstractProcess):
 # entry-point de execucao para tarefas de simulacao:
 # @profile
 def run():
-    global loterias_caixa, boloes_caixa, analise_chain
+    global loterias_caixa, boloes_caixa, analise_chain, simulacao_chain
     _startWatch = startwatch()
     logger.info("Iniciando a simulacao de jogos nos sorteios das loterias...")
 

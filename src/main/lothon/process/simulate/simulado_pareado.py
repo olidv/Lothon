@@ -4,6 +4,10 @@
 
 """
 
+__all__ = [
+    'SimuladoPareado'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -27,6 +31,7 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
+# medidas otimas de equilibrio de paridades para boloes:
 pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
 
 
@@ -51,6 +56,7 @@ class SimuladoPareado(AbstractSimulate):
 
     @staticmethod
     def sortear_bolas(set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
+        global pares
         bolas: tuple[int, ...] = ()
 
         # verifica a proporcao do numero de pares e impares:

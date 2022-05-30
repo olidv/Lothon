@@ -5,6 +5,10 @@
    Modulo para executar a analise dos dados de sorteios das loterias.
 """
 
+__all__ = [
+    'run'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -22,7 +26,7 @@ from lothon.util.eve import *
 from lothon import domain
 from lothon.domain import Loteria
 from lothon.process import analyze
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
 # ----------------------------------------------------------------------------
@@ -36,7 +40,7 @@ logger = logging.getLogger(__name__)
 loterias_caixa: dict[str: Loteria] = None
 
 # relacao de processos de analise, a serem executados sequencialmente:
-analise_chain: Optional[list[AbstractProcess]] = None
+analise_chain: Optional[list[AbstractAnalyze]] = None
 
 # parametros para configuracao dos processos de analise:
 options: dict[str: Any] = {}
@@ -45,15 +49,6 @@ options: dict[str: Any] = {}
 # ----------------------------------------------------------------------------
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
-
-# configura e executa o processo de analise:
-def invoke_process(proc: AbstractProcess):
-    # configura o processo antes,
-    proc.init(options)
-
-    # e depois executa a analise:
-    proc.execute(loterias_caixa)
-
 
 # ----------------------------------------------------------------------------
 # MAIN ENTRY-POINT

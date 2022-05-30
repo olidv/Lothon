@@ -5,6 +5,11 @@
    Carga das configuracoes da aplicacao a partir de arquivo INI.
 """
 
+__all__ = [
+    'setup_logging',
+    'setup_config'
+]
+
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------

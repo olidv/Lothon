@@ -8,7 +8,6 @@ __all__ = [
     'get_process_chain'
 ]
 
-
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -16,7 +15,7 @@ __all__ = [
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.process.abstract_process import AbstractProcess
+from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 from lothon.process.analyze.analise_paridade import AnaliseParidade
 from lothon.process.analyze.analise_repetencia import AnaliseRepetencia
 from lothon.process.analyze.analise_recorrencia import AnaliseRecorrencia
@@ -40,10 +39,10 @@ from lothon.process.analyze.analise_espacamento import AnaliseEspacamento
 # VARIAVEIS SINGLETON
 # ----------------------------------------------------------------------------
 
-_process_chain: list[AbstractProcess] = []
+_process_chain: list[AbstractAnalyze] = []
 
 
-def get_process_chain() -> list[AbstractProcess]:
+def get_process_chain() -> list[AbstractAnalyze]:
     global _process_chain
     if len(_process_chain) == 0:
         _process_chain.append(AnaliseCiclo())        # 0:00:00

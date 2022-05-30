@@ -26,7 +26,6 @@ __all__ = [
     'get_time_do_coracao'
 ]
 
-
 # ----------------------------------------------------------------------------
 # DEPENDENCIAS
 # ----------------------------------------------------------------------------
@@ -61,7 +60,6 @@ from .bilhete.cota import Cota
 from .bilhete.volante import Volante
 from .bilhete.bolao import Bolao
 from .bilhete.faixa import Faixa
-# from lothon.util.eve import *
 
 
 # ----------------------------------------------------------------------------
