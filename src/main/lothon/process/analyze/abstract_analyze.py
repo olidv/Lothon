@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Optional
 
 # Libs/Frameworks modules
@@ -36,6 +36,10 @@ class AbstractAnalyze(AbstractProcess, ABC):
         super().__init__(idp)
 
     # --- METODOS ------------------------------------------------------------
+
+    @abstractmethod
+    def evaluate(self, payload) -> float:
+        pass
 
     # --- METODOS STATIC -----------------------------------------------------
 

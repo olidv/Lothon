@@ -18,6 +18,7 @@ import logging
 from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso, ConcursoDuplo, Faixa
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
+from lothon.process import analyze
 
 
 # ----------------------------------------------------------------------------
@@ -26,6 +27,8 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
+
+analise_chain = analyze.get_process_chain()
 
 pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
 

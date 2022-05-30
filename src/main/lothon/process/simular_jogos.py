@@ -22,8 +22,8 @@ from lothon.util.eve import *
 from lothon import domain
 from lothon.domain import Loteria
 from lothon.process.abstract_process import AbstractProcess
+from lothon.process import analyze
 from lothon.process import simulate
-# from lothon.stats import combinatoria as comb
 
 
 # ----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ boloes_945: dict[int: int] = {  # combinacoes de boloes para gasto diario maximo
 }
 
 # relacao de processos de simulacao, a serem executados sequencialmente:
-process_chain: Optional[list[AbstractProcess]] = None
+analise_chain: Optional[list[AbstractProcess]] = None
 
 # parametros para configuracao dos processos de simulacao:
 options: dict[str: Any] = {}
@@ -77,7 +77,7 @@ def invoke_process(proc: AbstractProcess):
 # entry-point de execucao para tarefas de simulacao:
 # @profile
 def run():
-    global loterias_caixa, boloes_caixa, process_chain
+    global loterias_caixa, boloes_caixa, analise_chain
     _startWatch = startwatch()
     logger.info("Iniciando a simulacao de jogos nos sorteios das loterias...")
 
@@ -93,23 +93,30 @@ def run():
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
 
-    logger.debug("Inicializando a cadeia de processos para simulacao de jogos...")
-    process_chain = simulate.get_process_chain()
+    logger.debug("Inicializando a cadeia de processos para analise e simulacao de jogos...")
+    analise_chain = analyze.get_process_chain()
+    simulacao_chain = simulate.get_process_chain()
 
     # configuracao de parametros para os processamentos:
     options["qtd_proc"] = 500  # vai simular jogos apenas nos ultimos 500 concursos
 
     logger.debug("Vai executar todos os processos de simulacao...")
-    # Efetua a execucao de cada processo de simulacao em sequencia (chain):
-    for proc in process_chain:
-        logger.debug(f"processo '{proc.id_process}': inicializando configuracao.")
-        # configura o processo antes,
-        proc.init(options)
+    for key, loteria in loterias_caixa.items():
+        # Efetua a execucao de cada processo de analise em sequencia (chain):
+        for aproc in analise_chain:
+            # executa a analise para cada loteria:
+            logger.debug(f"Processo '{aproc.id_process}': executando analise da loteria '{key}'.")
+            aproc.execute(loteria)
 
-        # e depois executa a simulacao para cada loteria:
-        for key, loteria in loterias_caixa.items():
-            logger.debug(f"Processo '{proc.id_process}': executando simulacao da loteria '{key}'.")
-            proc.execute(loteria)
+        # efetua a execucao de cada processo de simulacao em sequencia (chain):
+        for sproc in simulacao_chain:
+            # configura o processo antes,
+            logger.debug(f"processo '{sproc.id_process}': inicializando configuracao.")
+            sproc.init(options)
+
+            # e depois executa a simulacao para cada loteria:
+            logger.debug(f"Processo '{sproc.id_process}': executando simulacao da loteria '{key}'.")
+            sproc.execute(loteria)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)

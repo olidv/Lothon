@@ -57,7 +57,7 @@ class AnaliseCiclo(AbstractAnalyze):
 
         return
 
-    # --- PROCESSAMENTO ------------------------------------------------------
+    # --- PROCESSAMENTO DOS SORTEIOS -----------------------------------------
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -144,5 +144,13 @@ class AnaliseCiclo(AbstractAnalyze):
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
+
+    # --- ANALISE DE JOGOS ---------------------------------------------------
+
+    def init(self, options: dict):
+        self.options = options
+
+    def evaluate(self, payload) -> float:
+        pass
 
 # ----------------------------------------------------------------------------

@@ -174,4 +174,12 @@ class AnaliseDecenario(AbstractAnalyze):
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
+    # --- ANALISE DE JOGOS ---------------------------------------------------
+
+    def init(self, options: dict):
+        self.options = options
+
+    def evaluate(self, payload) -> float:
+        pass
+
 # ----------------------------------------------------------------------------
