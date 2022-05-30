@@ -19,6 +19,7 @@ __all__ = [
 from lothon.process.abstract_process import AbstractProcess
 from lothon.process.analyze.analise_paridade import AnaliseParidade
 from lothon.process.analyze.analise_repetencia import AnaliseRepetencia
+from lothon.process.analyze.analise_recorrencia import AnaliseRecorrencia
 from lothon.process.analyze.analise_sequencia import AnaliseSequencia
 from lothon.process.analyze.analise_decenario import AnaliseDecenario
 from lothon.process.analyze.analise_ciclo import AnaliseCiclo
@@ -46,6 +47,7 @@ def get_process_chain() -> list[AbstractProcess]:
     global _process_chain
     if len(_process_chain) == 0:
         _process_chain.append(AnaliseCiclo())        # 0:00:00
+        _process_chain.append(AnaliseRecorrencia())   # 0:00:24
         _process_chain.append(AnaliseFrequencia())   # 0:00:00
         _process_chain.append(AnaliseParidade())     # 0:00:32
         _process_chain.append(AnaliseNumerologia())  # 0:00:08

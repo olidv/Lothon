@@ -71,26 +71,22 @@ class AnaliseFrequencia(AbstractAnalyze):
                      f"dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos:
-        dezenas: list[SerieSorteio | None] = self.new_list_series(qtd_items)
+        frequencias_dezenas: list[SerieSorteio | None] = self.new_list_series(qtd_items)
 
         # contabiliza as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
         for concurso in concursos:
             # registra o concurso para cada dezena sorteada:
             for bola in concurso.bolas:
-                dezenas[bola].add_sorteio(concurso.id_concurso)
+                frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
                 for bola in concurso.bolas2:
-                    dezenas[bola].add_sorteio(concurso.id_concurso)
+                    frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
         ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
-        for serie in dezenas:
-            # ignora o primeiro item, criado apenas para evitar acesso zero-index
-            if serie is None or serie.id == 0:
-                continue
-
+        for serie in frequencias_dezenas[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
@@ -98,10 +94,7 @@ class AnaliseFrequencia(AbstractAnalyze):
         output: str = f"\n\t BOLA:   #SORTEIOS   ULTIMO      #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA      MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in dezenas:
-            if serie is None or serie.id == 0:
-                continue
-
+        for serie in frequencias_dezenas[1:]:
             output += f"\t  {formatd(serie.id,3)}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}           " \
@@ -116,8 +109,10 @@ class AnaliseFrequencia(AbstractAnalyze):
                       f"{formatf(serie.median_atraso,'5.1')}       " \
                       f"{formatf(serie.varia_atraso,'5.1')}           " \
                       f"{formatf(serie.stdev_atraso,'5.1')} \n"
-
         logger.debug(f"{nmlot}: Frequencia de Dezenas Resultantes: {output}")
+
+        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
+        payload.statis["frequencias_dezenas"] = frequencias_dezenas
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

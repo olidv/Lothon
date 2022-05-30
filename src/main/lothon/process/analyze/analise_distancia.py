@@ -173,6 +173,11 @@ class AnaliseDistancia(AbstractAnalyze):
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
 
+        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
+        payload.statis["distancias_jogos"] = distancias_jogos
+        payload.statis["distancias_percentos"] = percentos_jogos
+        payload.statis["distancias_concursos"] = distancias_concursos
+
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0

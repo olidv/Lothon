@@ -27,6 +27,8 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
+pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
+
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
@@ -48,26 +50,42 @@ class SimuladoAnalisado(AbstractSimulate):
     # --- METODOS STATIC -----------------------------------------------------
 
     @staticmethod
-    def sortear_bolas(set_bolas: int, qtd_bolas_sorteadas: int) -> tuple[int, ...]:
+    def sortear_bolas(set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
         bolas: tuple[int, ...] = ()
+
+        # verifica a proporcao do numero de pares e impares:
+        qt_pares: int = pares.get(qtd_sorteadas, qtd_sorteadas // 2)
+        qt_impar: int = qtd_sorteadas - qt_pares
+
+        # seleciona os pares primeiro:
         count: int = 0
-        while count < qtd_bolas_sorteadas:
+        while count < qt_pares:
             bola = random.randint(1, set_bolas)
-            if bola not in bolas:
+            if bola not in bolas and is_par(bola):
                 bolas = bolas + (bola,)
                 count += 1
 
+        # em seguida seleciona os impares:
+        count = 0
+        while count < qt_impar:
+            bola = random.randint(1, set_bolas)
+            if bola not in bolas and is_impar(bola):
+                bolas = bolas + (bola,)
+                count += 1
+
+        # print(f"*** SORTEIO DE {qtd_sorteadas} BOLAS: #{qt_pares} PARES, #{qt_impar} IMPARES ***")
+        # print(f"*** JOGO GRERADO: {bolas} ***")
         return bolas
 
     @staticmethod
-    def gerar_bolao_analisado(qtd_bolas: int, qtd_dezenas: int, qtd_jogos: int,
+    def gerar_bolao_analisado(set_bolas: int, qtd_sorteadas: int, qtd_jogos: int,
                               concursos_passados: list[Concurso]) -> list[tuple[int, ...]]:
         bolao: list[tuple[int, ...]] = []
         
         # gera jogos com dezenas selecionadas apos analisar os concursos passados:
         if concursos_passados is not None:
             for i in range(0, qtd_jogos):
-                bolao.append(SimuladoAnalisado.sortear_bolas(qtd_bolas, qtd_dezenas))
+                bolao.append(SimuladoAnalisado.sortear_bolas(set_bolas, qtd_sorteadas))
 
         return bolao
 
@@ -156,9 +174,9 @@ class SimuladoAnalisado(AbstractSimulate):
                 total_premiosb += premiosb
                 total_premiosx += premiosx
 
-            logger.debug(f"{nmlot}: CONCURSO #{concurso.id_concurso}  .:.  "
-                         f"Data: {concurso.data_sorteio}\n"
-                         f"{output}")
+            # logger.debug(f"{nmlot}: CONCURSO #{concurso.id_concurso}  .:.  "
+            #              f"Data: {concurso.data_sorteio}\n"
+            #              f"{output}")
 
             # este concurso sera usado como base para o proximo concurso:
             concursos_passados.append(concurso)

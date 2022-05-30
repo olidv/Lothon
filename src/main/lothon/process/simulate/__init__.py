@@ -19,6 +19,7 @@ __all__ = [
 from lothon.process.abstract_process import AbstractProcess
 from lothon.process.simulate.simulado_aleatorio import SimuladoAleatorio
 from lothon.process.simulate.simulado_analisado import SimuladoAnalisado
+from lothon.process.simulate.simulado_pareado import SimuladoPareado
 
 
 # ----------------------------------------------------------------------------
@@ -38,6 +39,7 @@ def get_process_chain() -> list[AbstractProcess]:
     if len(_process_chain) == 0:
         _process_chain.append(SimuladoAleatorio())
         _process_chain.append(SimuladoAnalisado())
+        _process_chain.append(SimuladoPareado())
 
     return _process_chain
 

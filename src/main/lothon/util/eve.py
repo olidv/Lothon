@@ -7,6 +7,8 @@
 
 __all__ = [
     'numerology',
+    'is_par',
+    'is_impar',
     'str_to_bool',
     'to_bool',
     'strip_accents',
@@ -61,6 +63,24 @@ def numerology(numeros: tuple[int, ...]) -> int:
         soma = soma // 10
 
     return numerology(digitos)
+
+
+def is_par(val: int | float) -> bool:
+    if val is None:
+        return False
+    elif isinstance(val, int):
+        return (val % 2) == 0
+    else:
+        return (int(val) % 2) == 0
+
+
+def is_impar(val: int | float) -> bool:
+    if val is None:
+        return False
+    elif isinstance(val, int):
+        return (val % 2) != 0
+    else:
+        return (int(val) % 2) != 0
 
 
 # ----------------------------------------------------------------------------

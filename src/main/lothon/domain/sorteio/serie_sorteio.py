@@ -91,14 +91,15 @@ class SerieSorteio:
     def update_stats(self):
         self.len_sorteios = len(self.sorteios)
         self.len_atrasos = len(self.atrasos)
-        self.max_atraso = max(self.atrasos)
-        self.min_atraso = min(self.atrasos)
-        self.mode_atraso = stts.mode(self.atrasos)
-        self.mean_atraso = stts.fmean(self.atrasos)
-        self.hmean_atraso = stts.harmonic_mean(self.atrasos)
-        self.gmean_atraso = stts.geometric_mean(self.atrasos)
-        self.median_atraso = stts.median(self.atrasos)
-        self.varia_atraso = stts.pvariance(self.atrasos)
-        self.stdev_atraso = stts.pstdev(self.atrasos)
+        if self.len_atrasos > 0:
+            self.max_atraso = max(self.atrasos)
+            self.min_atraso = min(self.atrasos)
+            self.mode_atraso = stts.mode(self.atrasos)
+            self.mean_atraso = stts.fmean(self.atrasos)
+            self.hmean_atraso = stts.harmonic_mean(self.atrasos)
+            self.gmean_atraso = stts.geometric_mean(self.atrasos)
+            self.median_atraso = stts.median(self.atrasos)
+            self.varia_atraso = stts.pvariance(self.atrasos)
+            self.stdev_atraso = stts.pstdev(self.atrasos)
 
 # ----------------------------------------------------------------------------
