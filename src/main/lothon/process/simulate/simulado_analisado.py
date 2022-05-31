@@ -13,10 +13,10 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional, Any
 import math
 import random
 import logging
-from typing import Optional
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -48,7 +48,7 @@ class SimuladoAnalisado(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('boloes_caixa', 'pares', 'analise_chain')
+    __slots__ = ('boloes_caixa', 'analise_chain')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -135,6 +135,13 @@ class SimuladoAnalisado(AbstractSimulate):
         for aproc in self.analise_chain:
             # executa a analise para cada loteria:
             aproc.execute(payload)
+
+        # configura cada um dos processos de analise, apos analisarem os sorteios:
+        parms: dict[str: Any] = {}  # para configurar o processamento de 'evaluate()' dos processos
+        for aproc in self.analise_chain:
+            # configuracao de parametros para os processamentos em cada classe de analise:
+            logger.debug(f"processo '{aproc.id_process}': inicializando configuracao de SETUP.")
+            aproc.setup(parms)
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         nmlot: str = payload.nome_loteria
