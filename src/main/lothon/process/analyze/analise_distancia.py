@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import math
 import itertools as itt
 import logging
@@ -44,6 +45,11 @@ class AnaliseDistancia(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    distancias_jogos: Optional[list[int]] = None
+    distancias_percentos: Optional[list[float]] = None
+    distancias_concursos: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -51,8 +57,8 @@ class AnaliseDistancia(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def calc_distancia(bolas: tuple[int, ...]) -> int:
+    @classmethod
+    def calc_distancia(cls, bolas: tuple[int, ...]) -> int:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return 0
@@ -61,6 +67,15 @@ class AnaliseDistancia(AbstractAnalyze):
         return max(bolas) - min(bolas)
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.distancias_jogos = None
+        self.distancias_percentos = None
+        self.distancias_concursos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -87,20 +102,20 @@ class AnaliseDistancia(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada distancia:
-        distancias_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.distancias_jogos = self.new_list_int(qtd_items)
+        self.distancias_percentos = self.new_list_float(qtd_items)
 
         # calcula a distancia de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             vl_distancia = self.calc_distancia(jogo)
-            distancias_jogos[vl_distancia] += 1
+            self.distancias_jogos[vl_distancia] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? DISTANTE     PERC%     #TOTAL\n"
-        for key, value in enumerate(distancias_jogos):
+        for key, value in enumerate(self.distancias_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
-            percentos_jogos[key] = percent
+            self.distancias_percentos[key] = percent
             output += f"\t {formatd(key,2)} distante:  {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Distancias Resultantes: {output}")
@@ -110,20 +125,20 @@ class AnaliseDistancia(AbstractAnalyze):
                      f"{formatf(qtd_concursos)}  concursos da loteria.")
 
         # calcula a distancia de cada sorteio dos concursos:
-        distancias_concursos: list[int] = self.new_list_int(qtd_items)
+        self.distancias_concursos = self.new_list_int(qtd_items)
         for concurso in concursos:
             vl_distancia: int = self.calc_distancia(concurso.bolas)
-            distancias_concursos[vl_distancia] += 1
+            self.distancias_concursos[vl_distancia] += 1
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 vl_distancia: int = self.calc_distancia(concurso.bolas2)
-                distancias_concursos[vl_distancia] += 1
+                self.distancias_concursos[vl_distancia] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? DISTANTE     PERC%       %DIF%     #TOTAL\n"
-        for key, value in enumerate(distancias_concursos):
+        for key, value in enumerate(self.distancias_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.distancias_percentos[key]
             output += f"\t {formatd(key,2)} distante:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Distancias Resultantes: {output}")
@@ -168,7 +183,7 @@ class AnaliseDistancia(AbstractAnalyze):
             for key, value in enumerate(distancias_passadas):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.distancias_percentos[key]
                 output += f"\t {formatd(key,2)} distante:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'6.2')}%\n"
             logger.debug(f"{nmlot}: Distancias Resultantes da EVOLUTIVA: {output}")
@@ -176,11 +191,6 @@ class AnaliseDistancia(AbstractAnalyze):
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["distancias_jogos"] = distancias_jogos
-        payload.statis["distancias_percentos"] = percentos_jogos
-        payload.statis["distancias_concursos"] = distancias_concursos
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

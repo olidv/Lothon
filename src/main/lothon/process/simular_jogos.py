@@ -38,14 +38,18 @@ logger = logging.getLogger(__name__)
 
 # relacao de instancias das loterias da caixa e boloes para processamento:
 loterias_caixa: dict[str: Loteria] = None
-boloes_caixa: dict[int: int] = {  # combinacoes de boloes para todas as faixas vendidas pela caixa.
+
+# combinacoes de boloes para todas as faixas vendidas pela caixa.
+boloes_caixa: dict[str: dict[int: int]] = {
     "megasena": {7: 50, 8: 12, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
     "quina": {6: 80, 7: 25, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
     "duplasena": {7: 60, 8: 15, 9: 5, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
     "lotofacil": {16: 40, 17: 5, 18: 1, 19: 1, 20: 1},
     "diadesorte": {8: 60, 9: 15, 10: 5, 11: 2, 12: 1, 13: 1, 14: 1, 15: 1}
 }
-boloes_945: dict[int: int] = {  # combinacoes de boloes para gasto diario maximo de R$ 945,00.
+
+# combinacoes de boloes para gasto diario maximo de R$ 945,00.
+boloes_945: dict[str: dict[int: int]] = {
     "megasena": {7: 30, 8: 7, 9: 2, 10: 1},
     "quina": {6: 78, 7: 22, 8: 8, 9: 3, 10: 1, 11: 1},
     "duplasena": {7: 54, 8: 13, 9: 4, 10: 1},
@@ -92,6 +96,7 @@ def run():
 
     # configura cada um dos processos antes, mas apenas uma unica vez:
     options["qtd_proc"] = 500  # vai simular jogos apenas nos ultimos 500 concursos
+    options["boloes_caixa"] = boloes_945
     for sproc in simulacao_chain:
         # configuracao de parametros para os processamentos:
         logger.debug(f"processo '{sproc.id_process}': inicializando configuracao.")

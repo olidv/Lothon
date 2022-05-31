@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import math
 import itertools as itt
 import logging
@@ -44,6 +45,11 @@ class AnaliseEspacamento(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise: 
+    espacamentos_jogos: Optional[list[int]] = None
+    espacamentos_percentos: Optional[list[float]] = None
+    espacamentos_concursos: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -51,8 +57,8 @@ class AnaliseEspacamento(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def calc_espacada(bolas: tuple[int, ...]) -> int:
+    @classmethod
+    def calc_espacada(cls, bolas: tuple[int, ...]) -> int:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return 0
@@ -73,6 +79,15 @@ class AnaliseEspacamento(AbstractAnalyze):
         return soma // qtd
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.espacamentos_jogos = None
+        self.espacamentos_percentos = None
+        self.espacamentos_concursos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -99,20 +114,20 @@ class AnaliseEspacamento(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada espacada:
-        espacamentos_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.espacamentos_jogos = self.new_list_int(qtd_items)
+        self.espacamentos_percentos = self.new_list_float(qtd_items)
 
         # calcula o espacamento medio de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             vl_espacamento = self.calc_espacada(jogo)
-            espacamentos_jogos[vl_espacamento] += 1
+            self.espacamentos_jogos[vl_espacamento] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? ESPACO     PERC%     #TOTAL\n"
-        for key, value in enumerate(espacamentos_jogos):
+        for key, value in enumerate(self.espacamentos_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
-            percentos_jogos[key] = percent
+            self.espacamentos_percentos[key] = percent
             output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
@@ -122,20 +137,20 @@ class AnaliseEspacamento(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula o espacamento de cada sorteio dos concursos:
-        espacamentos_concursos: list[int] = self.new_list_int(qtd_items)
+        self.espacamentos_concursos = self.new_list_int(qtd_items)
         for concurso in concursos:
             vl_espacamento: int = self.calc_espacada(concurso.bolas)
-            espacamentos_concursos[vl_espacamento] += 1
+            self.espacamentos_concursos[vl_espacamento] += 1
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 vl_espacamento: int = self.calc_espacada(concurso.bolas2)
-                espacamentos_concursos[vl_espacamento] += 1
+                self.espacamentos_concursos[vl_espacamento] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? ESPACO     PERC%       %DIF%     #TOTAL\n"
-        for key, value in enumerate(espacamentos_concursos):
+        for key, value in enumerate(self.espacamentos_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.espacamentos_percentos[key]
             output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
@@ -180,7 +195,7 @@ class AnaliseEspacamento(AbstractAnalyze):
             for key, value in enumerate(espacamentos_passados):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.espacamentos_percentos[key]
                 output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'7.2')}%\n"
             logger.debug(f"{nmlot}: Espacamentos Resultantes da EVOLUTIVA: {output}")
@@ -188,11 +203,6 @@ class AnaliseEspacamento(AbstractAnalyze):
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["espacamentos_jogos"] = espacamentos_jogos
-        payload.statis["espacamentos_percentos"] = percentos_jogos
-        payload.statis["espacamentos_concursos"] = espacamentos_concursos
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

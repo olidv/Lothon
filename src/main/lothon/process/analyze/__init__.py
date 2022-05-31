@@ -46,7 +46,7 @@ def get_process_chain() -> list[AbstractAnalyze]:
     global _process_chain
     if len(_process_chain) == 0:
         _process_chain.append(AnaliseCiclo())        # 0:00:00
-        _process_chain.append(AnaliseRecorrencia())   # 0:00:24
+        _process_chain.append(AnaliseRecorrencia())  # 0:00:31
         _process_chain.append(AnaliseFrequencia())   # 0:00:00
         _process_chain.append(AnaliseParidade())     # 0:00:32
         _process_chain.append(AnaliseNumerologia())  # 0:00:08

@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import math
 import itertools as itt
 import logging
@@ -44,6 +45,11 @@ class AnaliseColunario(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    colunarios_jogos: Optional[list[int]] = None
+    colunarios_percentos: Optional[list[float]] = None
+    colunarios_concursos: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -51,8 +57,8 @@ class AnaliseColunario(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def count_colunarios(bolas: tuple[int, ...], colunario: list[int]):
+    @classmethod
+    def count_colunarios(cls, bolas: tuple[int, ...], colunario: list[int]):
         # valida os parametros:
         if bolas is None or len(bolas) == 0 or colunario is None or len(colunario) == 0:
             return
@@ -61,6 +67,15 @@ class AnaliseColunario(AbstractAnalyze):
             colunario[num % 10] += 1
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.colunarios_jogos = None
+        self.colunarios_percentos = None
+        self.colunarios_concursos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -87,20 +102,20 @@ class AnaliseColunario(AbstractAnalyze):
                      f"{qtd_jogos:,}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
-        colunarios_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.colunarios_jogos = self.new_list_int(qtd_items)
+        self.colunarios_percentos = self.new_list_float(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            self.count_colunarios(jogo, colunarios_jogos)
+            self.count_colunarios(jogo, self.colunarios_jogos)
 
         # printa o resultado:
         output: str = f"\n\t ? COLUNA     PERC%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_jogos
-        for key, value in enumerate(colunarios_jogos):
+        for key, value in enumerate(self.colunarios_jogos):
             percent: float = round((value / total) * 1000) / 10
-            percentos_jogos[key] = percent
+            self.colunarios_percentos[key] = percent
             output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Colunarios Resultantes: {output}")
 
@@ -109,21 +124,21 @@ class AnaliseColunario(AbstractAnalyze):
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # zera os contadores de cada sequencia:
-        colunarios_concursos: list[int] = self.new_list_int(qtd_items)
+        self.colunarios_concursos = self.new_list_int(qtd_items)
 
         # contabiliza colunarios de cada sorteio ja realizado:
         for concurso in concursos:
-            self.count_colunarios(concurso.bolas, colunarios_concursos)
+            self.count_colunarios(concurso.bolas, self.colunarios_concursos)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
-                self.count_colunarios(concurso.bolas2, colunarios_concursos)
+                self.count_colunarios(concurso.bolas2, self.colunarios_concursos)
 
         # printa o resultado:
         output: str = f"\n\t ? COLUNA     PERC%       %DIF%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_sorteios
-        for key, value in enumerate(colunarios_concursos):
+        for key, value in enumerate(self.colunarios_concursos):
             percent: float = round((value / total) * 10000) / 100
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.colunarios_percentos[key]
             output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%  " \
                       f"   #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Colunarios Resultantes: {output}")
@@ -161,18 +176,13 @@ class AnaliseColunario(AbstractAnalyze):
             total: int = payload.qtd_bolas_sorteio * (qtd_concursos_passados * fator_sorteios)
             for key, value in enumerate(colunarios_passados):
                 percent: float = round((value / total) * 10000) / 100
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.colunarios_percentos[key]
                 output += f"\t {key} coluna:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%\n"
             logger.debug(f"{nmlot}: Colunarios Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["colunarios_jogos"] = colunarios_jogos
-        payload.statis["colunarios_percentos"] = percentos_jogos
-        payload.statis["colunarios_concursos"] = colunarios_concursos
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

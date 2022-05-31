@@ -45,6 +45,12 @@ class AnaliseParidade(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    paridades_jogos: Optional[list[int]] = None
+    paridades_percentos: Optional[list[float]] = None
+    paridades_concursos: Optional[list[int]] = None
+    frequencias_paridades: Optional[list[SerieSorteio | None]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -52,8 +58,8 @@ class AnaliseParidade(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def count_pares(bolas: tuple[int, ...]) -> int:
+    @classmethod
+    def count_pares(cls, bolas: tuple[int, ...]) -> int:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return 0
@@ -66,6 +72,16 @@ class AnaliseParidade(AbstractAnalyze):
         return qtd_pares
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.paridades_jogos = None
+        self.paridades_percentos = None
+        self.paridades_concursos = None
+        self.frequencias_paridades = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -92,20 +108,20 @@ class AnaliseParidade(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
-        paridades_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.paridades_jogos = self.new_list_int(qtd_items)
+        self.paridades_percentos = self.new_list_float(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             qtd_pares: int = self.count_pares(jogo)
-            paridades_jogos[qtd_pares] += 1
+            self.paridades_jogos[qtd_pares] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? PARES     PERC%     #TOTAL\n"
-        for key, value in enumerate(paridades_jogos):
+        for key, value in enumerate(self.paridades_jogos):
             percent: float = round((value / qtd_jogos) * 1000) / 10
-            percentos_jogos[key] = percent
+            self.paridades_percentos[key] = percent
             output += f"\t {formatd(key,2)} pares:  {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Paridades Resultantes: {output}")
@@ -115,20 +131,20 @@ class AnaliseParidade(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza pares (e impares) de cada sorteio dos concursos:
-        paridades_concursos: list[int] = self.new_list_int(qtd_items)
+        self.paridades_concursos = self.new_list_int(qtd_items)
         for concurso in concursos:
             qtd_pares: int = self.count_pares(concurso.bolas)
-            paridades_concursos[qtd_pares] += 1
+            self.paridades_concursos[qtd_pares] += 1
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 qtd_pares: int = self.count_pares(concurso.bolas2)
-                paridades_concursos[qtd_pares] += 1
+                self.paridades_concursos[qtd_pares] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? PARES     PERC%       %DIF%     #TOTAL\n"
-        for key, value in enumerate(paridades_concursos):
+        for key, value in enumerate(self.paridades_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.paridades_percentos[key]
             output += f"\t {formatd(key,2)} pares:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Paridades Resultantes: {output}")
@@ -175,7 +191,7 @@ class AnaliseParidade(AbstractAnalyze):
             for key, value in enumerate(paridades_passados):
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
                                  / 10
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.paridades_percentos[key]
                 output += f"\t {formatd(key,2)} pares:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'6.2')}%\n"
             logger.debug(f"{nmlot}: Paridades Resultantes da EVOLUTIVA: {output}")
@@ -189,8 +205,8 @@ class AnaliseParidade(AbstractAnalyze):
                      f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos das paridades:
-        frequencias_paridades: list[Optional[SerieSorteio]] = self.new_list_series(qtd_items)
-        frequencias_paridades[0] = SerieSorteio(0)  # neste caso especifico tem a paridade zero!
+        self.frequencias_paridades = self.new_list_series(qtd_items)
+        self.frequencias_paridades[0] = SerieSorteio(0)  # neste caso especifico tem a paridade zero
 
         # contabiliza as frequencias e atrasos das paridades em todos os sorteios ja realizados:
         concurso_anterior: Optional[Concurso | ConcursoDuplo] = None
@@ -202,15 +218,15 @@ class AnaliseParidade(AbstractAnalyze):
 
             # contabiliza o numero de paridades do concurso:
             qtd_pares = self.count_pares(concurso.bolas)
-            frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
+            self.frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 qtd_pares = self.count_pares(concurso.bolas2)
-                frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
+                self.frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
         ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
-        for serie in frequencias_paridades:
+        for serie in self.frequencias_paridades:
             # vai aproveitar e contabilizar as medidas estatisticas para a paridade:
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
@@ -218,7 +234,7 @@ class AnaliseParidade(AbstractAnalyze):
         output: str = f"\n\tPARES:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in frequencias_paridades:
+        for serie in self.frequencias_paridades:
             output += f"\t   {formatd(serie.id,2)}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}        " \
@@ -234,12 +250,6 @@ class AnaliseParidade(AbstractAnalyze):
                       f"{formatf(serie.varia_atraso,'9.1')}         " \
                       f"{formatf(serie.stdev_atraso,'7.1')} \n"
         logger.debug(f"{nmlot}: FREQUENCIA de Paridades Resultantes: {output}")
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["paridades_jogos"] = paridades_jogos
-        payload.statis["paridades_percentos"] = percentos_jogos
-        payload.statis["paridades_concursos"] = paridades_concursos
-        payload.statis["frequencias_paridades"] = frequencias_paridades
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

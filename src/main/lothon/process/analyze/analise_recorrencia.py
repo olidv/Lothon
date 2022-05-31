@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import logging
 import itertools as itt
 
@@ -43,6 +44,11 @@ class AnaliseRecorrencia(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    recorrencias_tuplas: dict[str: int] = None
+    recorrencias_total: dict[int: int] = None
+    tamanhos_tuplas: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -50,8 +56,8 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def format_tuple(bolas: tuple[int, ...]) -> str:
+    @classmethod
+    def format_tuple(cls, bolas: tuple[int, ...]) -> str:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return ''
@@ -63,8 +69,8 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
         return text
 
-    @staticmethod
-    def has_recorrencias(bolas1: tuple[int, ...], bolas2: tuple[int, ...]) -> bool:
+    @classmethod
+    def has_recorrencias(cls, bolas1: tuple[int, ...], bolas2: tuple[int, ...]) -> bool:
         # valida os parametros:
         if bolas1 is None or len(bolas1) == 0 or bolas2 is None or len(bolas2) == 0:
             return False
@@ -77,6 +83,15 @@ class AnaliseRecorrencia(AbstractAnalyze):
         return qtd_recorre == len(bolas1)
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.recorrencias_tuplas = None
+        self.recorrencias_total = None
+        self.tamanhos_tuplas = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -103,9 +118,9 @@ class AnaliseRecorrencia(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de cada recorrencia:
-        recorrencias_tuplas: dict[str: int] = {}
+        self.recorrencias_tuplas = {}
+        self.tamanhos_tuplas = self.new_list_int(max_size_tuplas - 1)
         count_recorrencias: list[int] = self.new_list_int(qtd_items)
-        tamanhos_tuplas: list[int] = self.new_list_int(max_size_tuplas - 1)
 
         # contabiliza recorrencias de cada sorteio com todos os sorteios ja realizados:
         variacoes_tuplas: range = range(2, max_size_tuplas)  # tuplas com range maximo de 2..7 bolas
@@ -118,11 +133,11 @@ class AnaliseRecorrencia(AbstractAnalyze):
                 for bolas in itt.combinations(concurso.bolas, qt_parcial):
                     tupla: tuple[int, ...] = tuple(sorted(bolas))  # tupla ordenada de bolas
                     # contabiliza quantas tuplas possuem esse tamanho (numero de dezenas):
-                    tamanhos_tuplas[qt_parcial] += 1
+                    self.tamanhos_tuplas[qt_parcial] += 1
 
                     # se a tupla ja foi pesquisada, entao ignora e pula pra proxima:
                     tpstr: str = self.format_tuple(tupla)
-                    if tpstr in recorrencias_tuplas:
+                    if tpstr in self.recorrencias_tuplas:
                         # logger.debug(f"Tupla {tpstr} ja foi processada e sera ignorada.")
                         continue
                     # logger.debug(f"Vai processar a Tupla {tpstr}...")
@@ -147,31 +162,31 @@ class AnaliseRecorrencia(AbstractAnalyze):
                     if qt_repeticoes > 1:
                         # logger.debug(f"Tupla {tpstr} possui #{qt_repeticoes} repeticoes nos "
                         #              f"concursos.")
-                        recorrencias_tuplas[tpstr] = qt_repeticoes
+                        self.recorrencias_tuplas[tpstr] = qt_repeticoes
                         count_recorrencias[qt_repeticoes] += 1
 
         # ordena as recorrencias em ordem decrescente do valor (quantidade de recorrencias):
-        recorrencias_tuplas = {k: v for k, v in sorted(recorrencias_tuplas.items(),
-                                                       key=lambda item: item[1], reverse=True)}
+        self.recorrencias_tuplas = {k: v for k, v in sorted(self.recorrencias_tuplas.items(),
+                                    key=lambda item: item[1], reverse=True)}
         # logger.debug('-' * 60)
-        # for k, v in recorrencias_tuplas.items():
+        # for k, v in self.recorrencias_tuplas.items():
         #     logger.debug(f"{nmlot}: Tupla {k} ocorreu em #{v} sorteios.")
         # logger.debug('-' * 60)
 
         # identifica o numero de repeticoes de cada recorrencia
-        recorrencias_total: dict[int: int] = {}
+        self.recorrencias_total = {}
         total_tuplas: int = 0
         for qtd_repete, qtd_tuplas in enumerate(count_recorrencias):
             if qtd_repete == 0 or qtd_tuplas == 0:
                 continue
             # logger.debug(f"{nmlot}: #{qtd_tuplas} Tuplas ocorreram em #{qtd_repete} sorteios.")
-            recorrencias_total[qtd_repete] = qtd_tuplas
+            self.recorrencias_total[qtd_repete] = qtd_tuplas
             total_tuplas += qtd_tuplas
 
         # printa a quantidade de tuplas pelo tamanho (len):
         output: str = f"\n\t  ? TUPLA     PERC%     #TOTAL\n"
-        total: int = sum(tamanhos_tuplas)
-        for i, value in enumerate(tamanhos_tuplas):
+        total: int = sum(self.tamanhos_tuplas)
+        for i, value in enumerate(self.tamanhos_tuplas):
             if i < 2:  # os valores estao a partir da posicao #2 (tamanho minimo das tuplas)
                 continue
 
@@ -182,16 +197,11 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
         # printa o numero de tuplas para cada quantidade de recorrencias:
         output: str = f"\n\t  ? RECORRE     PERC%     #TUPLAS\n"
-        for i, value in recorrencias_total.items():
+        for i, value in self.recorrencias_total.items():
             percent: float = round((value / total_tuplas) * 10000) / 100
             output += f"\t{formatd(i,3)} recorre:  {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Recorrencias Resultantes: {output}")
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["recorrencias_tuplas"] = recorrencias_tuplas
-        payload.statis["recorrencias_total"] = recorrencias_total
-        payload.statis["tamanhos_tuplas"] = tamanhos_tuplas
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

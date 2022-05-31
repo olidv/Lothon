@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import math
 import itertools as itt
 import logging
@@ -44,6 +45,11 @@ class AnaliseDecenario(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    decenarios_jogos: Optional[list[int]] = None
+    decenarios_percentos: Optional[list[float]] = None
+    decenarios_concursos: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -51,8 +57,8 @@ class AnaliseDecenario(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def count_decenarios(bolas: tuple[int, ...], decenario: list[int]) -> None:
+    @classmethod
+    def count_decenarios(cls, bolas: tuple[int, ...], decenario: list[int]) -> None:
         # valida os parametros:
         if bolas is None or len(bolas) == 0 or decenario is None or len(decenario) == 0:
             return
@@ -61,6 +67,15 @@ class AnaliseDecenario(AbstractAnalyze):
             decenario[(num - 1) // 10] += 1
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.decenarios_jogos = None
+        self.decenarios_percentos = None
+        self.decenarios_concursos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -87,20 +102,20 @@ class AnaliseDecenario(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada paridade:
-        decenarios_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.decenarios_jogos = self.new_list_int(qtd_items)
+        self.decenarios_percentos = self.new_list_float(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            self.count_decenarios(jogo, decenarios_jogos)
+            self.count_decenarios(jogo, self.decenarios_jogos)
 
         # printa o resultado:
         output: str = f"\n\t ? DEZENA     PERC%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_jogos
-        for key, value in enumerate(decenarios_jogos):
+        for key, value in enumerate(self.decenarios_jogos):
             percent: float = round((value / total) * 1000) / 10
-            percentos_jogos[key] = percent
+            self.decenarios_percentos[key] = percent
             output += f"\t {key} dezena:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Decenarios Resultantes: {output}")
 
@@ -109,21 +124,21 @@ class AnaliseDecenario(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de cada sequencia:
-        decenarios_concursos: list[int] = self.new_list_int(qtd_items)
+        self.decenarios_concursos = self.new_list_int(qtd_items)
 
         # contabiliza decenarios de cada sorteio ja realizado:
         for concurso in concursos:
-            self.count_decenarios(concurso.bolas, decenarios_concursos)
+            self.count_decenarios(concurso.bolas, self.decenarios_concursos)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
-                self.count_decenarios(concurso.bolas2, decenarios_concursos)
+                self.count_decenarios(concurso.bolas2, self.decenarios_concursos)
 
         # printa o resultado:
         output: str = f"\n\t ? DEZENA     PERC%       %DIF%     #TOTAL\n"
         total: int = payload.qtd_bolas_sorteio * qtd_sorteios
-        for key, value in enumerate(decenarios_concursos):
+        for key, value in enumerate(self.decenarios_concursos):
             percent: float = round((value / total) * 10000) / 100
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.decenarios_percentos[key]
             output += f"\t {key} dezena:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%  " \
                       f"   #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Decenarios Resultantes: {output}")
@@ -161,18 +176,13 @@ class AnaliseDecenario(AbstractAnalyze):
             total: int = payload.qtd_bolas_sorteio * (qtd_concursos_passados * fator_sorteios)
             for key, value in enumerate(decenarios_passados):
                 percent: float = round((value / total) * 10000) / 100
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.decenarios_percentos[key]
                 output += f"\t {key} dezena:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%\n"
             logger.debug(f"{nmlot}: Decenarios Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["decenarios_jogos"] = decenarios_jogos
-        payload.statis["decenarios_percentos"] = percentos_jogos
-        payload.statis["decenarios_concursos"] = decenarios_concursos
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

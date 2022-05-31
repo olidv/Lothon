@@ -42,15 +42,11 @@ class AbstractSimulate(AbstractProcess, ABC):
 
     # --- METODOS ------------------------------------------------------------
 
-    # a inicializacao eh opcional para processos de simulacao:
-    def init(self, options: dict):
-        pass
-
     # --- METODOS STATIC -----------------------------------------------------
 
     # confere relacao de jogos de um bolao com o(s) sorteio(s) de determinado concurso:
-    @staticmethod
-    def check_premiacao_jogos(concurso: Concurso | ConcursoDuplo, bolao: list[tuple[int, ...]],
+    @classmethod
+    def check_premiacao_jogos(cls, concurso: Concurso | ConcursoDuplo, bolao: list[tuple[int, ...]],
                               qt_base: int = None) -> tuple[int, float]:
         qt_acertos: int = 0
         premio_total: float = 0.00

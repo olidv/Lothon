@@ -34,12 +34,6 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# cadeia de processos para analise de jogos na simulacao:
-analise_chain: Optional[list[AbstractAnalyze]] = None
-
-# medidas otimas de equilibrio de paridades para boloes:
-pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
-
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
@@ -53,6 +47,14 @@ class SimuladoAnalisado(AbstractSimulate):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para auxilio na geracao de boles para simulacoes:
+    boloes_caixa: dict[str: dict[int: int]] = None
+    # medidas otimas de equilibrio de paridades para boloes:
+    pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
+
+    # cadeia de processos para analise de jogos na simulacao:
+    analise_chain: Optional[list[AbstractAnalyze]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -60,13 +62,12 @@ class SimuladoAnalisado(AbstractSimulate):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def sortear_bolas(set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
-        global pares
+    @classmethod
+    def sortear_bolas(cls, set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
         bolas: tuple[int, ...] = ()
 
         # verifica a proporcao do numero de pares e impares:
-        qt_pares: int = pares.get(qtd_sorteadas, qtd_sorteadas // 2)
+        qt_pares: int = cls.pares.get(qtd_sorteadas, qtd_sorteadas // 2)
         qt_impar: int = qtd_sorteadas - qt_pares
 
         # seleciona os pares primeiro:
@@ -89,8 +90,8 @@ class SimuladoAnalisado(AbstractSimulate):
         # print(f"*** JOGO GRERADO: {bolas} ***")
         return bolas
 
-    @staticmethod
-    def gerar_bolao_analisado(set_bolas: int, qtd_sorteadas: int, qtd_jogos: int,
+    @classmethod
+    def gerar_bolao_analisado(cls, set_bolas: int, qtd_sorteadas: int, qtd_jogos: int,
                               concursos_passados: list[Concurso]) -> list[tuple[int, ...]]:
         bolao: list[tuple[int, ...]] = []
         
@@ -101,23 +102,25 @@ class SimuladoAnalisado(AbstractSimulate):
 
         return bolao
 
-    # --- INICIALIZACAO ------------------------------------------------------
+    # --- PROCESSAMENTO ------------------------------------------------------
 
-    def init(self, options: dict):
-        global analise_chain
-        self.options = options
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de processamento das simulacoes:
+        self.boloes_caixa = self.options["boloes_caixa"]
+        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
 
         logger.debug("Inicializando a cadeia de processos para analise de jogos...")
-        analise_chain = analyze.get_process_chain()
+        self.analise_chain = analyze.get_process_chain()
 
         # configura cada um dos processos antes, mas apenas uma unica vez:
         # options[""] = 0  # ...
-        for aproc in analise_chain:
+        for aproc in self.analise_chain:
             # configuracao de parametros para os processamentos:
             logger.debug(f"processo '{aproc.id_process}': inicializando configuracao.")
-            aproc.init(options)
-
-    # --- PROCESSAMENTO ------------------------------------------------------
+            aproc.init(self.options)
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -127,7 +130,7 @@ class SimuladoAnalisado(AbstractSimulate):
             _startWatch = startwatch()
 
         # Efetua a execucao de cada processo de analise em sequencia (chain):
-        for aproc in analise_chain:
+        for aproc in self.analise_chain:
             # executa a analise para cada loteria:
             aproc.execute(payload)
 
@@ -141,7 +144,7 @@ class SimuladoAnalisado(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = payload.boloes
+        boloes: dict[int: int] = self.boloes_caixa[nmlot]
         faixas: dict[int, Faixa] = payload.faixas
         bolas: int = payload.qtd_bolas
         base: int = payload.qtd_bolas_sorteio

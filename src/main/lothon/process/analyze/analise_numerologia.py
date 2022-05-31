@@ -45,6 +45,12 @@ class AnaliseNumerologia(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise:
+    numerologias_jogos: Optional[list[int]] = None
+    numerologias_percentos: Optional[list[float]] = None
+    numerologias_concursos: Optional[list[int]] = None
+    frequencias_numelogias: Optional[list[SerieSorteio | None]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -52,8 +58,8 @@ class AnaliseNumerologia(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def calc_numerology(bolas: tuple[int, ...]) -> int:
+    @classmethod
+    def calc_numerology(cls, bolas: tuple[int, ...]) -> int:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return 0
@@ -61,6 +67,16 @@ class AnaliseNumerologia(AbstractAnalyze):
         return numerology(bolas)
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.numerologias_jogos = None
+        self.numerologias_percentos = None
+        self.numerologias_concursos = None
+        self.frequencias_numelogias = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -87,23 +103,23 @@ class AnaliseNumerologia(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada somatorio:
-        numerologias_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.numerologias_jogos = self.new_list_int(qtd_items)
+        self.numerologias_percentos = self.new_list_float(qtd_items)
 
         # calcula a numerologia de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             numero: int = self.calc_numerology(jogo)
-            numerologias_jogos[numero] += 1
+            self.numerologias_jogos[numero] += 1
 
         # printa o resultado:
         output: str = f"\n\t ? NUMERO     PERC%     #TOTAL\n"
-        for key, value in enumerate(numerologias_jogos):
+        for key, value in enumerate(self.numerologias_jogos):
             if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
                 continue
 
             percent: float = round((value / qtd_jogos) * 10000) / 100
-            percentos_jogos[key] = percent
+            self.numerologias_percentos[key] = percent
             output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Numerologias Resultantes: {output}")
 
@@ -112,23 +128,23 @@ class AnaliseNumerologia(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula a numerologia de cada sorteio dos concursos:
-        numerologias_concursos: list[int] = self.new_list_int(qtd_items)
+        self.numerologias_concursos = self.new_list_int(qtd_items)
         for concurso in concursos:
             numero: int = self.calc_numerology(concurso.bolas)
-            numerologias_concursos[numero] += 1
+            self.numerologias_concursos[numero] += 1
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 numero: int = self.calc_numerology(concurso.bolas2)
-                numerologias_concursos[numero] += 1
+                self.numerologias_concursos[numero] += 1
 
         # printa o resultado:
         output: str = f"\n\t ? NUMERO     PERC%       %DIF%     #TOTAL\n"
-        for key, value in enumerate(numerologias_concursos):
+        for key, value in enumerate(self.numerologias_concursos):
             if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
                 continue
 
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
-            dif: float = percent - percentos_jogos[key]
+            dif: float = percent - self.numerologias_percentos[key]
             output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Numerologias Resultantes: {output}")
@@ -178,7 +194,7 @@ class AnaliseNumerologia(AbstractAnalyze):
 
                 percent: float = round((value / (qtd_concursos_passados*fator_sorteios))
                                        * 1000) / 10
-                dif: float = percent - percentos_jogos[key]
+                dif: float = percent - self.numerologias_percentos[key]
                 output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'6.2')}%\n"
             logger.debug(f"{nmlot}: Numerologias Resultantes da EVOLUTIVA: {output}")
@@ -192,8 +208,8 @@ class AnaliseNumerologia(AbstractAnalyze):
                      f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos das numerologias:
-        frequencias_numelogias: list[Optional[SerieSorteio]] = self.new_list_series(qtd_items)
-        frequencias_numelogias[0] = None  # nao ha numerologia com zero
+        self.frequencias_numelogias = self.new_list_series(qtd_items)
+        self.frequencias_numelogias[0] = None  # nao ha numerologia com zero
 
         # contabiliza as frequencias e atrasos das numerologias em todos os sorteios ja realizados:
         concurso_anterior: Optional[Concurso | ConcursoDuplo] = None
@@ -205,15 +221,15 @@ class AnaliseNumerologia(AbstractAnalyze):
 
             # contabiliza a numerologia do concurso:
             numero = self.calc_numerology(concurso.bolas)
-            frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
+            self.frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 numero = self.calc_numerology(concurso.bolas2)
-                frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
+                self.frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
         ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
-        for serie in frequencias_numelogias[1:]:
+        for serie in self.frequencias_numelogias[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a numerologia:
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
@@ -221,7 +237,7 @@ class AnaliseNumerologia(AbstractAnalyze):
         output: str = f"\n\tNUMERO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in frequencias_numelogias[1:]:
+        for serie in self.frequencias_numelogias[1:]:
             output += f"\t     {serie.id}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}        " \
@@ -237,12 +253,6 @@ class AnaliseNumerologia(AbstractAnalyze):
                       f"{formatf(serie.varia_atraso,'9.1')}          " \
                       f"{formatf(serie.stdev_atraso,'6.1')} \n"
         logger.debug(f"{nmlot}: FREQUENCIA de Numerologias Resultantes: {output}")
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["numerologias_jogos"] = numerologias_jogos
-        payload.statis["numerologias_percentos"] = percentos_jogos
-        payload.statis["numerologias_concursos"] = numerologias_concursos
-        payload.statis["frequencias_numelogias"] = frequencias_numelogias
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

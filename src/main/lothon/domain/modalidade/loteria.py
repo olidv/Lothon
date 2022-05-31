@@ -13,7 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from typing import Optional, Any
+from typing import Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import logging
@@ -53,10 +53,7 @@ class Loteria(ABC):
     qtd_bolas_sorteio: int
     dias_sorteio: tuple[int, ...]
     faixas: dict[int, Faixa]
-
     concursos: Optional[list[Concurso]] = None
-    boloes: dict[int: int] = None  # propriedade temporaria para auxiliar processamentos.
-    statis: dict[str: Any] = None  # registra as estatisticas apos analise dos sorteios.
 
     sort_index: str = field(init=False, repr=False)
 

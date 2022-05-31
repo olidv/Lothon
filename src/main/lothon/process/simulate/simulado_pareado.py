@@ -47,6 +47,9 @@ class SimuladoPareado(AbstractSimulate):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para auxilio na geracao de boles para simulacoes:
+    boloes_caixa: dict[str: dict[int: int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -54,8 +57,8 @@ class SimuladoPareado(AbstractSimulate):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def sortear_bolas(set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
+    @classmethod
+    def sortear_bolas(cls, set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
         global pares
         bolas: tuple[int, ...] = ()
 
@@ -83,8 +86,8 @@ class SimuladoPareado(AbstractSimulate):
         # print(f"*** JOGO GRERADO: {bolas} ***")
         return bolas
 
-    @staticmethod
-    def gerar_bolao_pareado(set_bolas: int, qtd_sorteadas: int, qtd_jogos: int,
+    @classmethod
+    def gerar_bolao_pareado(cls, set_bolas: int, qtd_sorteadas: int, qtd_jogos: int,
                             concursos_passados: list[Concurso]) -> list[tuple[int, ...]]:
         bolao: list[tuple[int, ...]] = []
         
@@ -96,6 +99,14 @@ class SimuladoPareado(AbstractSimulate):
         return bolao
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de processamento das simulacoes:
+        self.boloes_caixa = self.options["boloes_caixa"]
+        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -114,7 +125,7 @@ class SimuladoPareado(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = payload.boloes
+        boloes: dict[int: int] = self.boloes_caixa[nmlot]
         faixas: dict[int, Faixa] = payload.faixas
         bolas: int = payload.qtd_bolas
         base: int = payload.qtd_bolas_sorteio

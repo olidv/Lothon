@@ -13,6 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import math
 import itertools as itt
 import logging
@@ -44,6 +45,11 @@ class AnaliseSomatorio(AbstractAnalyze):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ()
 
+    # estruturas para a coleta de dados a partir do processamento de analise: 
+    somatorios_jogos: Optional[list[int]] = None
+    somatorios_percentos: Optional[list[float]] = None
+    somatorios_concursos: Optional[list[int]] = None
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
@@ -51,8 +57,8 @@ class AnaliseSomatorio(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
-    @staticmethod
-    def soma_dezenas(bolas: tuple[int, ...]) -> int:
+    @classmethod
+    def soma_dezenas(cls, bolas: tuple[int, ...]) -> int:
         # valida os parametros:
         if bolas is None or len(bolas) == 0:
             return 0
@@ -61,6 +67,15 @@ class AnaliseSomatorio(AbstractAnalyze):
         return soma
 
     # --- PROCESSAMENTO ------------------------------------------------------
+
+    def init(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().init(parms)
+
+        # inicializa as estruturas de coleta de dados:
+        self.somatorios_jogos = None
+        self.somatorios_percentos = None
+        self.somatorios_concursos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -88,20 +103,20 @@ class AnaliseSomatorio(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada somatorio:
-        somatorios_jogos: list[int] = self.new_list_int(qtd_items)
-        percentos_jogos: list[float] = self.new_list_float(qtd_items)
+        self.somatorios_jogos = self.new_list_int(qtd_items)
+        self.somatorios_percentos = self.new_list_float(qtd_items)
 
         # contabiliza a somatorio de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             soma_dezenas = self.soma_dezenas(jogo)
-            somatorios_jogos[soma_dezenas] += 1
+            self.somatorios_jogos[soma_dezenas] += 1
 
         # printa o resultado:
         output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
-        for key, value in enumerate(somatorios_jogos):
+        for key, value in enumerate(self.somatorios_jogos):
             percent: float = round((value / qtd_jogos) * 100000) / 1000
-            percentos_jogos[key] = percent
+            self.somatorios_percentos[key] = percent
             output += f"\t {formatd(key,3)} somado:  {formatf(percent,'7.3')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Somatorios Resultantes: {output}")
@@ -111,19 +126,19 @@ class AnaliseSomatorio(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza a somatorio de cada sorteio dos concursos:
-        somatorios_concursos: list[int] = self.new_list_int(qtd_items)
+        self.somatorios_concursos = self.new_list_int(qtd_items)
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
-            somatorios_concursos[soma_dezenas] += 1
+            self.somatorios_concursos[soma_dezenas] += 1
 
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                somatorios_concursos[soma_dezenas] += 1
+                self.somatorios_concursos[soma_dezenas] += 1
 
         # printa o resultado:
         output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
-        for key, value in enumerate(somatorios_concursos):
+        for key, value in enumerate(self.somatorios_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
             output += f"\t {formatd(key,3)} somado:  {formatf(percent,'7.3')}% ... " \
                       f"#{formatd(value)}\n"
@@ -137,25 +152,20 @@ class AnaliseSomatorio(AbstractAnalyze):
         output: str = f"\n\t #CONCURSO   SOMA          PERC%    #TOTAL\n"
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
-            percent = percentos_jogos[soma_dezenas]
-            total = somatorios_concursos[soma_dezenas]
+            percent = self.somatorios_percentos[soma_dezenas]
+            total = self.somatorios_concursos[soma_dezenas]
             output += f"\t     {formatd(concurso.id_concurso,5)}    {formatd(soma_dezenas,3)}  " \
                       f"...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
 
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                percent = percentos_jogos[soma_dezenas]
-                total = somatorios_concursos[soma_dezenas]
+                percent = self.somatorios_percentos[soma_dezenas]
+                total = self.somatorios_concursos[soma_dezenas]
                 output += f"\t                          {formatd(soma_dezenas,3)}  ...  " \
                           f"{formatf(percent,'7.3')}%   #{formatd(total)}\n"
         # printa o resultado:
         logger.debug(f"{nmlot}: COMPARATIVA dos Somatorios Resultantes: {output}")
-
-        # salva os dados resultantes da analise para utilizacao em simulacoes e geracoes de boloes:
-        payload.statis["somatorios_jogos"] = somatorios_jogos
-        payload.statis["somatorios_percentos"] = percentos_jogos
-        payload.statis["somatorios_concursos"] = somatorios_concursos
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
