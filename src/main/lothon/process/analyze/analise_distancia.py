@@ -43,17 +43,17 @@ class AnaliseDistancia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    distancias_jogos: Optional[list[int]] = None
-    distancias_percentos: Optional[list[float]] = None
-    distancias_concursos: Optional[list[int]] = None
+    __slots__ = ('distancias_jogos', 'distancias_percentos', 'distancias_concursos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Distancia nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.distancias_jogos: Optional[list[int]] = None
+        self.distancias_percentos: Optional[list[float]] = None
+        self.distancias_concursos: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

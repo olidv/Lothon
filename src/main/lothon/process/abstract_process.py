@@ -29,7 +29,7 @@ class AbstractProcess(ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_process', '_options'
+    __slots__ = ('_id_process', '_options')
 
     @property
     def id_process(self) -> str:

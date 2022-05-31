@@ -43,18 +43,19 @@ class AnaliseNumerologia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    numerologias_jogos: Optional[list[int]] = None
-    numerologias_percentos: Optional[list[float]] = None
-    numerologias_concursos: Optional[list[int]] = None
-    frequencias_numelogias: Optional[list[SerieSorteio | None]] = None
+    __slots__ = ('numerologias_jogos', 'numerologias_percentos', 'numerologias_concursos',
+                 'frequencias_numelogias')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Numerologia das Dezenas")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.numerologias_jogos: Optional[list[int]] = None
+        self.numerologias_percentos: Optional[list[float]] = None
+        self.numerologias_concursos: Optional[list[int]] = None
+        self.frequencias_numelogias: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

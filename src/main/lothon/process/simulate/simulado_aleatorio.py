@@ -42,15 +42,15 @@ class SimuladoAleatorio(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para auxilio na geracao de boles para simulacoes:
-    boloes_caixa: dict[str: dict[int: int]] = None
+    __slots__ = ('boloes_caixa',)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Simulado com Dezenas Aleatorias")
+
+        # estrutura para auxilio na geracao de boles para simulacoes:
+        self.boloes_caixa: dict[str: dict[int: int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -104,7 +104,7 @@ class SimuladoAleatorio(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = self.boloes_caixa[nmlot]
+        boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]
         faixas: dict[int, Faixa] = payload.faixas
         bolas: int = payload.qtd_bolas
         base: int = payload.qtd_bolas_sorteio

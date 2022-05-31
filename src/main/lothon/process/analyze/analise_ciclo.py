@@ -41,15 +41,15 @@ class AnaliseCiclo(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    frequencias_ciclos: Optional[SerieSorteio] = None
+    __slots__ = ('frequencias_ciclos',)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Ciclo Fechado dos Concursos")
+
+        # estrutura para a coleta de dados a partir do processamento de analise:
+        self.frequencias_ciclos: Optional[SerieSorteio] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

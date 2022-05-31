@@ -41,17 +41,17 @@ class AnaliseRepetencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    repetencias_concursos: Optional[list[int]] = None
-    repetencias_series: Optional[list[SerieSorteio]] = None
-    frequencias_repetencias: Optional[list[SerieSorteio | None]] = None
+    __slots__ = ('repetencias_concursos', 'repetencias_series', 'frequencias_repetencias')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Repetencia nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.repetencias_concursos: Optional[list[int]] = None
+        self.repetencias_series: Optional[list[SerieSorteio]] = None
+        self.frequencias_repetencias: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

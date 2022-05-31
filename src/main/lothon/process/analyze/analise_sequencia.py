@@ -43,18 +43,19 @@ class AnaliseSequencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    sequencias_jogos: Optional[list[int]] = None
-    sequencias_percentos: Optional[list[float]] = None
-    sequencias_concursos: Optional[list[int]] = None
-    frequencias_sequencias: Optional[list[SerieSorteio | None]] = None
+    __slots__ = ('sequencias_jogos', 'sequencias_percentos', 'sequencias_concursos',
+                 'frequencias_sequencias')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Sequencia nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.sequencias_jogos: Optional[list[int]] = None
+        self.sequencias_percentos: Optional[list[float]] = None
+        self.sequencias_concursos: Optional[list[int]] = None
+        self.frequencias_sequencias: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

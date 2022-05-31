@@ -42,17 +42,17 @@ class AnaliseRecorrencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    recorrencias_tuplas: dict[str: int] = None
-    recorrencias_total: dict[int: int] = None
-    tamanhos_tuplas: Optional[list[int]] = None
+    __slots__ = ('recorrencias_tuplas', 'recorrencias_total', 'tamanhos_tuplas')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Recorrencia nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.recorrencias_tuplas: dict[str: int] = None
+        self.recorrencias_total: dict[int: int] = None
+        self.tamanhos_tuplas: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

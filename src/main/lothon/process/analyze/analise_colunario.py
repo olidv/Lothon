@@ -43,17 +43,17 @@ class AnaliseColunario(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    colunarios_jogos: Optional[list[int]] = None
-    colunarios_percentos: Optional[list[float]] = None
-    colunarios_concursos: Optional[list[int]] = None
+    __slots__ = ('colunarios_jogos', 'colunarios_percentos', 'colunarios_concursos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Colunario nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.colunarios_jogos: Optional[list[int]] = None
+        self.colunarios_percentos: Optional[list[float]] = None
+        self.colunarios_concursos: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

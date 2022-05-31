@@ -43,17 +43,17 @@ class AnaliseEspacamento(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise: 
-    espacamentos_jogos: Optional[list[int]] = None
-    espacamentos_percentos: Optional[list[float]] = None
-    espacamentos_concursos: Optional[list[int]] = None
+    __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Espacamentos nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.espacamentos_jogos: Optional[list[int]] = None
+        self.espacamentos_percentos: Optional[list[float]] = None
+        self.espacamentos_concursos: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

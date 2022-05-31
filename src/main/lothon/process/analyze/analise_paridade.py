@@ -43,18 +43,19 @@ class AnaliseParidade(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    paridades_jogos: Optional[list[int]] = None
-    paridades_percentos: Optional[list[float]] = None
-    paridades_concursos: Optional[list[int]] = None
-    frequencias_paridades: Optional[list[SerieSorteio | None]] = None
+    __slots__ = ('paridades_jogos', 'paridades_percentos', 'paridades_concursos',
+                 'frequencias_paridades')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Paridade das Dezenas")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.paridades_jogos: Optional[list[int]] = None
+        self.paridades_percentos: Optional[list[float]] = None
+        self.paridades_concursos: Optional[list[int]] = None
+        self.frequencias_paridades: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

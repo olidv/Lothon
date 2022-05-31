@@ -41,15 +41,15 @@ class AnaliseFrequencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    frequencias_dezenas: Optional[list[SerieSorteio]] = None
+    __slots__ = ('frequencias_dezenas',)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Frequencia dos Concursos")
+
+        # estrutura para a coleta de dados a partir do processamento de analise:
+        self.frequencias_dezenas: Optional[list[SerieSorteio]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

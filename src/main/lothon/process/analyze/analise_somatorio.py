@@ -43,17 +43,17 @@ class AnaliseSomatorio(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise: 
-    somatorios_jogos: Optional[list[int]] = None
-    somatorios_percentos: Optional[list[float]] = None
-    somatorios_concursos: Optional[list[int]] = None
+    __slots__ = ('somatorios_jogos', 'somatorios_percentos', 'somatorios_concursos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Somatorio das Dezenas")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.somatorios_jogos: Optional[list[int]] = None
+        self.somatorios_percentos: Optional[list[float]] = None
+        self.somatorios_concursos: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

@@ -34,6 +34,9 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
+# medidas otimas de equilibrio de paridades para boloes:
+pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
+
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
@@ -45,29 +48,28 @@ class SimuladoAnalisado(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para auxilio na geracao de boles para simulacoes:
-    boloes_caixa: dict[str: dict[int: int]] = None
-    # medidas otimas de equilibrio de paridades para boloes:
-    pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
-
-    # cadeia de processos para analise de jogos na simulacao:
-    analise_chain: Optional[list[AbstractAnalyze]] = None
+    __slots__ = ('boloes_caixa', 'pares', 'analise_chain')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Simulado com Dezenas Analisadas")
 
+        # estruturas para auxilio na geracao de boles para simulacoes:
+        self.boloes_caixa: dict[str: dict[int: int]] = None
+
+        # cadeia de processos para analise de jogos na simulacao:
+        self.analise_chain: Optional[list[AbstractAnalyze]] = None
+
     # --- METODOS STATIC -----------------------------------------------------
 
     @classmethod
     def sortear_bolas(cls, set_bolas: int, qtd_sorteadas: int) -> tuple[int, ...]:
+        global pares
         bolas: tuple[int, ...] = ()
 
         # verifica a proporcao do numero de pares e impares:
-        qt_pares: int = cls.pares.get(qtd_sorteadas, qtd_sorteadas // 2)
+        qt_pares: int = pares.get(qtd_sorteadas, qtd_sorteadas // 2)
         qt_impar: int = qtd_sorteadas - qt_pares
 
         # seleciona os pares primeiro:
@@ -144,7 +146,7 @@ class SimuladoAnalisado(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = self.boloes_caixa[nmlot]
+        boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]
         faixas: dict[int, Faixa] = payload.faixas
         bolas: int = payload.qtd_bolas
         base: int = payload.qtd_bolas_sorteio

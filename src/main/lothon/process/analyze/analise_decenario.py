@@ -43,17 +43,17 @@ class AnaliseDecenario(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
-
-    # estruturas para a coleta de dados a partir do processamento de analise:
-    decenarios_jogos: Optional[list[int]] = None
-    decenarios_percentos: Optional[list[float]] = None
-    decenarios_concursos: Optional[list[int]] = None
+    __slots__ = ('decenarios_jogos', 'decenarios_percentos', 'decenarios_concursos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Decenario nos Concursos")
+
+        # estruturas para a coleta de dados a partir do processamento de analise:
+        self.decenarios_jogos: Optional[list[int]] = None
+        self.decenarios_percentos: Optional[list[float]] = None
+        self.decenarios_concursos: Optional[list[int]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 

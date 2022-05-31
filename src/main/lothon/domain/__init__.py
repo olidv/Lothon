@@ -108,7 +108,7 @@ _mes_da_sorte: Optional[MesDaSorte] = None
 _time_do_coracao: Optional[TimeDoCoracao] = None
 
 
-def get_dia_de_sorte(boloes: dict[int: int] = None) -> DiaDeSorte:
+def get_dia_de_sorte() -> DiaDeSorte:
     global _dia_de_sorte
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _dia_de_sorte is None:
@@ -117,14 +117,10 @@ def get_dia_de_sorte(boloes: dict[int: int] = None) -> DiaDeSorte:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_dia_de_sorte)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _dia_de_sorte.boloes = boloes
-
     return _dia_de_sorte
 
 
-def get_lotofacil(boloes: dict[int: int] = None) -> Lotofacil:
+def get_lotofacil() -> Lotofacil:
     global _lotofacil
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _lotofacil is None:
@@ -133,14 +129,10 @@ def get_lotofacil(boloes: dict[int: int] = None) -> Lotofacil:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_lotofacil)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _lotofacil.boloes = boloes
-
     return _lotofacil
 
 
-def get_dupla_sena(boloes: dict[int: int] = None) -> DuplaSena:
+def get_dupla_sena() -> DuplaSena:
     global _dupla_sena
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _dupla_sena is None:
@@ -149,14 +141,10 @@ def get_dupla_sena(boloes: dict[int: int] = None) -> DuplaSena:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_dupla_sena)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _dupla_sena.boloes = boloes
-
     return _dupla_sena
 
 
-def get_quina(boloes: dict[int: int] = None) -> Quina:
+def get_quina() -> Quina:
     global _quina
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _quina is None:
@@ -165,14 +153,10 @@ def get_quina(boloes: dict[int: int] = None) -> Quina:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_quina)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _quina.boloes = boloes
-
     return _quina
 
 
-def get_mega_sena(boloes: dict[int: int] = None) -> MegaSena:
+def get_mega_sena() -> MegaSena:
     global _mega_sena
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _mega_sena is None:
@@ -181,14 +165,10 @@ def get_mega_sena(boloes: dict[int: int] = None) -> MegaSena:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_mega_sena)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _mega_sena.boloes = boloes
-
     return _mega_sena
 
 
-def get_super_sete(boloes: dict[int: int] = None) -> SuperSete:
+def get_super_sete() -> SuperSete:
     global _super_sete
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _super_sete is None:
@@ -197,14 +177,10 @@ def get_super_sete(boloes: dict[int: int] = None) -> SuperSete:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_super_sete)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _super_sete.boloes = boloes
-
     return _super_sete
 
 
-def get_lotomania(boloes: dict[int: int] = None) -> Lotomania:
+def get_lotomania() -> Lotomania:
     global _lotomania
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _lotomania is None:
@@ -213,14 +189,10 @@ def get_lotomania(boloes: dict[int: int] = None) -> Lotomania:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_lotomania)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _lotomania.boloes = boloes
-
     return _lotomania
 
 
-def get_timemania(boloes: dict[int: int] = None) -> Timemania:
+def get_timemania() -> Timemania:
     global _timemania
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _timemania is None:
@@ -229,14 +201,10 @@ def get_timemania(boloes: dict[int: int] = None) -> Timemania:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_timemania)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _timemania.boloes = boloes
-
     return _timemania
 
 
-def get_mes_da_sorte(boloes: dict[int: int] = None) -> MesDaSorte:
+def get_mes_da_sorte() -> MesDaSorte:
     global _mes_da_sorte
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _mes_da_sorte is None:
@@ -245,14 +213,10 @@ def get_mes_da_sorte(boloes: dict[int: int] = None) -> MesDaSorte:
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_mes_da_sorte)
 
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _mes_da_sorte.boloes = boloes
-
     return _mes_da_sorte
 
 
-def get_time_do_coracao(boloes: dict[int: int] = None) -> TimeDoCoracao:
+def get_time_do_coracao() -> TimeDoCoracao:
     global _time_do_coracao
     # se ainda nao inicializou a variavel de instancia, entao procede:
     if _time_do_coracao is None:
@@ -260,10 +224,6 @@ def get_time_do_coracao(boloes: dict[int: int] = None) -> TimeDoCoracao:
         _time_do_coracao = TimeDoCoracao.from_tuple(tupla_loteria)
         # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
         parser_resultados.parse_concursos_loteria(_time_do_coracao)
-
-    # atribui os boloes configurados para a respectiva loteria:
-    if boloes is not None:
-        _time_do_coracao.boloes = boloes
 
     return _time_do_coracao
 
