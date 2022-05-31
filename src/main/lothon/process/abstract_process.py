@@ -29,7 +29,7 @@ class AbstractProcess(ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
+    __slots__ = '_id_process', '_options'
 
     @property
     def id_process(self) -> str:
@@ -57,12 +57,13 @@ class AbstractProcess(ABC):
 
     def __init__(self, idp: str):
         self.id_process = idp
-        self.options = None
+        self.options = {}
 
     # --- METODOS ------------------------------------------------------------
 
+    @abstractmethod
     def init(self, options: dict):
-        self.options = options
+        pass
 
     @abstractmethod
     def execute(self, payload) -> int:

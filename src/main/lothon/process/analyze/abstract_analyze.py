@@ -33,6 +33,7 @@ class AbstractAnalyze(AbstractProcess, ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -40,6 +41,14 @@ class AbstractAnalyze(AbstractProcess, ABC):
         super().__init__(idp)
 
     # --- METODOS ------------------------------------------------------------
+
+    # a inicializacao eh opcional para processos de analise:
+    def init(self, options: dict):
+        pass
+
+    @abstractmethod
+    def setup(self, parms: dict):
+        pass
 
     @abstractmethod
     def evaluate(self, payload) -> float:

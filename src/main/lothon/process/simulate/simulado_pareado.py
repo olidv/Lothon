@@ -45,7 +45,7 @@ class SimuladoPareado(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_process', '_options'
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 

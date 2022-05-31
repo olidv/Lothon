@@ -42,7 +42,7 @@ class AnaliseColunario(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_process', '_options'
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -180,8 +180,8 @@ class AnaliseColunario(AbstractAnalyze):
 
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
-    def init(self, options: dict):
-        self.options = options
+    def setup(self, parms: dict):
+        pass
 
     def evaluate(self, payload) -> float:
         pass

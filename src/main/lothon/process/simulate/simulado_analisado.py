@@ -51,7 +51,7 @@ class SimuladoAnalisado(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = '_id_process', '_options'
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -110,6 +110,13 @@ class SimuladoAnalisado(AbstractSimulate):
         logger.debug("Inicializando a cadeia de processos para analise de jogos...")
         analise_chain = analyze.get_process_chain()
 
+        # configura cada um dos processos antes, mas apenas uma unica vez:
+        # options[""] = 0  # ...
+        for aproc in analise_chain:
+            # configuracao de parametros para os processamentos:
+            logger.debug(f"processo '{aproc.id_process}': inicializando configuracao.")
+            aproc.init(options)
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, payload: Loteria) -> int:
@@ -118,6 +125,11 @@ class SimuladoAnalisado(AbstractSimulate):
             return -1
         else:
             _startWatch = startwatch()
+
+        # Efetua a execucao de cada processo de analise em sequencia (chain):
+        for aproc in analise_chain:
+            # executa a analise para cada loteria:
+            aproc.execute(payload)
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         nmlot: str = payload.nome_loteria

@@ -76,7 +76,14 @@ def run():
     logger.debug("Inicializando a cadeia de processos para analise dos sorteios...")
     analise_chain = analyze.get_process_chain()
 
-    logger.debug("Vai executar todos os processos de analise...")
+    # configura cada um dos processos antes, mas apenas uma unica vez:
+    # options[""] = 0  # ...
+    for aproc in analise_chain:
+        # configuracao de parametros para os processamentos:
+        logger.debug(f"processo '{aproc.id_process}': inicializando configuracao.")
+        aproc.init(options)
+
+    logger.debug("Vai executar todos os processos de analise para as loterias...")
     for key, loteria in loterias_caixa.items():
         # efetua a execucao de cada processo de analise em sequencia (chain):
         for proc in analise_chain:

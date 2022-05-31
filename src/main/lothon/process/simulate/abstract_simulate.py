@@ -33,6 +33,7 @@ class AbstractSimulate(AbstractProcess, ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -40,6 +41,10 @@ class AbstractSimulate(AbstractProcess, ABC):
         super().__init__(idp)
 
     # --- METODOS ------------------------------------------------------------
+
+    # a inicializacao eh opcional para processos de simulacao:
+    def init(self, options: dict):
+        pass
 
     # --- METODOS STATIC -----------------------------------------------------
 
