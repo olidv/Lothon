@@ -140,7 +140,8 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
 
     # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
     concursos: list[Concurso | ConcursoDuplo] = loteria.concursos
-    eh_duplo: bool = (concursos[0] is ConcursoDuplo)
+    eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
+    print("eh_duplo=", eh_duplo, concursos[0])
     qt_rows: int = 0
 
     # cria arquivo fisico para conter apenas as dezenas sorteadas:

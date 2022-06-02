@@ -104,7 +104,7 @@ class AnaliseRecorrencia(AbstractAnalyze):
         nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = ([0] is ConcursoDuplo)
+        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
         # if eh_duplo:
         #     fator_sorteios: int = 2
         # else:
