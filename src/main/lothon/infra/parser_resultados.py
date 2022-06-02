@@ -131,7 +131,7 @@ def parse_concursos_loteria(loteria: Loteria) -> int:
     return loteria.set_resultados(table_body)
 
 
-def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]]:
+def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]] | None:
     sorteios: list[tuple[int, ...]] = []
 
     # identifica o arquivo com os conjuntos de pares da loteria:
@@ -139,17 +139,23 @@ def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]]:
     loteria_pares_path: str = os.path.join(app_config.DS_input_path, loteria_pares_file)
 
     # abre arquivo para leitura e carrega todas as dezenas dos conjuntos de pares:
-    with open(loteria_pares_path, 'r') as file_csv:
-        csv_reader = csv.reader(file_csv)
-        # cada linha do arquivo eh carregada em um list[]
-        for row in csv_reader:
-            # converte a linha para tupla de numeros, com menor consumo de recursos:
-            sorteio: tuple[int, ...] = ()
-            for dezena in row:
-                sorteio += (int(dezena),)
-            sorteios.append(sorteio)
+    try:
+        with open(loteria_pares_path, 'r') as file_csv:
+            csv_reader = csv.reader(file_csv)
+            # cada linha do arquivo eh carregada em um list[]
+            for row in csv_reader:
+                # converte a linha para tupla de numeros, com menor consumo de recursos:
+                sorteio: tuple[int, ...] = ()
+                for dezena in row:
+                    sorteio += (int(dezena),)
+                sorteios.append(sorteio)
 
-    return sorteios
+        return sorteios
+
+    # captura as excecoes relativas a manipulacao de arquivos:
+    except FileNotFoundError as ex:
+        logger.error(f"Arquivo CSV de pares '{loteria_pares_path}' nao encontrado.\n{ex}")
+        return None
 
 
 # ----------------------------------------------------------------------------
