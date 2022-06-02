@@ -5,7 +5,9 @@
 """
 
 __all__ = [
-    'parse_concursos_loteria'
+    'parse_concursos_loteria',
+    'read_pares_loteria',
+    'export_sorteios_loteria'
 ]
 
 # ----------------------------------------------------------------------------
@@ -78,10 +80,10 @@ def carregar_resultados(nome_loteria: str):
 
 
 # ----------------------------------------------------------------------------
-# LEITURA E PARSING DOS RESULTADOS
+# LEITURA DE DADOS E PARSING DOS RESULTADOS
 # ----------------------------------------------------------------------------
 
-def parse_concursos_loteria(loteria: Loteria):
+def parse_concursos_loteria(loteria: Loteria) -> int:
     nome_loteria = loteria.get_file_resultados()
     tag_loteria = loteria.get_tag_resultados()
     logger.info(f"Iniciando a carga dos concursos da loteria '{nome_loteria}'.")
@@ -91,7 +93,7 @@ def parse_concursos_loteria(loteria: Loteria):
     # logger.debug(f"content_htm = {content_htm}")
     if content_htm is None or len(content_htm) == 0:
         logger.error(f"Nao foi possivel carregar os resultados da loteria '{nome_loteria}'.")
-        return
+        return -1
     else:
         logger.info(f"Foram lidos {formatb(len(content_htm))} caracteres do arquivo de "
                     f"resultados da loteria '{nome_loteria}'.")
@@ -110,7 +112,7 @@ def parse_concursos_loteria(loteria: Loteria):
     if table is None or len(table) == 0:
         logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
                      f"'{nome_loteria}' foi modificado! ***")
-        return
+        return -1
     else:
         logger.info(f"Parsing do arquivo HTM da loteria '{nome_loteria}' efetuado com sucesso.")
 
@@ -120,13 +122,34 @@ def parse_concursos_loteria(loteria: Loteria):
     if table_body is None or len(table_body) == 0:
         logger.fatal(f"*** ATENCAO: O formato do arquivo HTM da loteria "
                      f"'{nome_loteria}' foi modificado! ***")
-        return
+        return -1
     else:
         logger.info(f"Encontradas {len(table_body)} linhas de resultados no arquivo HTM da "
                     f"loteria '{nome_loteria}'.")
 
     # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
-    loteria.set_resultados(table_body)
+    return loteria.set_resultados(table_body)
+
+
+def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]]:
+    sorteios: list[tuple[int, ...]] = []
+
+    # identifica o arquivo com os conjuntos de pares da loteria:
+    loteria_pares_file: str = app_config.DS_pares_csv_name.format(id_loteria)
+    loteria_pares_path: str = os.path.join(app_config.DS_input_path, loteria_pares_file)
+
+    # abre arquivo para leitura e carrega todas as dezenas dos conjuntos de pares:
+    with open(loteria_pares_path, 'r') as file_csv:
+        csv_reader = csv.reader(file_csv)
+        # cada linha do arquivo eh carregada em um list[]
+        for row in csv_reader:
+            # converte a linha para tupla de numeros, com menor consumo de recursos:
+            sorteio: tuple[int, ...] = ()
+            for dezena in row:
+                sorteio += (int(dezena),)
+            sorteios.append(sorteio)
+
+    return sorteios
 
 
 # ----------------------------------------------------------------------------
@@ -141,25 +164,26 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
     # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
     concursos: list[Concurso | ConcursoDuplo] = loteria.concursos
     eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-    print("eh_duplo=", eh_duplo, concursos[0])
     qt_rows: int = 0
 
     # cria arquivo fisico para conter apenas as dezenas sorteadas:
     loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.id_loteria)
-    loteria_sorteios_path: str = os.path.join(app_config.DS_output_path,  loteria_sorteios_file)
+    loteria_sorteios_path: str = os.path.join(app_config.DS_output_path, loteria_sorteios_file)
 
-    with open(loteria_sorteios_path, 'w', newline='', encoding='utf-8') as out:
-        csv_out = csv.writer(out)
+    # abre arquivo para escrita e salva todas as dezenas sorteadas:
+    with open(loteria_sorteios_path, 'w', newline='', encoding='utf-8') as file_csv:
+        csv_writer = csv.writer(file_csv)
         # percorre lista de concursos e exporta as bolas:
         for concurso in concursos:
             # se for concurso duplo, concatena ambos sorteios em lista unica:
             bolas: tuple[int, ...] = concurso.bolas
             if eh_duplo:
                 bolas += concurso.bolas2
-            #
-            csv_out.writerow(bolas)
+            # salva as dezenas separadas por virgula:
+            csv_writer.writerow(bolas)
             qt_rows += 1
 
+    # informa quantas linhas de sorteios foram gravadas:
     return qt_rows
 
 # ----------------------------------------------------------------------------

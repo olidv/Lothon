@@ -72,7 +72,7 @@ class Loteria(ABC):
     def get_file_resultados(self) -> str:
         return self.nome_loteria
 
-    def set_resultados(self, table_body: ResultSet):
+    def set_resultados(self, table_body: ResultSet) -> int:
         # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
         list_concursos: list[Concurso] = []
         for tbody in table_body:
@@ -87,6 +87,7 @@ class Loteria(ABC):
             list_concursos.append(concurso)
 
         self.concursos = list_concursos
+        return len(list_concursos)
 
     @abstractmethod
     def parse_concurso(self, td: ResultSet) -> Concurso:

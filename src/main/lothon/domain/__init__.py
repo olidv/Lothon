@@ -25,6 +25,7 @@ __all__ = [
     'get_mes_da_sorte',
     'get_time_do_coracao',
     'load_concursos',
+    'load_pares',
     'export_sorteios'
 ]
 
@@ -90,8 +91,13 @@ def get_tuple_loteria(id_loteria: str) -> tuple[str, ...]:
 
 
 # Efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-def load_concursos(loteria: Loteria):
-    parser_resultados.parse_concursos_loteria(loteria)
+def load_concursos(loteria: Loteria) -> int:
+    return parser_resultados.parse_concursos_loteria(loteria)
+
+
+# Efetua leitura de arquivo CSV contendo relacao de conjuntos pares:
+def load_pares(id_loteria: str) -> list[tuple[int, ...]]:
+    return parser_resultados.read_pares_loteria(id_loteria)
 
 
 # Efetua exportacao dos arquivos CSV com dezenas dos sorteios de cada loteria:
