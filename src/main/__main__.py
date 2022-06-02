@@ -18,14 +18,15 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import settings
-from lothon.process import analisar_sorteios, gerar_boloes, conferir_apostas, simular_jogos
+from lothon.process import analisar_sorteios, simular_jogos, gerar_boloes, \
+                           conferir_apostas, exportar_arquivos
 
 # ----------------------------------------------------------------------------
 # CONSTANTES
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "asbrtc:"
+CMD_LINE_ARGS = "asbrotc:"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -62,6 +63,7 @@ def print_usage():
           '  -s          Simula varios jogos para validar estrategias\n'
           '  -b          Gera boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
+          '  -o          Exporta arquivos CSV com dezenas sorteadas dos concursos\n'
           '  -t <proc>   Executa teste de funcionamento de algum processo\n'
           '  -c <path>   Informa o path para os arquivos de configuracao\n')
 
@@ -90,6 +92,7 @@ opt_anlise = False   # Flag para analise de dados dos sorteios
 opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_boloes = False   # Flag para geracao de boloes de apostas
 opt_result = False   # Flag para conferencia das apostas
+opt_output = False   # Flag para exportacao de arquivos CSV (output)
 opt_testef = False   # Flag para teste de funcionamento
 opt_tstprc = ''      # id do processo a ser executado para testes
 opt_cfpath = ''      # path para os arquivos de configuracao
@@ -108,6 +111,9 @@ for opt, val in opts:
         opt_valido = True
     elif opt == '-r':
         opt_result = True
+        opt_valido = True
+    elif opt == '-o':
+        opt_output = True
         opt_valido = True
     elif opt == '-t':
         opt_testef = True
@@ -189,6 +195,11 @@ if opt_boloes:
 if opt_result:
     logger.debug("Vai iniciar a conferencia das apostas com os resultados das loterias...")
     conferir_apostas.run()
+
+# Opcao para executar a exportacao de arquivos CSV com dezenas sorteadas dos concursos:
+if opt_output:
+    logger.debug("Vai iniciar a exportacao de arquivos CSV com dezenas sorteadas dos concursos...")
+    exportar_arquivos.run()
 
 # finaliza o processamento informando que tudo foi ok:
 sys.exit(EXIT_SUCCESS)

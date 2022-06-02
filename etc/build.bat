@@ -30,6 +30,9 @@ mkdir dist  1>nul  2>&1
 mkdir dist\bin  1>nul  2>&1
 mkdir dist\conf  1>nul  2>&1
 mkdir dist\data  1>nul  2>&1
+mkdir dist\data\caixa  1>nul  2>&1
+mkdir dist\data\input  1>nul  2>&1
+mkdir dist\data\output  1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
 mkdir dist\tmp  1>nul  2>&1
 mkdir dist\www  1>nul  2>&1

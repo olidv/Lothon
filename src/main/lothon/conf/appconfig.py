@@ -35,10 +35,12 @@ class AppConfig:
 
     # Estrutura de diretorios da aplicacao:
     RT_app_home: str = ''
-    RT_dat_path: str = ''
     RT_bet_path: str = ''
     RT_log_path: str = ''
     RT_tmp_path: str = ''
+    RT_dat_caixa_path: str = ''
+    RT_dat_input_path: str = ''
+    RT_dat_output_path: str = ''
 
     RT_files_htm_mask: str = ''
     RT_files_csv_mask: str = ''
@@ -61,10 +63,12 @@ class AppConfig:
 
         # com o parser, carrega o arquivo INI nos parametros da dataclass:
         self.RT_app_home = parser.get("ROOT", "app_home")
-        self.RT_dat_path = parser.get("ROOT", "dat_path")
         self.RT_bet_path = parser.get("ROOT", "bet_path")
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
+        self.RT_dat_caixa_path = parser.get("ROOT", "dat_caixa_path")
+        self.RT_dat_input_path = parser.get("ROOT", "dat_input_path")
+        self.RT_dat_output_path = parser.get("ROOT", "dat_outpt_path")
 
         self.RT_files_htm_mask = parser.get("ROOT", "files_htm_mask")
         self.RT_files_csv_mask = parser.get("ROOT", "files_csv_mask")

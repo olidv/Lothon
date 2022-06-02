@@ -15,6 +15,7 @@ __all__ = [
 # Built-in/Generic modules
 import logging
 import os
+import csv
 
 # Libs/Frameworks modules
 from bs4 import BeautifulSoup
@@ -22,6 +23,8 @@ from bs4 import BeautifulSoup
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
+from lothon.domain.sorteio.concurso import Concurso
+from lothon.domain.sorteio.concurso_duplo import ConcursoDuplo
 from lothon.util.eve import *
 
 
@@ -59,13 +62,13 @@ def carregar_resultados(nome_loteria: str):
 
     # identifica o nome e path do arquivo HTM a ser lido:
     loteria_htm_file = app_config.LC_loteria_htm_name.format(nome_loteria)
-    loteria_htm_path = os.path.join(app_config.RT_dat_path, loteria_htm_file)
+    loteria_htm_path = os.path.join(app_config.RT_dat_caixa_path, loteria_htm_file)
     logger.debug(f"Path do Arquivo HTM da loteria '{nome_loteria}': {loteria_htm_path}")
 
     # precisa certificar que o arquivo existe antes da leitura:
     if not os.path.exists(loteria_htm_path):
         logger.error(f"O arquivo '{loteria_htm_file}' nao foi encontrado na pasta "
-                     f"'{app_config.RT_dat_path}' para leitura.")
+                     f"'{app_config.RT_dat_caixa_path}' para leitura.")
         return
 
     # carrega todo o conteudo HTML do arquivo:
@@ -124,5 +127,36 @@ def parse_concursos_loteria(loteria: Loteria):
 
     # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
     loteria.set_resultados(table_body)
+
+
+# ----------------------------------------------------------------------------
+# EXPORTACAO DOS CONCURSOS EM ARQUIVOS CSV
+# ----------------------------------------------------------------------------
+
+def export_concursos_loteria(loteria: Loteria) -> int:
+    # valida se possui concursos a serem exportados:
+    if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        return -1
+
+    # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+    concursos: list[Concurso | ConcursoDuplo] = loteria.concursos
+    eh_duplo: bool = (concursos[0] is ConcursoDuplo)
+    qt_rows: int = 0
+
+    # cria arquivo fisico para conter apenas as dezenas sorteadas:
+    file_csv: str = app_config.RT_dat_output_path + '/' + loteria.id_loteria + ".csv"
+    with open(file_csv, 'w', newline='', encoding='utf-8') as out:
+        csv_out = csv.writer(out)
+        # percorre lista de concursos e exporta as bolas:
+        for concurso in concursos:
+            # se for concurso duplo, concatena ambos sorteios em lista unica:
+            bolas: tuple[int, ...] = concurso.bolas
+            if eh_duplo:
+                bolas += concurso.bolas2
+            #
+            csv_out.writerow(bolas)
+            qt_rows += 1
+
+    return qt_rows
 
 # ----------------------------------------------------------------------------
