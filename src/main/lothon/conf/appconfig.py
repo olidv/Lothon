@@ -36,16 +36,21 @@ class AppConfig:
     # Estrutura de diretorios da aplicacao:
     RT_app_home: str = ''
     RT_bet_path: str = ''
+    RT_dat_path: str = ''
     RT_log_path: str = ''
     RT_tmp_path: str = ''
-    RT_dat_caixa_path: str = ''
-    RT_dat_input_path: str = ''
-    RT_dat_output_path: str = ''
 
     RT_files_htm_mask: str = ''
     RT_files_csv_mask: str = ''
     RT_files_log_mask: str = ''
     RT_files_all_mask: str = ''
+
+    # Parametrizacao dos arquivos de dados para leitura e exportacao:
+    DS_caixa_path: str = ''
+    DS_input_path: str = ''
+    DS_output_path: str = ''
+    DS_pares_csv_name: str = ''
+    DS_sorteios_csv_name: str = ''
 
     # Parametrizacao das loterias da Caixa EF:
     LC_loterias_caixa: Optional[list[tuple[str, ...]]] = None
@@ -64,16 +69,21 @@ class AppConfig:
         # com o parser, carrega o arquivo INI nos parametros da dataclass:
         self.RT_app_home = parser.get("ROOT", "app_home")
         self.RT_bet_path = parser.get("ROOT", "bet_path")
+        self.RT_dat_path = parser.get("ROOT", "dat_path")
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
-        self.RT_dat_caixa_path = parser.get("ROOT", "dat_caixa_path")
-        self.RT_dat_input_path = parser.get("ROOT", "dat_input_path")
-        self.RT_dat_output_path = parser.get("ROOT", "dat_outpt_path")
 
         self.RT_files_htm_mask = parser.get("ROOT", "files_htm_mask")
         self.RT_files_csv_mask = parser.get("ROOT", "files_csv_mask")
         self.RT_files_log_mask = parser.get("ROOT", "files_log_mask")
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
+
+        # Parametrizacao dos arquivos de dados para leitura e exportacao:
+        self.DS_caixa_path = parser.get("DADOS", "caixa_path")
+        self.DS_input_path = parser.get("DADOS", "input_path")
+        self.DS_output_path = parser.get("DADOS", "output_path")
+        self.DS_pares_csv_name = parser.get("DADOS", "pares_csv_name")
+        self.DS_sorteios_csv_name = parser.get("DADOS", "sorteios_csv_name")
 
         # Parametrizacao das loterias da Caixa EF:
         self.LC_loteria_htm_name = parser.get("LOTERIA_CAIXA", "loteria_htm_name")

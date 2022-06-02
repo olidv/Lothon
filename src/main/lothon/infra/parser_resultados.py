@@ -62,13 +62,13 @@ def carregar_resultados(nome_loteria: str):
 
     # identifica o nome e path do arquivo HTM a ser lido:
     loteria_htm_file = app_config.LC_loteria_htm_name.format(nome_loteria)
-    loteria_htm_path = os.path.join(app_config.RT_dat_caixa_path, loteria_htm_file)
+    loteria_htm_path = os.path.join(app_config.DS_caixa_path, loteria_htm_file)
     logger.debug(f"Path do Arquivo HTM da loteria '{nome_loteria}': {loteria_htm_path}")
 
     # precisa certificar que o arquivo existe antes da leitura:
     if not os.path.exists(loteria_htm_path):
         logger.error(f"O arquivo '{loteria_htm_file}' nao foi encontrado na pasta "
-                     f"'{app_config.RT_dat_caixa_path}' para leitura.")
+                     f"'{app_config.DS_caixa_path}' para leitura.")
         return
 
     # carrega todo o conteudo HTML do arquivo:
@@ -130,10 +130,10 @@ def parse_concursos_loteria(loteria: Loteria):
 
 
 # ----------------------------------------------------------------------------
-# EXPORTACAO DOS CONCURSOS EM ARQUIVOS CSV
+# EXPORTACAO DE DADOS EM ARQUIVOS CSV
 # ----------------------------------------------------------------------------
 
-def export_concursos_loteria(loteria: Loteria) -> int:
+def export_sorteios_loteria(loteria: Loteria) -> int:
     # valida se possui concursos a serem exportados:
     if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
         return -1
@@ -144,8 +144,10 @@ def export_concursos_loteria(loteria: Loteria) -> int:
     qt_rows: int = 0
 
     # cria arquivo fisico para conter apenas as dezenas sorteadas:
-    file_csv: str = app_config.RT_dat_output_path + '/' + loteria.id_loteria + ".csv"
-    with open(file_csv, 'w', newline='', encoding='utf-8') as out:
+    loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.id_loteria)
+    loteria_sorteios_path: str = os.path.join(app_config.DS_output_path,  loteria_sorteios_file)
+
+    with open(loteria_sorteios_path, 'w', newline='', encoding='utf-8') as out:
         csv_out = csv.writer(out)
         # percorre lista de concursos e exporta as bolas:
         for concurso in concursos:

@@ -25,7 +25,7 @@ __all__ = [
     'get_mes_da_sorte',
     'get_time_do_coracao',
     'load_concursos',
-    'export_concursos'
+    'export_sorteios'
 ]
 
 # ----------------------------------------------------------------------------
@@ -95,8 +95,8 @@ def load_concursos(loteria: Loteria):
 
 
 # Efetua exportacao dos arquivos CSV com dezenas dos sorteios de cada loteria:
-def export_concursos(loteria: Loteria):
-    parser_resultados.export_concursos_loteria(loteria)
+def export_sorteios(loteria: Loteria) -> int:
+    return parser_resultados.export_sorteios_loteria(loteria)
 
 
 # ----------------------------------------------------------------------------
