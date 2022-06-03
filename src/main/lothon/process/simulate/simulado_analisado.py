@@ -16,6 +16,7 @@ __all__ = [
 from typing import Optional, Any
 import math
 import random
+import itertools as itt
 import logging
 
 # Libs/Frameworks modules
@@ -131,26 +132,52 @@ class SimuladoAnalisado(AbstractSimulate):
         else:
             _startWatch = startwatch()
 
-        # Efetua a execucao de cada processo de analise em sequencia (chain):
+        # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
         for aproc in self.analise_chain:
             # executa a analise para cada loteria:
             aproc.execute(payload)
 
+        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
+        parms: dict[str: Any] = {}  # aplica limites e/ou faixas de corte...
+
         # configura cada um dos processos de analise, apos analisarem os sorteios:
-        parms: dict[str: Any] = {}  # para configurar o processamento de 'evaluate()' dos processos
         for aproc in self.analise_chain:
             # configuracao de parametros para os processamentos em cada classe de analise:
-            logger.debug(f"processo '{aproc.id_process}': inicializando configuracao de SETUP.")
+            logger.debug(f"processo '{aproc.id_process}': configurando parametros de SETUP.")
             aproc.setup(parms)
 
         # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
         nmlot: str = payload.nome_loteria
         concursos: list[Concurso | ConcursoDuplo] = payload.concursos
         qtd_concursos: int = len(concursos)
+        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
+        if eh_duplo:
+            fator_sorteios: int = 2
+        else:
+            fator_sorteios: int = 1
+        qtd_sorteios: int = qtd_concursos * fator_sorteios
+        qtd_items: int = payload.qtd_bolas_sorteio
+
+        # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
+        qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
+        logger.debug(f"{nmlot}: Executando analise EVALUATE dos  "
+                     f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:
         logger.debug(f"{nmlot}: Executando simulacao de jogos analisados em todos os"
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
+
+        # contabiliza pares (e impares) de cada combinacao de jogo:
+        range_jogos: range = range(1, payload.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+            vl_metrica: float = 1.0  # valor 1 eh inerte, nao afeta nada e nao significa nada
+            for aproc in self.analise_chain:
+                # configuracao de parametros para os processamentos em cada classe de analise:
+                logger.debug(f"processo '{aproc.id_process}': .")
+                vl_metrica *= aproc.evaluate(jogo)
+                # ja ignora o resto das analises se a metrica zerou:
+                if vl_metrica == 0:
+                    break  # pula para o proximo jogo, acelerando o processamento
 
         # zera os contadores dos ciclos fechados:
         boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]

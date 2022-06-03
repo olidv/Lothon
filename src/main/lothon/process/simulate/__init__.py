@@ -36,8 +36,8 @@ _process_chain: list[AbstractSimulate] = []
 def get_process_chain() -> list[AbstractSimulate]:
     global _process_chain
     if len(_process_chain) == 0:
-        _process_chain.append(SimuladoAleatorio())
-        _process_chain.append(SimuladoPareado())
+        # _process_chain.append(SimuladoAleatorio())
+        # _process_chain.append(SimuladoPareado())
         _process_chain.append(SimuladoAnalisado())
 
     return _process_chain
