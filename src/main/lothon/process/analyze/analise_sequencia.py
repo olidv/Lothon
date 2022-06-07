@@ -132,7 +132,7 @@ class AnaliseSequencia(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Sequencias Resultantes: {output}")
 
-        #
+        # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de sequencia dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -155,7 +155,52 @@ class AnaliseSequencia(AbstractAnalyze):
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Sequencias Resultantes: {output}")
 
-        #
+        # efetua analise de todas as sequencias dos sorteios da loteria:
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de sequencias"
+                     f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
+
+        # zera os contadores de frequencias e atrasos das sequencias:
+        self.frequencias_sequencias = self.new_list_series(qtd_items)
+        self.frequencias_sequencias[0] = SerieSorteio(0)  # aqui neste caso tem a sequencia zero
+
+        # contabiliza as frequencias e atrasos das sequencias em todos os sorteios ja realizados:
+        for concurso in concursos:
+            # contabiliza o numero de sequencias do concurso:
+            qt_sequencias = self.count_sequencias(concurso.bolas)
+            self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                qt_sequencias = self.count_sequencias(concurso.bolas2)
+                self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
+
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for serie in self.frequencias_sequencias:
+            # vai aproveitar e contabilizar as medidas estatisticas para a sequencia:
+            serie.last_sorteio(ultimo_concurso.id_concurso)
+
+        # printa o resultado:
+        output: str = f"\n\tSEGUIDO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA     " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
+        for serie in self.frequencias_sequencias:
+            output += f"\t     {formatd(serie.id,2)}:       " \
+                      f"{formatd(serie.len_sorteios,5)}    " \
+                      f"{formatd(serie.ultimo_sorteio,5)}        " \
+                      f"{formatd(serie.len_atrasos,5)}    " \
+                      f"{formatd(serie.ultimo_atraso,5)}   " \
+                      f"{formatd(serie.min_atraso,5)}  " \
+                      f"{formatd(serie.max_atraso,5)}   " \
+                      f"{formatd(serie.mode_atraso,5)}  " \
+                      f"{formatf(serie.mean_atraso,'7.1')}   " \
+                      f"{formatf(serie.hmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.gmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.median_atraso,'7.1')}   " \
+                      f"{formatf(serie.varia_atraso,'11.1')}         " \
+                      f"{formatf(serie.stdev_atraso,'7.1')} \n"
+        logger.debug(f"{nmlot}: FREQUENCIA de Sequencias Resultantes: {output}")
+
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
         logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de sequencia dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -206,57 +251,6 @@ class AnaliseSequencia(AbstractAnalyze):
             concursos_passados.append(concurso_atual)
             qtd_concursos_passados = len(concursos_passados)
 
-        # efetua analise de todas as sequencias dos sorteios da loteria:
-        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de sequencias"
-                     f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
-
-        # zera os contadores de frequencias e atrasos das sequencias:
-        self.frequencias_sequencias = self.new_list_series(qtd_items)
-        self.frequencias_sequencias[0] = SerieSorteio(0)  # aqui neste caso tem a sequencia zero
-
-        # contabiliza as frequencias e atrasos das sequencias em todos os sorteios ja realizados:
-        concurso_anterior: Concurso | ConcursoDuplo | None = None
-        for concurso in concursos:
-            # o primeiro concurso soh eh registrado para teste no proximo:
-            if concurso_anterior is None:
-                concurso_anterior = concurso
-                continue
-
-            # contabiliza o numero de sequencias do concurso:
-            qt_sequencias = self.count_sequencias(concurso.bolas)
-            self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qt_sequencias = self.count_sequencias(concurso.bolas2)
-                self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
-
-        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
-        for serie in self.frequencias_sequencias:
-            # vai aproveitar e contabilizar as medidas estatisticas para a sequencia:
-            serie.last_sorteio(ultimo_concurso.id_concurso)
-
-        # printa o resultado:
-        output: str = f"\n\tSEGUIDO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
-                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA     " \
-                      f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in self.frequencias_sequencias:
-            output += f"\t     {formatd(serie.id,2)}:       " \
-                      f"{formatd(serie.len_sorteios,5)}    " \
-                      f"{formatd(serie.ultimo_sorteio,5)}        " \
-                      f"{formatd(serie.len_atrasos,5)}    " \
-                      f"{formatd(serie.ultimo_atraso,5)}   " \
-                      f"{formatd(serie.min_atraso,5)}  " \
-                      f"{formatd(serie.max_atraso,5)}   " \
-                      f"{formatd(serie.mode_atraso,5)}  " \
-                      f"{formatf(serie.mean_atraso,'7.1')}   " \
-                      f"{formatf(serie.hmean_atraso,'7.1')}   " \
-                      f"{formatf(serie.gmean_atraso,'7.1')}   " \
-                      f"{formatf(serie.median_atraso,'7.1')}   " \
-                      f"{formatf(serie.varia_atraso,'11.1')}         " \
-                      f"{formatf(serie.stdev_atraso,'7.1')} \n"
-        logger.debug(f"{nmlot}: FREQUENCIA de Sequencias Resultantes: {output}")
-
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
@@ -264,9 +258,10 @@ class AnaliseSequencia(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

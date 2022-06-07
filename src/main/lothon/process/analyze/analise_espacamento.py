@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -43,7 +43,8 @@ class AnaliseEspacamento(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos')
+    __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos',
+                 'frequencias_espacamentos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -54,6 +55,7 @@ class AnaliseEspacamento(AbstractAnalyze):
         self.espacamentos_jogos: Optional[list[int]] = None
         self.espacamentos_percentos: Optional[list[float]] = None
         self.espacamentos_concursos: Optional[list[int]] = None
+        self.frequencias_espacamentos: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -88,6 +90,7 @@ class AnaliseEspacamento(AbstractAnalyze):
         self.espacamentos_jogos = None
         self.espacamentos_percentos = None
         self.espacamentos_concursos = None
+        self.frequencias_espacamentos = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -132,7 +135,7 @@ class AnaliseEspacamento(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
 
-        #
+        # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de espacamento dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -155,7 +158,51 @@ class AnaliseEspacamento(AbstractAnalyze):
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
 
-        #
+        # efetua analise de frequencia de todos os espacamentos dos sorteios da loteria:
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de espacamentos "
+                     f"nos  {formatd(qtd_concursos)}  concursos da loteria.")
+
+        # zera os contadores de frequencias e atrasos dos espacamentos:
+        self.frequencias_espacamentos = self.new_list_series(qtd_items)
+
+        # contabiliza as frequencias e atrasos dos espacamentos em todos os sorteios ja realizados:
+        for concurso in concursos:
+            # contabiliza a frequencia dos espacamentos do concurso:
+            vl_espacamento: int = self.calc_espacada(concurso.bolas)
+            self.frequencias_espacamentos[vl_espacamento].add_sorteio(concurso.id_concurso)
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                vl_espacamento = self.calc_espacada(concurso.bolas2)
+                self.frequencias_espacamentos[vl_espacamento].add_sorteio(concurso.id_concurso)
+
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for serie in self.frequencias_espacamentos:
+            # vai aproveitar e contabilizar as medidas estatisticas para o espacamento:
+            serie.last_sorteio(ultimo_concurso.id_concurso)
+
+        # printa o resultado:
+        output: str = f"\n\tESPACO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
+        for serie in self.frequencias_espacamentos:
+            output += f"\t    {formatd(serie.id,2)}:       " \
+                      f"{formatd(serie.len_sorteios,5)}    " \
+                      f"{formatd(serie.ultimo_sorteio,5)}        " \
+                      f"{formatd(serie.len_atrasos,5)}    " \
+                      f"{formatd(serie.ultimo_atraso,5)}   " \
+                      f"{formatd(serie.min_atraso,5)}  " \
+                      f"{formatd(serie.max_atraso,5)}   " \
+                      f"{formatd(serie.mode_atraso,5)}  " \
+                      f"{formatf(serie.mean_atraso,'7.1')}   " \
+                      f"{formatf(serie.hmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.gmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.median_atraso,'7.1')}   " \
+                      f"{formatf(serie.varia_atraso,'9.1')}         " \
+                      f"{formatf(serie.stdev_atraso,'7.1')} \n"
+        logger.debug(f"{nmlot}: FREQUENCIA de Espacamentos Resultantes: {output}")
+
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
         logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de espacamento dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -211,9 +258,10 @@ class AnaliseEspacamento(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

@@ -49,7 +49,7 @@ class SimuladoAnalisado(AbstractSimulate):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('boloes_caixa', 'analise_chain')
+    __slots__ = ('boloes_caixa', 'analise_chain', 'analise_jogos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -61,6 +61,7 @@ class SimuladoAnalisado(AbstractSimulate):
 
         # cadeia de processos para analise de jogos na simulacao:
         self.analise_chain: Optional[list[AbstractAnalyze]] = None
+        self.analise_jogos: Optional[list[tuple[int, ...]]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -117,6 +118,7 @@ class SimuladoAnalisado(AbstractSimulate):
 
         logger.debug("Inicializando a cadeia de processos para analise de jogos...")
         self.analise_chain = analyze.get_process_chain()
+        self.analise_jogos = []
 
         # configura cada um dos processos antes, mas apenas uma unica vez:
         # options[""] = 0  # ...
@@ -159,13 +161,10 @@ class SimuladoAnalisado(AbstractSimulate):
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
+        self.analise_jogos = []
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
         logger.debug(f"{nmlot}: Executando analise EVALUATE dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
-
-        # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:
-        logger.debug(f"{nmlot}: Executando simulacao de jogos analisados em todos os"
-                     f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
@@ -173,11 +172,19 @@ class SimuladoAnalisado(AbstractSimulate):
             vl_metrica: float = 1.0  # valor 1 eh inerte, nao afeta nada e nao significa nada
             for aproc in self.analise_chain:
                 # configuracao de parametros para os processamentos em cada classe de analise:
-                logger.debug(f"processo '{aproc.id_process}': .")
+                # logger.debug(f"processo '{aproc.id_process}': EVALUATE do jogo {jogo}.")
                 vl_metrica *= aproc.evaluate(jogo)
                 # ja ignora o resto das analises se a metrica zerou:
                 if vl_metrica == 0:
                     break  # pula para o proximo jogo, acelerando o processamento
+
+            # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
+            if vl_metrica > 1:
+                self.analise_jogos.append(jogo)
+
+        # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:
+        logger.debug(f"{nmlot}: Executando simulacao de jogos analisados em todos os"
+                     f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
         boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]

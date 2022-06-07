@@ -33,6 +33,7 @@ mkdir dist\data  1>nul  2>&1
 mkdir dist\data\caixa  1>nul  2>&1
 mkdir dist\data\input  1>nul  2>&1
 mkdir dist\data\output  1>nul  2>&1
+mkdir dist\lib  1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
 mkdir dist\tmp  1>nul  2>&1
 mkdir dist\www  1>nul  2>&1
@@ -55,6 +56,10 @@ echo Copiando para distribuicao os arquivos de resources e scripts
 copy src\scripts\*.* dist\bin\
 copy src\resources\prod\*.* dist\conf\
 copy src\resources\README.md dist\
+echo.
+
+echo Copiando para distribuicao as dependencias de libraries externas
+copy lib\*.* dist\lib\
 echo.
 
 echo Compactando o build e gerando pacote de distribuicao da release [ ZIP ]

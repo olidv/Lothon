@@ -46,7 +46,7 @@ class AnaliseRepetencia(AbstractAnalyze):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Analise de Repetencia nos Concursos")
+        super().__init__("Analise de Repetencia do Ultimo Concurso")
 
         # estruturas para a coleta de dados a partir do processamento de analise:
         self.repetencias_concursos: Optional[list[int]] = None
@@ -205,9 +205,10 @@ class AnaliseRepetencia(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

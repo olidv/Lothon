@@ -120,7 +120,7 @@ class AnaliseDistancia(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Distancias Resultantes: {output}")
 
-        #
+        # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de distancia dos  "
                      f"{formatf(qtd_concursos)}  concursos da loteria.")
 
@@ -143,7 +143,30 @@ class AnaliseDistancia(AbstractAnalyze):
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Distancias Resultantes: {output}")
 
-        #
+        # efetua analise comparativa dos concursos com todas as combinacoes de jogos da loteria:
+        logger.debug(f"{nmlot}: Executando analise COMPARATIVA de distancia dos  "
+                     f"{qtd_concursos:,}  concursos da loteria.")
+
+        # contabiliza a distancia de cada sorteio dos concursos para exibicao em lista sequencial:
+        output: str = f"\n\t #CONCURSO   DISTANCIA         JOGOS%    #TOTAL CONCURSOS\n"
+        for concurso in concursos:
+            vl_distancia = self.calc_distancia(concurso.bolas)
+            percent = self.distancias_percentos[vl_distancia]
+            total = self.distancias_concursos[vl_distancia]
+            output += f"\t     {formatd(concurso.id_concurso,5)}         {formatd(vl_distancia,3)}"\
+                      f"  ...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
+
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                vl_distancia = self.calc_distancia(concurso.bolas2)
+                percent = self.distancias_percentos[vl_distancia]
+                total = self.distancias_concursos[vl_distancia]
+                output += f"\t                   {formatd(vl_distancia,3)}  ...  " \
+                          f"{formatf(percent,'7.3')}%    #{formatd(total)}\n"
+        # printa o resultado:
+        logger.debug(f"{nmlot}: COMPARATIVA das Distancias Resultantes: {output}")
+
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
         logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de distancia dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -199,9 +222,10 @@ class AnaliseDistancia(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

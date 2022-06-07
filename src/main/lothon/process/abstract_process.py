@@ -53,6 +53,12 @@ class AbstractProcess(ABC):
         else:
             raise ValueError(f"Valor invalido para a propriedade  options : dict = {value}.")
 
+    def set_options(self, parms: dict):
+        # absorve os parametros fornecidos:
+        if parms is not None:
+            for k, v in parms.items():
+                self.options[k] = v
+
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, idp: str):
@@ -66,9 +72,7 @@ class AbstractProcess(ABC):
         self.options = {}
 
         # absorve os parametros fornecidos:
-        if parms is not None:
-            for k, v in parms.items():
-                self.options[k] = v
+        self.set_options(parms)
 
     @abstractmethod
     def execute(self, payload) -> int:

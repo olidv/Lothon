@@ -16,13 +16,22 @@ handlers:
 
   # Create rotating file handler using 'simple' format.
   file_handler:
-      class: logging.handlers.TimedRotatingFileHandler
+      class: logging.FileHandler
       level: DEBUG
       formatter: simple
-      when: 'midnight'
-      backupCount: 32
-      encoding: utf8
       filename: ..\..\logs\lothon.log
+      mode: w
+      encoding: utf8
+
+  # Create rotating file handler using 'simple' format.
+  # file_handler:
+  #     class: logging.handlers.TimedRotatingFileHandler
+  #     level: DEBUG
+  #     formatter: simple
+  #     when: 'midnight'
+  #     backupCount: 32
+  #     encoding: utf8
+  #     filename: ..\..\logs\lothon.log
 
 loggers:
   schedule:

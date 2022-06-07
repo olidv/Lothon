@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -43,7 +43,8 @@ class AnaliseDecenario(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('decenarios_jogos', 'decenarios_percentos', 'decenarios_concursos')
+    __slots__ = ('decenarios_jogos', 'decenarios_percentos', 'decenarios_concursos',
+                 'frequencias_decenarios')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -54,8 +55,16 @@ class AnaliseDecenario(AbstractAnalyze):
         self.decenarios_jogos: Optional[list[int]] = None
         self.decenarios_percentos: Optional[list[float]] = None
         self.decenarios_concursos: Optional[list[int]] = None
+        self.frequencias_decenarios: Optional[list[SerieSorteio | None]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
+
+    @classmethod
+    def get_decenario(cls, dezena: int) -> int:
+        if dezena is not None and dezena > 0:
+            return (dezena - 1) // 10
+        else:
+            return 0
 
     @classmethod
     def count_decenarios(cls, bolas: tuple[int, ...], decenario: list[int]) -> None:
@@ -64,7 +73,7 @@ class AnaliseDecenario(AbstractAnalyze):
             return
 
         for num in bolas:
-            decenario[(num - 1) // 10] += 1
+            decenario[cls.get_decenario(num)] += 1
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -76,6 +85,7 @@ class AnaliseDecenario(AbstractAnalyze):
         self.decenarios_jogos = None
         self.decenarios_percentos = None
         self.decenarios_concursos = None
+        self.frequencias_decenarios = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -101,11 +111,11 @@ class AnaliseDecenario(AbstractAnalyze):
         logger.debug(f"{nmlot}: Executando analise de decenario dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
-        # zera os contadores de cada paridade:
+        # zera os contadores de cada decenario:
         self.decenarios_jogos = self.new_list_int(qtd_items)
         self.decenarios_percentos = self.new_list_float(qtd_items)
 
-        # contabiliza pares (e impares) de cada combinacao de jogo:
+        # contabiliza os decenarios de cada combinacao de jogo:
         range_jogos: range = range(1, payload.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
             self.count_decenarios(jogo, self.decenarios_jogos)
@@ -119,7 +129,7 @@ class AnaliseDecenario(AbstractAnalyze):
             output += f"\t {key} dezena:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Decenarios Resultantes: {output}")
 
-        # efetua analise de decenarios de todos os sorteios da loteria:
+        # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de decenarios dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -143,7 +153,54 @@ class AnaliseDecenario(AbstractAnalyze):
                       f"   #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Decenarios Resultantes: {output}")
 
-        #
+        # efetua analise de frequencia de todos os decenarios dos sorteios da loteria:
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de decenarios "
+                     f"nos  {formatd(qtd_concursos)}  concursos da loteria.")
+
+        # zera os contadores de frequencias e atrasos dos decenarios:
+        self.frequencias_decenarios = self.new_list_series(qtd_items)
+        self.frequencias_decenarios[0] = SerieSorteio(0)  # neste caso especifico tem a dezena zero
+
+        # contabiliza as frequencias e atrasos dos decenarios em todos os sorteios ja realizados:
+        for concurso in concursos:
+            # contabiliza a frequencia dos decenarios do concurso:
+            for num in concurso.bolas:
+                dezena: int = self.get_decenario(num)
+                self.frequencias_decenarios[dezena].add_sorteio(concurso.id_concurso)
+            # verifica se o concurso eh duplo (dois sorteios):
+            if eh_duplo:
+                for num in concurso.bolas2:
+                    dezena = self.get_decenario(num)
+                    self.frequencias_decenarios[dezena].add_sorteio(concurso.id_concurso)
+
+        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
+        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        for serie in self.frequencias_decenarios:
+            # vai aproveitar e contabilizar as medidas estatisticas para a dezena:
+            serie.last_sorteio(ultimo_concurso.id_concurso)
+
+        # printa o resultado:
+        output: str = f"\n\tDEZENA:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+                      f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
+                      f"VARIANCIA   DESVIO-PADRAO\n"
+        for serie in self.frequencias_decenarios:
+            output += f"\t    {formatd(serie.id,2)}:       " \
+                      f"{formatd(serie.len_sorteios,5)}    " \
+                      f"{formatd(serie.ultimo_sorteio,5)}        " \
+                      f"{formatd(serie.len_atrasos,5)}    " \
+                      f"{formatd(serie.ultimo_atraso,5)}   " \
+                      f"{formatd(serie.min_atraso,5)}  " \
+                      f"{formatd(serie.max_atraso,5)}   " \
+                      f"{formatd(serie.mode_atraso,5)}  " \
+                      f"{formatf(serie.mean_atraso,'7.1')}   " \
+                      f"{formatf(serie.hmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.gmean_atraso,'7.1')}   " \
+                      f"{formatf(serie.median_atraso,'7.1')}   " \
+                      f"{formatf(serie.varia_atraso,'9.1')}         " \
+                      f"{formatf(serie.stdev_atraso,'7.1')} \n"
+        logger.debug(f"{nmlot}: FREQUENCIA de Decenarios Resultantes: {output}")
+
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
         logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de decenario dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -191,9 +248,10 @@ class AnaliseDecenario(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

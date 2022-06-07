@@ -121,7 +121,7 @@ class AnaliseSomatorio(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Somatorios Resultantes: {output}")
 
-        #
+        # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de somatorio dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
@@ -130,26 +130,26 @@ class AnaliseSomatorio(AbstractAnalyze):
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
             self.somatorios_concursos[soma_dezenas] += 1
-
             # verifica se o concurso eh duplo (dois sorteios):
             if eh_duplo:
                 soma_dezenas = self.soma_dezenas(concurso.bolas2)
                 self.somatorios_concursos[soma_dezenas] += 1
 
         # printa o resultado:
-        output: str = f"\n\t   ? SOMADO      PERC%     #TOTAL\n"
+        output: str = f"\n\t   ? SOMADO      PERC%        %DIF%     #TOTAL\n"
         for key, value in enumerate(self.somatorios_concursos):
             percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            dif: float = percent - self.somatorios_percentos[key]
             output += f"\t {formatd(key,3)} somado:  {formatf(percent,'7.3')}% ... " \
-                      f"#{formatd(value)}\n"
+                      f"{formatf(dif,'7.3')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Somatorios Resultantes: {output}")
 
-        #
+        # efetua analise comparativa dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise COMPARATIVA de somatorio dos  "
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza a somatorio de cada sorteio dos concursos para exibicao em lista sequencial:
-        output: str = f"\n\t #CONCURSO   SOMA          PERC%    #TOTAL\n"
+        output: str = f"\n\t #CONCURSO   SOMA         JOGOS%    #TOTAL CONCURSOS\n"
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
             percent = self.somatorios_percentos[soma_dezenas]
@@ -174,9 +174,10 @@ class AnaliseSomatorio(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

@@ -130,7 +130,7 @@ class AnaliseCiclo(AbstractAnalyze):
         for i in range(0, len(self.frequencias_ciclos.sorteios)):
             final: int = self.frequencias_ciclos.sorteios[i]
             intervalo: int = self.frequencias_ciclos.atrasos[i]
-            output += f"\t  {formatd(inicio,5)} ... {formatd(final,5)}         " \
+            output += f"\t  {formatd(inicio,5)} ... {formatd(final,5)}      " \
                       f"{formatd(intervalo,3)}\n"
             inicio = final + 1
 
@@ -159,9 +159,10 @@ class AnaliseCiclo(AbstractAnalyze):
     # --- ANALISE DE JOGOS ---------------------------------------------------
 
     def setup(self, parms: dict):
-        pass
+        # absorve os parametros fornecidos:
+        self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        pass
+        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------
