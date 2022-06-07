@@ -64,11 +64,10 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa = {
-        # "megasena": domain.get_mega_sena(),
-        # "quina": domain.get_quina(),
-        # "duplasena": domain.get_dupla_sena(),
+        "diadesorte": domain.get_dia_de_sorte(),
         "lotofacil": domain.get_lotofacil(),
-        # "diadesorte": domain.get_dia_de_sorte()
+        "megasena": domain.get_mega_sena(),
+        "quina": domain.get_quina()
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

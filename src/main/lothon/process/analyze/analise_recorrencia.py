@@ -20,7 +20,7 @@ import itertools as itt
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -100,16 +100,10 @@ class AnaliseRecorrencia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        # if eh_duplo:
-        #     fator_sorteios: int = 2
-        # else:
-        #     fator_sorteios: int = 1
-        # qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = 1000  # maximo de 1000 recorrencias de cada tupla nos sorteios
         max_size_tuplas: int = min(8, payload.qtd_bolas_sorteio)  # maximo de 7 dezenas na tupla:
 
@@ -152,11 +146,6 @@ class AnaliseRecorrencia(AbstractAnalyze):
                         # contabiliza a tupla em cada sorteio, mas apenas uma vez em cada um:
                         if self.has_recorrencias(tupla, outro_concurso.bolas):
                             qt_repeticoes += 1
-                        # verifica se o concurso eh duplo (dois sorteios):
-                        if eh_duplo:
-                            # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
-                            if self.has_recorrencias(tupla, outro_concurso.bolas2):
-                                qt_repeticoes += 1
 
                     # somente registra tuplas que repetem mais de uma vez:
                     if qt_repeticoes > 1:

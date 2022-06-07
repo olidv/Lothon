@@ -19,7 +19,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -88,16 +88,10 @@ class AnaliseRepetencia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise de repetencias de todos os sorteios da loteria:
@@ -111,21 +105,12 @@ class AnaliseRepetencia(AbstractAnalyze):
         self.frequencias_repetencias = self.new_list_series(payload.qtd_bolas)
 
         # contabiliza repetencias de cada sorteio com todos o sorteio anterior:
-        concurso_anterior: Concurso | ConcursoDuplo = concursos[0]
+        concurso_anterior: Concurso = concursos[0]
         for concurso in concursos[1:]:
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                # se for concurso duplo, precisa comparar as bolas de ambos sorteios:
-                qt_repeticoes: int = self.count_repeticoes(concurso.bolas + concurso.bolas2,
-                                                           concurso_anterior.bolas +
-                                                           concurso_anterior.bolas2,
-                                                           self.frequencias_repetencias,
-                                                           concurso.id_concurso)
-            else:  # Caso seja concurso simples, com um unico sorteio:
-                qt_repeticoes: int = self.count_repeticoes(concurso.bolas,
-                                                           concurso_anterior.bolas,
-                                                           self.frequencias_repetencias,
-                                                           concurso.id_concurso)
+            qt_repeticoes: int = self.count_repeticoes(concurso.bolas,
+                                                       concurso_anterior.bolas,
+                                                       self.frequencias_repetencias,
+                                                       concurso.id_concurso)
             self.repetencias_concursos[qt_repeticoes] += 1
             self.repetencias_series[qt_repeticoes].add_sorteio(concurso.id_concurso)
             concurso_anterior = concurso
@@ -133,7 +118,7 @@ class AnaliseRepetencia(AbstractAnalyze):
         # printa o resultado:
         output: str = f"\n\t  ? REPETE    PERC%     #TOTAL\n"
         for key, value in enumerate(self.repetencias_concursos):
-            percent: float = round((value / qtd_sorteios) * 10000) / 100
+            percent: float = round((value / qtd_concursos) * 10000) / 100
             output += f"\t {formatd(key,2)} repete: {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Repetencias Resultantes: {output}")
@@ -172,7 +157,7 @@ class AnaliseRepetencia(AbstractAnalyze):
                      f"nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_repetencias[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
             serie.last_sorteio(ultimo_concurso.id_concurso)

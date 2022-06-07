@@ -20,7 +20,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, Faixa
+from lothon.domain import Loteria, Concurso, Faixa
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
 
@@ -94,9 +94,9 @@ class SimuladoAleatorio(AbstractSimulate):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
 
         # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:

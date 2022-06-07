@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -91,16 +91,10 @@ class AnaliseParidade(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -136,15 +130,11 @@ class AnaliseParidade(AbstractAnalyze):
         for concurso in concursos:
             qtd_pares: int = self.count_pares(concurso.bolas)
             self.paridades_concursos[qtd_pares] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_pares: int = self.count_pares(concurso.bolas2)
-                self.paridades_concursos[qtd_pares] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? PARES     PERC%       %DIF%     #TOTAL\n"
         for key, value in enumerate(self.paridades_concursos):
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.paridades_percentos[key]
             output += f"\t {formatd(key,2)} pares:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
@@ -163,13 +153,9 @@ class AnaliseParidade(AbstractAnalyze):
             # contabiliza o numero de paridades do concurso:
             qtd_pares = self.count_pares(concurso.bolas)
             self.frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_pares = self.count_pares(concurso.bolas2)
-                self.frequencias_paridades[qtd_pares].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_paridades:
             # vai aproveitar e contabilizar as medidas estatisticas para a paridade:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -200,10 +186,9 @@ class AnaliseParidade(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza pares (e impares) de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_paridades: list[int] = []
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada paridade:
             paridades_passados: list[int] = self.new_list_int(qtd_items)
@@ -212,20 +197,10 @@ class AnaliseParidade(AbstractAnalyze):
             for concurso_passado in concursos_passados:
                 qtd_pares_passado = self.count_pares(concurso_passado.bolas)
                 paridades_passados[qtd_pares_passado] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    qtd_pares_passado = self.count_pares(concurso_passado.bolas2)
-                    paridades_passados[qtd_pares_passado] += 1
 
             # calcula a paridade do concurso atual para comparar a evolucao:
             qtd_pares_atual = self.count_pares(concurso_atual.bolas)
-            str_pares_atual = str(qtd_pares_atual)
             list6_paridades.append(qtd_pares_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_pares2_atual = self.count_pares(concurso_atual.bolas2)
-                str_pares_atual += '/' + str(qtd_pares2_atual)
-                list6_paridades.append(qtd_pares2_atual)
             # soh mantem os ultimos 6 pares:
             while len(list6_paridades) > 6:
                 del list6_paridades[0]
@@ -235,7 +210,7 @@ class AnaliseParidade(AbstractAnalyze):
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimos Pares == { list(reversed(list6_paridades))}\n"
             for key, value in enumerate(paridades_passados):
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
+                percent: float = round((value / qtd_concursos_passados) * 1000) \
                                  / 10
                 dif: float = percent - self.paridades_percentos[key]
                 output += f"\t {formatd(key,2)} pares:  {formatf(percent,'6.2')}% ... " \

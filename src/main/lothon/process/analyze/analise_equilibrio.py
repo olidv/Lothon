@@ -22,7 +22,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon import domain
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -121,11 +121,10 @@ class AnaliseEquilibrio(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
         qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -161,10 +160,6 @@ class AnaliseEquilibrio(AbstractAnalyze):
         for concurso in concursos:
             qtd_pares: int = self.count_pares(concurso.bolas)
             self.paridades_concursos[qtd_pares] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_pares = self.count_pares(concurso.bolas2)
-                self.paridades_concursos[qtd_pares] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? PARES     PERC%       %DIF%     #TOTAL\n"
@@ -203,10 +198,6 @@ class AnaliseEquilibrio(AbstractAnalyze):
                 # uma dezena "par" eh aquela presente no conjunto set_pares:
                 qtd_pares: int = self.count_set_pares(concurso.bolas, set_pares)
                 self.paridades_conjuntos[qtd_pares] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    qtd_pares = self.count_set_pares(concurso.bolas2, set_pares)
-                    self.paridades_conjuntos[qtd_pares] += 1
 
             # formata o resultado do conjunto corrente:
             output += f"\t    {formatd(concurso.id_concurso,5)}        "
@@ -229,10 +220,6 @@ class AnaliseEquilibrio(AbstractAnalyze):
                 # uma dezena "par" eh aquela presente no conjunto set_pares:
                 qtd_pares: int = self.count_set_pares(concurso.bolas, set_pares)
                 self.paridades_conjuntos[qtd_pares] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    qtd_pares = self.count_set_pares(concurso.bolas2, set_pares)
-                    self.paridades_conjuntos[qtd_pares] += 1
 
             # ordena do maior (topo) numero de paridades para o menor:
             paridades_dict: dict = self.to_dict_sorted(self.paridades_conjuntos)
@@ -275,15 +262,6 @@ class AnaliseEquilibrio(AbstractAnalyze):
                     count_topo3 += 1
                 if qtd_pares in paridades_topo4[i]:
                     count_topo4 += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    qtd_pares = self.count_set_pares(concurso.bolas2, set_pares)
-                    if qtd_pares in paridades_topo2[i]:
-                        count_topo2 += 1
-                    if qtd_pares in paridades_topo3[i]:
-                        count_topo3 += 1
-                    if qtd_pares in paridades_topo4[i]:
-                        count_topo4 += 1
 
             # formata o resultado do concurso corrente:
             percent_topo2: float = count_topo2 / tot_sets * 100

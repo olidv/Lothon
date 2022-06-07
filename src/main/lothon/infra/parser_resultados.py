@@ -25,8 +25,6 @@ from bs4 import BeautifulSoup
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
-from lothon.domain.sorteio.concurso import Concurso
-from lothon.domain.sorteio.concurso_duplo import ConcursoDuplo
 from lothon.util.eve import *
 
 
@@ -167,26 +165,20 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
     if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
         return -1
 
-    # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
-    concursos: list[Concurso | ConcursoDuplo] = loteria.concursos
-    eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-    qt_rows: int = 0
-
     # cria arquivo fisico para conter apenas as dezenas sorteadas:
     loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.id_loteria)
     loteria_sorteios_path: str = os.path.join(app_config.DS_output_path, loteria_sorteios_file)
 
     # abre arquivo para escrita e salva todas as dezenas sorteadas:
+    qt_rows: int = 0
     with open(loteria_sorteios_path, 'w', newline='', encoding='utf-8') as file_csv:
+        # o conteudo do arquivo sera formatado como CSV padrao:
         csv_writer = csv.writer(file_csv)
+
         # percorre lista de concursos e exporta as bolas:
-        for concurso in concursos:
-            # se for concurso duplo, concatena ambos sorteios em lista unica:
-            bolas: tuple[int, ...] = concurso.bolas
-            if eh_duplo:
-                bolas += concurso.bolas2
+        for concurso in loteria.concursos:
             # salva as dezenas separadas por virgula:
-            csv_writer.writerow(bolas)
+            csv_writer.writerow(concurso.bolas)
             qt_rows += 1
 
     # informa quantas linhas de sorteios foram gravadas:

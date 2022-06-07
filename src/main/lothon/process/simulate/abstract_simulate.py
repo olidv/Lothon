@@ -18,7 +18,7 @@ import itertools as itt
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain import Concurso, ConcursoDuplo
+from lothon.domain import Concurso
 from lothon.process.abstract_process import AbstractProcess
 
 
@@ -46,7 +46,7 @@ class AbstractSimulate(AbstractProcess, ABC):
 
     # confere relacao de jogos de um bolao com o(s) sorteio(s) de determinado concurso:
     @classmethod
-    def check_premiacao_jogos(cls, concurso: Concurso | ConcursoDuplo, bolao: list[tuple[int, ...]],
+    def check_premiacao_jogos(cls, concurso: Concurso, bolao: list[tuple[int, ...]],
                               qt_base: int = None) -> tuple[int, float]:
         qt_acertos: int = 0
         premio_total: float = 0.00

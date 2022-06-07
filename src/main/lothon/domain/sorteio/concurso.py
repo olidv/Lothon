@@ -69,4 +69,11 @@ class Concurso:
         else:
             return premio.premio
 
+    def get_ganhadores_premio(self, qt_acertos: int) -> int:
+        # verifica se ha premiacao para o numero de acertos indicado:
+        if qt_acertos is None or qt_acertos not in self.premios:
+            return 0
+        else:
+            return self.premios.get(qt_acertos).qtd_ganhadores
+
 # ----------------------------------------------------------------------------

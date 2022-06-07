@@ -43,7 +43,6 @@ loterias_caixa: dict[str: Loteria] = None
 boloes_caixa: dict[str: dict[int: int]] = {
     "megasena": {7: 50, 8: 12, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
     "quina": {6: 80, 7: 25, 8: 8, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
-    "duplasena": {7: 60, 8: 15, 9: 5, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1},
     "lotofacil": {16: 40, 17: 5, 18: 1, 19: 1, 20: 1},
     "diadesorte": {8: 60, 9: 15, 10: 5, 11: 2, 12: 1, 13: 1, 14: 1, 15: 1}
 }
@@ -52,7 +51,6 @@ boloes_caixa: dict[str: dict[int: int]] = {
 boloes_945: dict[str: dict[int: int]] = {
     "megasena": {7: 30, 8: 7, 9: 2, 10: 1},
     "quina": {6: 78, 7: 22, 8: 8, 9: 3, 10: 1, 11: 1},
-    "duplasena": {7: 54, 8: 13, 9: 4, 10: 1},
     "lotofacil": {16: 23, 17: 2},
     "diadesorte": {8: 59, 9: 13, 10: 3, 11: 1}
 }
@@ -84,7 +82,6 @@ def run():
     loterias_caixa = {
         # "megasena": domain.get_mega_sena(),
         # "quina": domain.get_quina(),
-        # "duplasena": domain.get_dupla_sena(),
         # "lotofacil": domain.get_lotofacil(),
         "diadesorte": domain.get_dia_de_sorte()
     }

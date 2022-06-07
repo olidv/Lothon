@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -86,16 +86,10 @@ class AnaliseNumerologia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = 9  # numero de zero a nove
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -133,10 +127,6 @@ class AnaliseNumerologia(AbstractAnalyze):
         for concurso in concursos:
             numero: int = self.calc_numerology(concurso.bolas)
             self.numerologias_concursos[numero] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                numero: int = self.calc_numerology(concurso.bolas2)
-                self.numerologias_concursos[numero] += 1
 
         # printa o resultado:
         output: str = f"\n\t ? NUMERO     PERC%       %DIF%     #TOTAL\n"
@@ -144,7 +134,7 @@ class AnaliseNumerologia(AbstractAnalyze):
             if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
                 continue
 
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.numerologias_percentos[key]
             output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
@@ -163,13 +153,9 @@ class AnaliseNumerologia(AbstractAnalyze):
             # contabiliza a numerologia do concurso:
             numero = self.calc_numerology(concurso.bolas)
             self.frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                numero = self.calc_numerology(concurso.bolas2)
-                self.frequencias_numelogias[numero].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_numelogias[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a numerologia:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -200,10 +186,9 @@ class AnaliseNumerologia(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula a numerologia de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_numerologias: list[int] = []
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada numerologia:
             numerologias_passados: list[int] = self.new_list_int(qtd_items)
@@ -212,20 +197,10 @@ class AnaliseNumerologia(AbstractAnalyze):
             for concurso_passado in concursos_passados:
                 numero_passado = self.calc_numerology(concurso_passado.bolas)
                 numerologias_passados[numero_passado] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    numero_passado = self.calc_numerology(concurso_passado.bolas2)
-                    numerologias_passados[numero_passado] += 1
 
             # calcula a numerologia do concurso atual para comparar a evolucao:
             numero_atual = self.calc_numerology(concurso_atual.bolas)
-            str_numero_atual = str(numero_atual)
             list6_numerologias.append(numero_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_numero2_atual = self.calc_numerology(concurso_atual.bolas2)
-                str_numero_atual += '/' + str(qtd_numero2_atual)
-                list6_numerologias.append(qtd_numero2_atual)
             # soh mantem as ultimas 6 numerologias:
             while len(list6_numerologias) > 6:
                 del list6_numerologias[0]
@@ -238,7 +213,7 @@ class AnaliseNumerologia(AbstractAnalyze):
                 if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
                     continue
 
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios))
+                percent: float = round((value / qtd_concursos_passados)
                                        * 1000) / 10
                 dif: float = percent - self.numerologias_percentos[key]
                 output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \

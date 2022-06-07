@@ -20,7 +20,7 @@ import statistics as stts
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -70,16 +70,10 @@ class AnaliseFrequencia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        # if eh_duplo:
-        #     fator_sorteios: int = 2
-        # else:
-        #     fator_sorteios: int = 1
-        # qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
@@ -94,14 +88,9 @@ class AnaliseFrequencia(AbstractAnalyze):
             # registra o concurso para cada dezena sorteada:
             for bola in concurso.bolas:
                 self.frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                # se for concurso duplo, precisa comparar as bolas do segundo sorteio:
-                for bola in concurso.bolas2:
-                    self.frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_dezenas[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -135,10 +124,9 @@ class AnaliseFrequencia(AbstractAnalyze):
         output: str = f"\n\tCONCURSO  FREQUENCIAS:   MENOR   MAIOR   MODA   MEDIA   MEDIANA\n"
 
         # contabiliza as frequencias das dezenas em todos os sorteios ja realizados:
-        concursos_anteriores: list[Concurso | ConcursoDuplo] = [concursos[0]]
+        concursos_anteriores: list[Concurso] = [concursos[0]]
         for concurso in concursos[1:]:
-            bolas_concurso: tuple[int, ...] = concurso.bolas + concurso.bolas2 if eh_duplo \
-                                              else concurso.bolas
+            bolas_concurso: tuple[int, ...] = concurso.bolas
             # registra a frequencia de cada dezena sorteada no concurso corrente:
             frequencias: list[int] = [0] * len(bolas_concurso)  # uma frequencia para cada bola
             for concurso_anterior in concursos_anteriores:
@@ -146,9 +134,6 @@ class AnaliseFrequencia(AbstractAnalyze):
                 for dezena in bolas_concurso:
                     id_dezena += 1  # na primeira iteracao, vai incrementar para zero
                     if dezena in concurso_anterior.bolas:
-                        frequencias[id_dezena] += 1
-                    # verifica se o concurso eh duplo (dois sorteios):
-                    if eh_duplo and dezena in concurso_anterior.bolas2:
                         frequencias[id_dezena] += 1
 
             # formata os valores para o concurso atual:
@@ -174,10 +159,9 @@ class AnaliseFrequencia(AbstractAnalyze):
         output2: str = f"\n\tCONCURSO   MEDIAS ATRASOS:   MENOR   MAIOR   MODA   MEDIA   MEDIANA\n"
 
         # contabiliza os atrasos das dezenas em todos os sorteios ja realizados:
-        concursos_anteriores: list[Concurso | ConcursoDuplo] = [concursos[0]]
+        concursos_anteriores: list[Concurso] = [concursos[0]]
         for concurso in concursos[1:]:
-            bolas_concurso: tuple[int, ...] = concurso.bolas + concurso.bolas2 if eh_duplo \
-                                              else concurso.bolas
+            bolas_concurso: tuple[int, ...] = concurso.bolas
             # registra o atraso de cada dezena sorteada no concurso corrente:
             atrasos: list[SerieSorteio] = self.new_list_series(len(bolas_concurso)-1)
             for concurso_anterior in concursos_anteriores:
@@ -186,12 +170,9 @@ class AnaliseFrequencia(AbstractAnalyze):
                     id_dezena += 1  # na primeira iteracao, vai incrementar para zero
                     if dezena in concurso_anterior.bolas:
                         atrasos[id_dezena].add_sorteio(concurso_anterior.id_concurso)
-                    # verifica se o concurso eh duplo (dois sorteios):
-                    if eh_duplo and dezena in concurso_anterior.bolas2:
-                        atrasos[id_dezena].add_sorteio(concurso_anterior.id_concurso)
 
             # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-            ultimo_concurso: Concurso | ConcursoDuplo = concursos_anteriores[-1]
+            ultimo_concurso: Concurso = concursos_anteriores[-1]
             for serie in atrasos:
                 # vai aproveitar e contabilizar as medidas estatisticas para o atraso:
                 serie.last_sorteio(ultimo_concurso.id_concurso)

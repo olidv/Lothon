@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -96,16 +96,10 @@ class AnaliseSequencia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas_sorteio - 1
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -141,15 +135,11 @@ class AnaliseSequencia(AbstractAnalyze):
         for concurso in concursos:
             qt_sequencias: int = self.count_sequencias(concurso.bolas)
             self.sequencias_concursos[qt_sequencias] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qt_sequencias: int = self.count_sequencias(concurso.bolas2)
-                self.sequencias_concursos[qt_sequencias] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? SEGUIDO     PERC%       %DIF%     #TOTAL\n"
         for key, value in enumerate(self.sequencias_concursos):
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.sequencias_percentos[key]
             output += f"\t {formatd(key,2)} seguido:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
@@ -168,13 +158,9 @@ class AnaliseSequencia(AbstractAnalyze):
             # contabiliza o numero de sequencias do concurso:
             qt_sequencias = self.count_sequencias(concurso.bolas)
             self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qt_sequencias = self.count_sequencias(concurso.bolas2)
-                self.frequencias_sequencias[qt_sequencias].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_sequencias:
             # vai aproveitar e contabilizar as medidas estatisticas para a sequencia:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -205,10 +191,9 @@ class AnaliseSequencia(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza dezenas sequenciais de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_sequencias: list[int] = []
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada sequencia:
             sequencias_passadas: list[int] = self.new_list_int(qtd_items)
@@ -217,20 +202,10 @@ class AnaliseSequencia(AbstractAnalyze):
             for concurso_passado in concursos_passados:
                 qt_sequencias_passadas = self.count_sequencias(concurso_passado.bolas)
                 sequencias_passadas[qt_sequencias_passadas] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    qt_sequencias_passadas = self.count_sequencias(concurso_passado.bolas2)
-                    sequencias_passadas[qt_sequencias_passadas] += 1
 
             # calcula a sequencia do concurso atual para comparar a evolucao:
             qtd_sequencias_atual = self.count_sequencias(concurso_atual.bolas)
-            str_sequencias_atual = str(qtd_sequencias_atual)
             list6_sequencias.append(qtd_sequencias_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                qtd_sequencias2_atual = self.count_sequencias(concurso_atual.bolas2)
-                str_sequencias_atual += '/' + str(qtd_sequencias2_atual)
-                list6_sequencias.append(qtd_sequencias2_atual)
             # soh mantem as ultimas 6 sequencias:
             while len(list6_sequencias) > 6:
                 del list6_sequencias[0]
@@ -240,7 +215,7 @@ class AnaliseSequencia(AbstractAnalyze):
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimas Sequencias == { list(reversed(list6_sequencias))}\n"
             for key, value in enumerate(sequencias_passadas):
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
+                percent: float = round((value / qtd_concursos_passados) * 1000) \
                                  / 10
                 dif: float = percent - self.sequencias_percentos[key]
                 output += f"\t {formatd(key,2)} seguido:  {formatf(percent,'6.2')}% ... " \

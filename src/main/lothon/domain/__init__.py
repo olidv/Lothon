@@ -9,7 +9,6 @@ __all__ = [
     'MegaSena',
     'Quina',
     'Concurso',
-    'ConcursoDuplo',
     'Faixa',
     'Premio',
     'Bola',
@@ -46,7 +45,6 @@ from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
 from .sorteio.serie_sorteio import SerieSorteio
 from .sorteio.concurso import Concurso
-from .sorteio.concurso_duplo import ConcursoDuplo
 from .sorteio.premio import Premio
 from .modalidade.loteria import Loteria
 from .modalidade.dia_de_sorte import DiaDeSorte

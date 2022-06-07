@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -84,16 +84,10 @@ class AnaliseDistancia(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -129,15 +123,11 @@ class AnaliseDistancia(AbstractAnalyze):
         for concurso in concursos:
             vl_distancia: int = self.calc_distancia(concurso.bolas)
             self.distancias_concursos[vl_distancia] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_distancia: int = self.calc_distancia(concurso.bolas2)
-                self.distancias_concursos[vl_distancia] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? DISTANTE     PERC%       %DIF%     #TOTAL\n"
         for key, value in enumerate(self.distancias_concursos):
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.distancias_percentos[key]
             output += f"\t {formatd(key,2)} distante:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
@@ -156,13 +146,6 @@ class AnaliseDistancia(AbstractAnalyze):
             output += f"\t     {formatd(concurso.id_concurso,5)}         {formatd(vl_distancia,3)}"\
                       f"  ...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
 
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_distancia = self.calc_distancia(concurso.bolas2)
-                percent = self.distancias_percentos[vl_distancia]
-                total = self.distancias_concursos[vl_distancia]
-                output += f"\t                   {formatd(vl_distancia,3)}  ...  " \
-                          f"{formatf(percent,'7.3')}%    #{formatd(total)}\n"
         # printa o resultado:
         logger.debug(f"{nmlot}: COMPARATIVA das Distancias Resultantes: {output}")
 
@@ -171,10 +154,9 @@ class AnaliseDistancia(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula distancias dos extremos de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_distancias: list[int] = []
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada distancia:
             distancias_passadas: list[int] = self.new_list_int(qtd_items)
@@ -183,18 +165,10 @@ class AnaliseDistancia(AbstractAnalyze):
             for concurso_passado in concursos_passados:
                 vl_distancia_passada = self.calc_distancia(concurso_passado.bolas)
                 distancias_passadas[vl_distancia_passada] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    vl_distancia_passada = self.calc_distancia(concurso_passado.bolas2)
-                    distancias_passadas[vl_distancia_passada] += 1
 
             # calcula a distancia do concurso atual para comparar a evolucao:
             vl_distancia_atual = self.calc_distancia(concurso_atual.bolas)
             list6_distancias.append(vl_distancia_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_distancia_atual = self.calc_distancia(concurso_atual.bolas2)
-                list6_distancias.append(vl_distancia_atual)
             # soh mantem as ultimas 6 distancias:
             while len(list6_distancias) > 6:
                 del list6_distancias[0]
@@ -204,7 +178,7 @@ class AnaliseDistancia(AbstractAnalyze):
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimas Distancias == { list(reversed(list6_distancias))}\n"
             for key, value in enumerate(distancias_passadas):
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
+                percent: float = round((value / qtd_concursos_passados) * 1000) \
                                  / 10
                 dif: float = percent - self.distancias_percentos[key]
                 output += f"\t {formatd(key,2)} distante:  {formatf(percent,'6.2')}% ... " \

@@ -19,7 +19,7 @@ from typing import Optional
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -80,16 +80,10 @@ class AnaliseCiclo(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        # if eh_duplo:
-        #     fator_sorteios: int = 2
-        # else:
-        #     fator_sorteios: int = 1
-        # qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
@@ -102,17 +96,26 @@ class AnaliseCiclo(AbstractAnalyze):
         # contabiliza os ciclos fechados em todos os sorteios ja realizados:
         dezenas: list[int | None] = self.new_list_int(qtd_items)
         dezenas[0] = None
+
+        # prepara a impressao evolutiva:
+        output: str = f"\n\n\tCONCURSO   DEZENAS PARA FECHAR CICLO...\n"
         for concurso in concursos:
+            output += f"\t  {formatd(concurso.id_concurso,6)}  "
+
             # identifica as bolas sorteadas para fechar o ciclo:
             self.count_dezenas(concurso.bolas, dezenas)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                # se for concurso duplo, precisa registrar as bolas do segundo sorteio:
-                self.count_dezenas(concurso.bolas2, dezenas)
 
             # se ainda tem algum zero, entao nao fechou o ciclo:
             if 0 in dezenas:
+                # printa as dezenas que ainda faltam para zerar:
+                for idx, value in enumerate(dezenas[1:]):
+                    if value == 0:
+                        output += f" {idx+1:0>2}"
+                output += "\n"
                 continue
+            else:
+                # no inicio do ciclo, as dezenas sorteadas sao eliminadas do conjunto total:
+                output += ' ' + ('---' * (payload.qtd_bolas - payload.qtd_bolas_sorteio)) + '\n'
 
             # fechando o ciclo, contabiliza o ciclo fechado (onde fecha o ciclo eh inclusivo):
             self.frequencias_ciclos.add_sorteio(concurso.id_concurso, True)
@@ -121,16 +124,20 @@ class AnaliseCiclo(AbstractAnalyze):
             dezenas = self.new_list_int(qtd_items)
             dezenas[0] = None  # para nao conflitar com o teste de fechamento do ciclo
 
-        # calcula as medidas estatisticas:
+        logger.debug(f"{nmlot}: Evolucao dos ciclos fechados ao longo dos concursos: {output}")
+
+        # ja calcula as medidas estatisticas para impressao ao final:
         self.frequencias_ciclos.update_stats()
 
-        # printa o resultado:
-        output: str = f"\n\n\t INICIO     FINAL   ATRASO \n"
+        # printa o primeiro resultado:
+
+        # printa o segundo resultado:
+        output: str = f"\n\n\t  INICIO     FINAL   ATRASO \n"
         inicio: int = 1
         for i in range(0, len(self.frequencias_ciclos.sorteios)):
             final: int = self.frequencias_ciclos.sorteios[i]
             intervalo: int = self.frequencias_ciclos.atrasos[i]
-            output += f"\t  {formatd(inicio,5)} ... {formatd(final,5)}      " \
+            output += f"\t   {formatd(inicio,5)} ... {formatd(final,5)}      " \
                       f"{formatd(intervalo,3)}\n"
             inicio = final + 1
 

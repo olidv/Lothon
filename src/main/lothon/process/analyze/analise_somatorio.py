@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo
+from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -84,16 +84,10 @@ class AnaliseSomatorio(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = sum(range(payload.qtd_bolas - payload.qtd_bolas_sorteio + 1,
                                    payload.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
 
@@ -130,15 +124,11 @@ class AnaliseSomatorio(AbstractAnalyze):
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
             self.somatorios_concursos[soma_dezenas] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                self.somatorios_concursos[soma_dezenas] += 1
 
         # printa o resultado:
         output: str = f"\n\t   ? SOMADO      PERC%        %DIF%     #TOTAL\n"
         for key, value in enumerate(self.somatorios_concursos):
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.somatorios_percentos[key]
             output += f"\t {formatd(key,3)} somado:  {formatf(percent,'7.3')}% ... " \
                       f"{formatf(dif,'7.3')}%     #{formatd(value)}\n"
@@ -157,13 +147,6 @@ class AnaliseSomatorio(AbstractAnalyze):
             output += f"\t     {formatd(concurso.id_concurso,5)}    {formatd(soma_dezenas,3)}  " \
                       f"...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
 
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                soma_dezenas = self.soma_dezenas(concurso.bolas2)
-                percent = self.somatorios_percentos[soma_dezenas]
-                total = self.somatorios_concursos[soma_dezenas]
-                output += f"\t                          {formatd(soma_dezenas,3)}  ...  " \
-                          f"{formatf(percent,'7.3')}%   #{formatd(total)}\n"
         # printa o resultado:
         logger.debug(f"{nmlot}: COMPARATIVA dos Somatorios Resultantes: {output}")
 

@@ -60,7 +60,6 @@ def run():
     loterias_caixa = {
         # "megasena": domain.get_mega_sena(),
         # "quina": domain.get_quina(),
-        # "duplasena": domain.get_dupla_sena(),
         # "lotofacil": domain.get_lotofacil(),
         "diadesorte": domain.get_dia_de_sorte()
     }

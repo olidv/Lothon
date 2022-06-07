@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -94,16 +94,10 @@ class AnaliseDecenario(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = (payload.qtd_bolas-1) // 10
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -139,13 +133,10 @@ class AnaliseDecenario(AbstractAnalyze):
         # contabiliza decenarios de cada sorteio ja realizado:
         for concurso in concursos:
             self.count_decenarios(concurso.bolas, self.decenarios_concursos)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                self.count_decenarios(concurso.bolas2, self.decenarios_concursos)
 
         # printa o resultado:
         output: str = f"\n\t ? DEZENA     PERC%       %DIF%     #TOTAL\n"
-        total: int = payload.qtd_bolas_sorteio * qtd_sorteios
+        total: int = payload.qtd_bolas_sorteio * qtd_concursos
         for key, value in enumerate(self.decenarios_concursos):
             percent: float = round((value / total) * 10000) / 100
             dif: float = percent - self.decenarios_percentos[key]
@@ -167,14 +158,9 @@ class AnaliseDecenario(AbstractAnalyze):
             for num in concurso.bolas:
                 dezena: int = self.get_decenario(num)
                 self.frequencias_decenarios[dezena].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                for num in concurso.bolas2:
-                    dezena = self.get_decenario(num)
-                    self.frequencias_decenarios[dezena].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_decenarios:
             # vai aproveitar e contabilizar as medidas estatisticas para a dezena:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -205,9 +191,8 @@ class AnaliseDecenario(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # contabiliza decenarios de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada decenario:
             decenarios_passados: list[int] = self.new_list_int(qtd_items)
@@ -215,22 +200,16 @@ class AnaliseDecenario(AbstractAnalyze):
             # calcula a decenario dos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
                 self.count_decenarios(concurso_passado.bolas, decenarios_passados)
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    self.count_decenarios(concurso_passado.bolas2, decenarios_passados)
 
             # calcula a decenario do concurso atual para comparar a evolucao:
             decenario_atual: list[int] = self.new_list_int(qtd_items)
             self.count_decenarios(concurso_atual.bolas, decenario_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                self.count_decenarios(concurso_atual.bolas2, decenario_atual)
 
             # printa o resultado:
             output: str = f"\n\t ? DEZENA     PERC%       %DIF%  " \
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimo Decenario == {decenario_atual}\n"
-            total: int = payload.qtd_bolas_sorteio * (qtd_concursos_passados * fator_sorteios)
+            total: int = payload.qtd_bolas_sorteio * qtd_concursos_passados
             for key, value in enumerate(decenarios_passados):
                 percent: float = round((value / total) * 10000) / 100
                 dif: float = percent - self.decenarios_percentos[key]

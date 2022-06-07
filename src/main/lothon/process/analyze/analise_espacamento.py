@@ -21,7 +21,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, SerieSorteio
+from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 
 
@@ -99,16 +99,10 @@ class AnaliseEspacamento(AbstractAnalyze):
         else:
             _startWatch = startwatch()
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
         qtd_items: int = payload.qtd_bolas // (payload.qtd_bolas_sorteio - 1)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -144,15 +138,11 @@ class AnaliseEspacamento(AbstractAnalyze):
         for concurso in concursos:
             vl_espacamento: int = self.calc_espacada(concurso.bolas)
             self.espacamentos_concursos[vl_espacamento] += 1
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_espacamento: int = self.calc_espacada(concurso.bolas2)
-                self.espacamentos_concursos[vl_espacamento] += 1
 
         # printa o resultado:
         output: str = f"\n\t  ? ESPACO     PERC%       %DIF%     #TOTAL\n"
         for key, value in enumerate(self.espacamentos_concursos):
-            percent: float = round((value / qtd_sorteios) * 100000) / 1000
+            percent: float = round((value / qtd_concursos) * 100000) / 1000
             dif: float = percent - self.espacamentos_percentos[key]
             output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
@@ -170,13 +160,9 @@ class AnaliseEspacamento(AbstractAnalyze):
             # contabiliza a frequencia dos espacamentos do concurso:
             vl_espacamento: int = self.calc_espacada(concurso.bolas)
             self.frequencias_espacamentos[vl_espacamento].add_sorteio(concurso.id_concurso)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_espacamento = self.calc_espacada(concurso.bolas2)
-                self.frequencias_espacamentos[vl_espacamento].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso | ConcursoDuplo = concursos[-1]
+        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_espacamentos:
             # vai aproveitar e contabilizar as medidas estatisticas para o espacamento:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -207,10 +193,9 @@ class AnaliseEspacamento(AbstractAnalyze):
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula espacamentos de cada evolucao de concurso:
-        concursos_passados: list[Concurso | ConcursoDuplo] = []
+        concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_espacamentos: list[int] = []
-        concurso_atual: Concurso | ConcursoDuplo
         for concurso_atual in payload.concursos:
             # zera os contadores de cada sequencia:
             espacamentos_passados: list[int] = self.new_list_int(qtd_items)
@@ -219,18 +204,10 @@ class AnaliseEspacamento(AbstractAnalyze):
             for concurso_passado in concursos_passados:
                 vl_espacamento_passado = self.calc_espacada(concurso_passado.bolas)
                 espacamentos_passados[vl_espacamento_passado] += 1
-                # verifica se o concurso eh duplo (dois sorteios):
-                if eh_duplo:
-                    vl_espacamento_passado = self.calc_espacada(concurso_passado.bolas2)
-                    espacamentos_passados[vl_espacamento_passado] += 1
 
             # calcula a distancia do concurso atual para comparar a evolucao:
             vl_espacamento_atual = self.calc_espacada(concurso_atual.bolas)
             list6_espacamentos.append(vl_espacamento_atual)
-            # verifica se o concurso eh duplo (dois sorteios):
-            if eh_duplo:
-                vl_espacamento_atual = self.calc_espacada(concurso_atual.bolas2)
-                list6_espacamentos.append(vl_espacamento_atual)
             # soh mantem as ultimas 6 sequencias:
             while len(list6_espacamentos) > 6:
                 del list6_espacamentos[0]
@@ -240,7 +217,7 @@ class AnaliseEspacamento(AbstractAnalyze):
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimos Espacamentos == { list(reversed(list6_espacamentos))}\n"
             for key, value in enumerate(espacamentos_passados):
-                percent: float = round((value / (qtd_concursos_passados*fator_sorteios)) * 1000) \
+                percent: float = round((value / qtd_concursos_passados) * 1000) \
                                  / 10
                 dif: float = percent - self.espacamentos_percentos[key]
                 output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \

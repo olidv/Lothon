@@ -22,7 +22,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, ConcursoDuplo, Faixa
+from lothon.domain import Loteria, Concurso, Faixa
 from lothon.process import analyze
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
@@ -148,17 +148,11 @@ class SimuladoAnalisado(AbstractSimulate):
             logger.debug(f"processo '{aproc.id_process}': configurando parametros de SETUP.")
             aproc.setup(parms)
 
-        # o numero de sorteios realizados pode dobrar se for instancia de ConcursoDuplo:
+        # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        concursos: list[Concurso | ConcursoDuplo] = payload.concursos
+        concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        eh_duplo: bool = isinstance(concursos[0], ConcursoDuplo)
-        if eh_duplo:
-            fator_sorteios: int = 2
-        else:
-            fator_sorteios: int = 1
-        qtd_sorteios: int = qtd_concursos * fator_sorteios
-        qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
         self.analise_jogos = []
