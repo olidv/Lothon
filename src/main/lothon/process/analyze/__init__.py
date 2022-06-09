@@ -28,7 +28,6 @@ from lothon.process.analyze.analise_frequencia import AnaliseFrequencia
 from lothon.process.analyze.analise_colunario import AnaliseColunario
 from lothon.process.analyze.analise_distancia import AnaliseDistancia
 from lothon.process.analyze.analise_espacamento import AnaliseEspacamento
-from lothon.process.analyze.analise_equilibrio import AnaliseEquilibrio
 from lothon.process.analyze.analise_semanal import AnaliseSemanal
 
 
@@ -59,7 +58,6 @@ def get_process_chain() -> list[AbstractAnalyze]:
         _process_chain.append(AnaliseRecorrencia())  # 0:00:31
         _process_chain.append(AnaliseFrequencia())   # 0:00:00
         _process_chain.append(AnaliseCiclo())        # 0:00:00
-        _process_chain.append(AnaliseEquilibrio())   # 0:00:45
         _process_chain.append(AnaliseSemanal())      # 0:00:00
 
     return _process_chain
