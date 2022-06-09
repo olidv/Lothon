@@ -54,6 +54,14 @@ class AnaliseFrequencia(AbstractAnalyze):
 
     # --- METODOS STATIC -----------------------------------------------------
 
+    @classmethod
+    def count_repeticoes(cls, bolas: tuple[int, ...], dezenas: list[int]):
+        # nao precisa validar os parametros:
+        for num in bolas:
+            dezenas[num] += 1
+
+        return
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def init(self, parms: dict):
@@ -198,6 +206,60 @@ class AnaliseFrequencia(AbstractAnalyze):
         # apos percorrer todos os concursos, printa os atrasos medias:
         logger.debug(f"{nmlot}: Atrasos Medios das Dezenas Sorteadas: {output1}\n\n{output2}")
 
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de frequencias dos ultimos  100  "
+                     f"concursos da loteria.")
+
+        # formata o cabecalho da impressao do resultado:
+        output: str = f"\n\t CONCURSO"
+        for val in range(1, payload.qtd_bolas_sorteio + 1):
+            output += f"     {val:0>2}"
+        output += f"     VARIANCIA     DESVIO-PADRAO\n"
+
+        # acumula os concursos passados para cada concurso atual:
+        qtd_concursos_anteriores: int = qtd_concursos - 100
+        concursos_anteriores: list[Concurso] = concursos[:qtd_concursos_anteriores]
+        for concurso_atual in concursos[qtd_concursos_anteriores:]:
+            # zera os contadores de cada concurso:
+            dezenas_sorteios: list[int] = self.new_list_int(payload.qtd_bolas)
+
+            # quantas vezes cada uma das bolas sorteadas do concurso atual repetiu nos anteriores:
+            for concurso_anterior in concursos_anteriores:
+                self.count_repeticoes(concurso_anterior.bolas, dezenas_sorteios)
+
+            # transforma a lista em dicionario para sortear pela frequencia nos sorteios:
+            dezenas_frequencias: dict[int: int] = {}
+            for key, val in enumerate(dezenas_sorteios):
+                dezenas_frequencias[key] = val
+
+            # ordena o dicionario para identificar o ranking de cada dezena:
+            dezenas_frequencias = {k: v for k, v in sorted(dezenas_frequencias.items(),
+                                                           key=lambda item: item[1], reverse=True)}
+            dezenas_ranking: list[int] = self.new_list_int(payload.qtd_bolas)
+            idx: int = 0
+            for k, v in dezenas_frequencias.items():
+                idx += 1  # comeca do ranking #1
+                dezenas_ranking[k] = idx
+
+            # prepara para calcular variancia e desvio padrao dos rankings:
+            ranking_bolas: list[int] = []
+
+            # printa o resultado do concurso atual:
+            output += f"\t   {formatd(concurso_atual.id_concurso,6)}"
+            for bola in concurso_atual.bolas:
+                ranking: int = dezenas_ranking[bola]
+                ranking_bolas.append(ranking)
+                output += f"  {formatd(ranking,5)}"
+
+            # calcula a variancia e desvio padrao dos rankings antes do fim da linha:
+            varia_rank: float = stts.pvariance(ranking_bolas)
+            stdev_rank: float = stts.pstdev(ranking_bolas)
+            output += f"     {formatf(varia_rank,'9.3')}         {formatf(stdev_rank,'9.3')} \n"
+
+            # inclui o concurso atual como anterior para a proxima iteracao:
+            concursos_anteriores.append(concurso_atual)
+        logger.debug(f"{nmlot}: Ranking de Frequencias da EVOLUTIVA: {output}")
+
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
@@ -208,7 +270,7 @@ class AnaliseFrequencia(AbstractAnalyze):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
-    def evaluate(self, payload) -> float:
+    def evaluate(self, pick) -> float:
         return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

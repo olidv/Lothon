@@ -42,7 +42,8 @@ class AnaliseRecorrencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('recorrencias_tuplas', 'recorrencias_total', 'tamanhos_tuplas')
+    __slots__ = ('recorrencias_tuplas', 'recorrencias_total', 'tamanhos_tuplas',
+                 'concursos_passados', 'max_repeticoes')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -53,8 +54,20 @@ class AnaliseRecorrencia(AbstractAnalyze):
         self.recorrencias_tuplas: dict[str: int] = None
         self.recorrencias_total: dict[int: int] = None
         self.tamanhos_tuplas: Optional[list[int]] = None
+        self.concursos_passados: Optional[list[Concurso]] = None
+        self.max_repeticoes: int = 0
 
     # --- METODOS STATIC -----------------------------------------------------
+
+    @classmethod
+    def count_dezenas_repetidas(cls, bolas1: tuple[int, ...], bolas2: tuple[int, ...]) -> int:
+        # aqui nao precisa validar os parametros:
+        qtd_repete: int = 0
+        for num1 in bolas1:
+            if num1 in bolas2:
+                qtd_repete += 1
+
+        return qtd_repete
 
     @classmethod
     def format_tuple(cls, bolas: tuple[int, ...]) -> str:
@@ -92,6 +105,8 @@ class AnaliseRecorrencia(AbstractAnalyze):
         self.recorrencias_tuplas = None
         self.recorrencias_total = None
         self.tamanhos_tuplas = None
+        self.concursos_passados = None
+        self.max_repeticoes = 0
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -192,6 +207,39 @@ class AnaliseRecorrencia(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Recorrencias Resultantes: {output}")
 
+        # efetua analise evolutiva de todos os concursos de maneira progressiva:
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de recorrencia dos ultimos  100  "
+                     f"concursos da loteria.")
+
+        # formata o cabecalho da impressao do resultado:
+        output: str = f"\n\t CONCURSO"
+        for val in range(0, payload.qtd_bolas_sorteio + 1):
+            output += f"     {val:0>2}"
+        output += f"\n"
+
+        # acumula os concursos passados para cada concurso atual:
+        qtd_concursos_anteriores: int = qtd_concursos - 100
+        concursos_anteriores: list[Concurso] = concursos[:qtd_concursos_anteriores]
+        for concurso_atual in concursos[qtd_concursos_anteriores:]:
+            # zera os contadores de cada recorrencia:
+            dezenas_repetidas: list[int] = self.new_list_int(payload.qtd_bolas_sorteio)
+
+            # calcula a paridade dos concursos passados ate o concurso anterior:
+            for concurso_anterior in concursos_anteriores:
+                vl_repetidas = self.count_dezenas_repetidas(concurso_atual.bolas,
+                                                            concurso_anterior.bolas)
+                dezenas_repetidas[vl_repetidas] += 1
+
+            # printa o resultado do concurso atual:
+            output += f"\t   {formatd(concurso_atual.id_concurso,6)}"
+            for key, value in enumerate(dezenas_repetidas):
+                output += f"  {formatd(value,5)}"
+            output += f"\n"
+
+            # inclui o concurso atual como anterior para a proxima iteracao:
+            concursos_anteriores.append(concurso_atual)
+        logger.debug(f"{nmlot}: Recorrencia de Sorteios da EVOLUTIVA: {output}")
+
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
@@ -202,7 +250,22 @@ class AnaliseRecorrencia(AbstractAnalyze):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
-    def evaluate(self, payload) -> float:
-        return 1.1  # valor temporario
+        # identifica os concursos passados:
+        self.concursos_passados = parms["concursos_passados"]
+        self.max_repeticoes = parms["max_repeticoes"]
+
+    def evaluate(self, pick) -> float:
+        # probabilidade de acerto depende do numero maximo de repeticoes nos concursos anteriores:
+        qt_max_repeticoes: int = 0
+        for concurso in self.concursos_passados:
+            qt_repeticoes: int = self.count_dezenas_repetidas(pick, concurso.bolas)
+            if qt_repeticoes > qt_max_repeticoes:
+                qt_max_repeticoes = qt_repeticoes
+
+        # ignora jogos com muitas repeticoes nos concursos anteriores:
+        if qt_max_repeticoes > self.max_repeticoes:
+            return 0
+        else:
+            return 1.5
 
 # ----------------------------------------------------------------------------

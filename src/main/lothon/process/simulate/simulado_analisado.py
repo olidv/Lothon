@@ -134,25 +134,29 @@ class SimuladoAnalisado(AbstractSimulate):
         else:
             _startWatch = startwatch()
 
+        # identifica informacoes da loteria:
+        nmlot: str = payload.nome_loteria
+        concursos: list[Concurso] = payload.concursos
+        qtd_concursos: int = len(concursos)
+        # qtd_items: int = payload.qtd_bolas_sorteio
+
         # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
         for aproc in self.analise_chain:
             # executa a analise para cada loteria:
             aproc.execute(payload)
 
         # define os parametros para configurar o processamento de 'evaluate()' dos processos:
-        parms: dict[str: Any] = {}  # aplica limites e/ou faixas de corte...
+        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
+            "concursos": concursos,
+            "concursos_passados": concursos[:-100],  # FIXME
+            "max_repeticoes": 5
+        }
 
         # configura cada um dos processos de analise, apos analisarem os sorteios:
         for aproc in self.analise_chain:
             # configuracao de parametros para os processamentos em cada classe de analise:
             logger.debug(f"processo '{aproc.id_process}': configurando parametros de SETUP.")
             aproc.setup(parms)
-
-        # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
-        qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas_sorteio
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
         self.analise_jogos = []
@@ -175,6 +179,10 @@ class SimuladoAnalisado(AbstractSimulate):
             # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
             if vl_metrica > 1:
                 self.analise_jogos.append(jogo)
+
+        logger.debug(f"Numero de jogos nao zerados = {len(self.analise_jogos)}")
+        if True is not None:
+            return 0
 
         # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:
         logger.debug(f"{nmlot}: Executando simulacao de jogos analisados em todos os"

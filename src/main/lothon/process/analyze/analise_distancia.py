@@ -138,12 +138,12 @@ class AnaliseDistancia(AbstractAnalyze):
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza a distancia de cada sorteio dos concursos para exibicao em lista sequencial:
-        output: str = f"\n\t #CONCURSO   DISTANCIA         JOGOS%    #TOTAL CONCURSOS\n"
+        output: str = f"\n\t CONCURSO   DISTANCIA         JOGOS%    #TOTAL CONCURSOS\n"
         for concurso in concursos:
             vl_distancia = self.calc_distancia(concurso.bolas)
             percent = self.distancias_percentos[vl_distancia]
             total = self.distancias_concursos[vl_distancia]
-            output += f"\t     {formatd(concurso.id_concurso,5)}         {formatd(vl_distancia,3)}"\
+            output += f"\t    {formatd(concurso.id_concurso,5)}         {formatd(vl_distancia,3)}"\
                       f"  ...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
 
         # printa o resultado:
@@ -199,7 +199,15 @@ class AnaliseDistancia(AbstractAnalyze):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
-    def evaluate(self, payload) -> float:
-        return 1.1  # valor temporario
+    def evaluate(self, pick) -> float:
+        # probabilidade de acerto depende da distancia entre as dezenas:
+        vl_distancia: int = self.calc_distancia(pick)
+        percent: float = self.distancias_percentos[vl_distancia]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 2:
+            return 0
+        else:
+            return 1 + (percent / 100)
 
 # ----------------------------------------------------------------------------

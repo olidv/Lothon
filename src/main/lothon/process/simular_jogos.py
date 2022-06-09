@@ -42,15 +42,15 @@ loterias_caixa: dict[str: Loteria] = None
 # combinacoes de boloes para todas as faixas vendidas pela caixa.
 boloes_caixa: dict[str: dict[int: int]] = {
     "diadesorte": {8: 60, 9: 15, 10: 5, 11: 2, 12: 1, 13: 1, 14: 1, 15: 1},
-    "lotofacil": {16: 40, 17: 5, 18: 1, 19: 1, 20: 1},
-    "megasena": {7: 50, 8: 12, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
+    # "lotofacil": {16: 40, 17: 5, 18: 1, 19: 1, 20: 1},
+    # "megasena": {7: 50, 8: 12, 9: 4, 10: 2, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
 }
 
 # combinacoes de boloes para gasto diario maximo de R$ 945,00.
 boloes_945: dict[str: dict[int: int]] = {
     "diadesorte": {8: 59, 9: 13, 10: 3, 11: 1},
-    "lotofacil": {16: 23, 17: 2},
-    "megasena": {7: 30, 8: 7, 9: 2, 10: 1}
+    # "lotofacil": {16: 23, 17: 2},
+    # "megasena": {7: 30, 8: 7, 9: 2, 10: 1}
 }
 
 # relacao de processos de simulacao, a serem executados sequencialmente:
@@ -79,8 +79,8 @@ def run():
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa = {
         "diadesorte": domain.get_dia_de_sorte(),
-        "lotofacil": domain.get_lotofacil(),
-        "megasena": domain.get_mega_sena()
+        # "lotofacil": domain.get_lotofacil(),
+        # "megasena": domain.get_mega_sena()
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

@@ -139,12 +139,12 @@ class AnaliseSomatorio(AbstractAnalyze):
                      f"{qtd_concursos:,}  concursos da loteria.")
 
         # contabiliza a somatorio de cada sorteio dos concursos para exibicao em lista sequencial:
-        output: str = f"\n\t #CONCURSO   SOMA         JOGOS%    #TOTAL CONCURSOS\n"
+        output: str = f"\n\t CONCURSO   SOMA         JOGOS%    #TOTAL CONCURSOS\n"
         for concurso in concursos:
             soma_dezenas = self.soma_dezenas(concurso.bolas)
             percent = self.somatorios_percentos[soma_dezenas]
             total = self.somatorios_concursos[soma_dezenas]
-            output += f"\t     {formatd(concurso.id_concurso,5)}    {formatd(soma_dezenas,3)}  " \
+            output += f"\t    {formatd(concurso.id_concurso,5)}    {formatd(soma_dezenas,3)}  " \
                       f"...  {formatf(percent,'7.3')}%    #{formatd(total)}\n"
 
         # printa o resultado:
@@ -160,7 +160,15 @@ class AnaliseSomatorio(AbstractAnalyze):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
-    def evaluate(self, payload) -> float:
-        return 1.1  # valor temporario
+    def evaluate(self, pick) -> float:
+        # probabilidade de acerto depende do somatorio das dezenas do jogo:
+        vl_somatorio: int = self.soma_dezenas(pick)
+        percent: float = self.somatorios_percentos[vl_somatorio]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 0.1:
+            return 0
+        else:
+            return 1 + (percent / 100)
 
 # ----------------------------------------------------------------------------

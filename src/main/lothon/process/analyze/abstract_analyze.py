@@ -46,7 +46,7 @@ class AbstractAnalyze(AbstractProcess, ABC):
         pass
 
     @abstractmethod
-    def evaluate(self, payload) -> float:
+    def evaluate(self, pick) -> float:
         pass
 
     # --- METODOS STATIC -----------------------------------------------------

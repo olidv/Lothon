@@ -238,7 +238,15 @@ class AnaliseEspacamento(AbstractAnalyze):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
-    def evaluate(self, payload) -> float:
-        return 1.1  # valor temporario
+    def evaluate(self, pick) -> float:
+        # probabilidade de acerto depende do numero de pares no jogo:
+        vl_espacamento = self.calc_espacada(pick)
+        percent: float = self.espacamentos_percentos[vl_espacamento]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            return 0
+        else:
+            return 1 + (percent / 100)
 
 # ----------------------------------------------------------------------------
