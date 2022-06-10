@@ -107,7 +107,7 @@ class AnaliseEspacamento(AbstractAnalyze):
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
-        logger.debug(f"{nmlot}: Executando analise de espacamento dos  "
+        logger.debug(f"{nmlot}: Executando analise de espacamento medio dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # zera os contadores de cada espacada:
@@ -130,7 +130,7 @@ class AnaliseEspacamento(AbstractAnalyze):
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
 
         # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
-        logger.debug(f"{nmlot}: Executando analise TOTAL de espacamento dos  "
+        logger.debug(f"{nmlot}: Executando analise TOTAL de espacamento medio dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula o espacamento de cada sorteio dos concursos:
@@ -149,8 +149,8 @@ class AnaliseEspacamento(AbstractAnalyze):
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
 
         # efetua analise de frequencia de todos os espacamentos dos sorteios da loteria:
-        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de espacamentos "
-                     f"nos  {formatd(qtd_concursos)}  concursos da loteria.")
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de espacamentos medios "
+                     f"dos  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores de frequencias e atrasos dos espacamentos:
         self.frequencias_espacamentos = self.new_list_series(qtd_items)
@@ -186,10 +186,10 @@ class AnaliseEspacamento(AbstractAnalyze):
                       f"{formatf(serie.median_atraso,'7.1')}   " \
                       f"{formatf(serie.varia_atraso,'9.1')}         " \
                       f"{formatf(serie.stdev_atraso,'7.1')} \n"
-        logger.debug(f"{nmlot}: FREQUENCIA de Espacamentos Resultantes: {output}")
+        logger.debug(f"{nmlot}: FREQUENCIA de Espacamentos Medios Resultantes: {output}")
 
         # efetua analise evolutiva de todos os concursos de maneira progressiva:
-        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de espacamento dos  "
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de espacamento medio dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
         # calcula espacamentos de cada evolucao de concurso:
@@ -247,6 +247,6 @@ class AnaliseEspacamento(AbstractAnalyze):
         if percent < 5:
             return 0
         else:
-            return 1 + (percent / 100)
+            return to_fator(percent)
 
 # ----------------------------------------------------------------------------

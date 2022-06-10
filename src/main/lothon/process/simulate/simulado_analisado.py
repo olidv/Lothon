@@ -149,7 +149,7 @@ class SimuladoAnalisado(AbstractSimulate):
         parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
             "concursos": concursos,
             "concursos_passados": concursos[:-100],  # FIXME
-            "max_repeticoes": 5
+            "id_ultimo_concurso": concursos[-1].id_concurso,
         }
 
         # configura cada um dos processos de analise, apos analisarem os sorteios:

@@ -52,24 +52,25 @@ class AbstractAnalyze(AbstractProcess, ABC):
     # --- METODOS STATIC -----------------------------------------------------
 
     @classmethod
-    def new_list_int(cls, qtd_items: int) -> list[int]:
-        list_zerado: list[int] = [0] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+    def new_list_int(cls, qtd_items: int, valor: int = 0) -> list[int]:
+        list_zerado: list[int] = [valor] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
 
         return list_zerado
 
     @classmethod
-    def new_list_float(cls, qtd_items: int) -> list[float]:
-        list_zerado: list[float] = [0.0] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+    def new_list_float(cls, qtd_items: int, valor: float = 0.0) -> list[float]:
+        list_zerado: list[float] = [valor] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
 
         return list_zerado
 
     @classmethod
-    def new_list_series(cls, qtd_items: int) -> list[SerieSorteio | None]:
+    def new_list_series(cls, qtd_items: int,
+                        valor: SerieSorteio = None) -> list[SerieSorteio | None]:
         # valida os parametros:
         if qtd_items is None or qtd_items == 0:
             return []
 
-        bolas: list[SerieSorteio | None] = [None] * (qtd_items + 1)  # +1 para ignorar zero-index
+        bolas: list[SerieSorteio | None] = [valor] * (qtd_items + 1)  # +1 para ignorar zero-index
         for i in range(0, qtd_items+1):
             bolas[i] = SerieSorteio(i)
 

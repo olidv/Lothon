@@ -208,6 +208,6 @@ class AnaliseDistancia(AbstractAnalyze):
         if percent < 2:
             return 0
         else:
-            return 1 + (percent / 100)
+            return to_fator(percent)
 
 # ----------------------------------------------------------------------------

@@ -50,6 +50,8 @@ class Quina(Loteria):
         bolas: tuple[int, ...] = (int(td[2].text), int(td[3].text),
                                   int(td[4].text), int(td[5].text),
                                   int(td[6].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {5: Premio(5, int(td[8].text), parse_money(td[10].text)),
                                       4: Premio(4, int(td[11].text), parse_money(td[12].text)),

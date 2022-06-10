@@ -12,6 +12,7 @@ __all__ = [
     'str_to_bool',
     'to_bool',
     'strip_accents',
+    'to_fator',
     'parse_money',
     'parse_dmy',
     'formatd',
@@ -163,6 +164,10 @@ def strip_accents(text) -> str:
     text = text.decode("utf-8")
 
     return str(text)
+
+
+def to_fator(percent: float) -> float:
+    return 1 + (percent / 100)
 
 
 # ----------------------------------------------------------------------------

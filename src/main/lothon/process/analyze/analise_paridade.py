@@ -240,6 +240,6 @@ class AnaliseParidade(AbstractAnalyze):
         if percent < 10:
             return 0
         else:
-            return 1 + (percent / 100)
+            return to_fator(percent)
 
 # ----------------------------------------------------------------------------

@@ -169,6 +169,6 @@ class AnaliseSomatorio(AbstractAnalyze):
         if percent < 0.1:
             return 0
         else:
-            return 1 + (percent / 100)
+            return to_fator(percent)
 
 # ----------------------------------------------------------------------------

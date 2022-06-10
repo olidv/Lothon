@@ -55,6 +55,8 @@ class Lotofacil(Loteria):
                                   int(td[12].text), int(td[13].text),
                                   int(td[14].text), int(td[15].text),
                                   int(td[16].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {15: Premio(15, int(td[18].text), parse_money(td[24].text)),
                                       14: Premio(14, int(td[20].text), parse_money(td[25].text)),

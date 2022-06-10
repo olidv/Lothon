@@ -57,6 +57,8 @@ class Lotomania(Loteria):
                                   int(td[16].text), int(td[17].text),
                                   int(td[18].text), int(td[19].text),
                                   int(td[20].text), int(td[21].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {20: Premio(20, int(td[23].text), parse_money(td[31].text)),
                                       19: Premio(19, int(td[26].text), parse_money(td[32].text)),

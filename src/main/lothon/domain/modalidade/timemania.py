@@ -51,6 +51,8 @@ class Timemania(Loteria):
                                   int(td[4].text), int(td[5].text),
                                   int(td[6].text), int(td[7].text),
                                   int(td[8].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {7: Premio(7, int(td[11].text), parse_money(td[18].text)),
                                       6: Premio(6, int(td[13].text), parse_money(td[19].text)),

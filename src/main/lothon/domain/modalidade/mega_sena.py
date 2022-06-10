@@ -50,6 +50,8 @@ class MegaSena(Loteria):
         bolas: tuple[int, ...] = (int(td[2].text), int(td[3].text),
                                   int(td[4].text), int(td[5].text),
                                   int(td[6].text), int(td[7].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {6: Premio(6, int(td[8].text), parse_money(td[11].text)),
                                       5: Premio(5, int(td[9].text), parse_money(td[12].text)),

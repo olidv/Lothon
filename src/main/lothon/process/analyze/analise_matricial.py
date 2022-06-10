@@ -214,6 +214,6 @@ class AnaliseMatricial(AbstractAnalyze):
         if percent_col < 9 or percent_lin < 5:
             return 0
         else:
-            return (1 + (percent_col / 100)) * (1 + (percent_lin / 100))
+            return to_fator(percent_col) * to_fator(percent_lin)
 
 # ----------------------------------------------------------------------------

@@ -54,6 +54,9 @@ class DuplaSena(Loteria):
         bolas2: tuple[int, ...] = (int(td[20].text), int(td[21].text),
                                    int(td[22].text), int(td[23].text),
                                    int(td[24].text), int(td[25].text))
+        # garante a ordenacao das bolas:
+        bolas1 = tuple(sorted(bolas1))
+        bolas2 = tuple(sorted(bolas2))
 
         premios1: dict[int, Premio] = {6: Premio(6, int(td[9].text), parse_money(td[11].text)),
                                        5: Premio(5, int(td[14].text), parse_money(td[15].text)),

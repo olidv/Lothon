@@ -51,6 +51,8 @@ class DiaDeSorte(Loteria):
                                   int(td[5].text), int(td[6].text),
                                   int(td[7].text), int(td[8].text),
                                   int(td[9].text))
+        # garante a ordenacao das bolas:
+        bolas = tuple(sorted(bolas))
 
         premios: dict[int, Premio] = {7: Premio(7, int(td[11].text), parse_money(td[16].text)),
                                       6: Premio(6, int(td[12].text), parse_money(td[17].text)),

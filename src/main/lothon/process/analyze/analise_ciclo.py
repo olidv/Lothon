@@ -170,6 +170,6 @@ class AnaliseCiclo(AbstractAnalyze):
         self.set_options(parms)
 
     def evaluate(self, payload) -> float:
-        return 1.1  # valor temporario
+        return 1.0  # valor temporario
 
 # ----------------------------------------------------------------------------

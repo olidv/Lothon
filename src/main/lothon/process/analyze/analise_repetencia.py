@@ -54,6 +54,7 @@ class AnaliseRepetencia(AbstractAnalyze):
         self.repetencias_percentos: Optional[list[float]] = None
         self.repetencias_series: Optional[list[SerieSorteio]] = None
         self.frequencias_repetencias: Optional[list[SerieSorteio | None]] = None
+        # estruturas para avaliacao de jogo combinado da loteria:
         self.concurso_anterior: Optional[Concurso] = None
 
     # --- METODOS STATIC -----------------------------------------------------
@@ -223,6 +224,6 @@ class AnaliseRepetencia(AbstractAnalyze):
         if percent < 10:
             return 0
         else:
-            return 1 + (percent / 100)
+            return to_fator(percent)
 
 # ----------------------------------------------------------------------------
