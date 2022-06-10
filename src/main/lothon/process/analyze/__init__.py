@@ -50,23 +50,23 @@ def get_process_chain() -> list[AbstractAnalyze]:
     global _process_chain
     if len(_process_chain) == 0:
         # inicia pelas analises que podem ser feitas de forma mais simples:
-        _process_chain.append(AnaliseMatricial())    # 0:00:32
-        _process_chain.append(AnaliseParidade())     # 0:00:32
-        _process_chain.append(AnaliseSequencia())    # 0:00:47
-        _process_chain.append(AnaliseRepetencia())   # 0:00:24
-        _process_chain.append(AnaliseSomatorio())    # 0:00:11
-        _process_chain.append(AnaliseDistancia())    # 0:00:40
-        _process_chain.append(AnaliseEspacamento())  # 0:01:03
-        _process_chain.append(AnaliseRecorrencia())  # 0:00:31
-        _process_chain.append(AnaliseOrdinal())      # 0:00:32
+        # _process_chain.append(AnaliseMatricial())    # 0:00:32
+        # _process_chain.append(AnaliseParidade())     # 0:00:32
+        # _process_chain.append(AnaliseSequencia())    # 0:00:47
+        # _process_chain.append(AnaliseSomatorio())    # 0:00:11
+        # _process_chain.append(AnaliseDistancia())    # 0:00:40
+        # _process_chain.append(AnaliseEspacamento())  # 0:01:03
+        # _process_chain.append(AnaliseOrdinal())      # 0:00:32
+        # _process_chain.append(AnaliseRepetencia())   # 0:00:24
+        # _process_chain.append(AnaliseRecorrencia())  # 0:00:31
 
-        _process_chain.append(AnaliseFrequencia())   # 0:00:00
+        # _process_chain.append(AnaliseFrequencia())   # 0:00:00
         _process_chain.append(AnaliseDispersao())    # 0:00:00
-        _process_chain.append(AnaliseCiclo())        # 0:00:00
-        _process_chain.append(AnaliseNumerologia())  # 0:00:08
-        _process_chain.append(AnaliseColunario())    # 0:00:45
-        _process_chain.append(AnaliseDecenario())    # 0:00:45
-        _process_chain.append(AnaliseSemanal())      # 0:00:00
+        # _process_chain.append(AnaliseCiclo())        # 0:00:00
+        # _process_chain.append(AnaliseNumerologia())  # 0:00:08
+        # _process_chain.append(AnaliseColunario())    # 0:00:45
+        # _process_chain.append(AnaliseDecenario())    # 0:00:45
+        # _process_chain.append(AnaliseSemanal())      # 0:00:00
 
     return _process_chain
 

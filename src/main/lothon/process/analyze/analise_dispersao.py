@@ -152,7 +152,7 @@ class AnaliseDispersao(AbstractAnalyze):
                      f"sorteadas em TODOS os  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # inicializa o print de resultado dos contadores de frequencias:
-        output: str = f"\n\t CONCURSO  VARIANCIAS:   FREQUENCIAS    ATRASOS    ESPACOS\n"
+        output: str = f"\n\t CONCURSO    VARIANCIAS    FREQUENCIAS    ATRASOS    ESPACOS\n"
 
         # contabiliza as variancias das dezenas em todos os sorteios ja realizados:
         for concurso in concursos:
@@ -161,12 +161,14 @@ class AnaliseDispersao(AbstractAnalyze):
             list_espacos: list[int] = self.list_espacos(concurso.bolas)
 
             # calcula as medidas estatisticas de dispersao:
+            varia_dezenas: float = stts.pstdev(concurso.bolas)
             varia_frequencia: float = stts.pstdev(list_frequencias)
             varia_atrasos: float = stts.pstdev(list_atrasos)
             varia_espacos: float = stts.pstdev(list_espacos)
 
             # formata os valores para o concurso atual:
-            output += f"\t    {formatd(concurso.id_concurso,5)}  ...........     " \
+            output += f"\t    {formatd(concurso.id_concurso,5)}     " \
+                      f"{formatf(varia_dezenas,'9.2')}      " \
                       f"{formatf(varia_frequencia,'9.2')}  " \
                       f"{formatf(varia_atrasos,'9.2')}  " \
                       f"{formatf(varia_espacos,'9.2')}\n"
