@@ -44,7 +44,7 @@ class ComputeParidade(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('paridades_jogos', 'paridades_percentos', 'paridades_concursos',
-                 'frequencias_paridades')
+                 'frequencias_paridades', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -56,6 +56,11 @@ class ComputeParidade(AbstractCompute):
         self.paridades_percentos: Optional[list[float]] = None
         self.paridades_concursos: Optional[list[int]] = None
         self.frequencias_paridades: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
+
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -117,10 +122,6 @@ class ComputeParidade(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
     def evaluate(self, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de pares no jogo:
         qt_pares: int = cb.count_pares(jogo)
@@ -128,6 +129,7 @@ class ComputeParidade(AbstractCompute):
 
         # ignora valores muito baixos de probabilidade:
         if percent < 10:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)

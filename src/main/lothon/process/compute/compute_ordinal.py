@@ -44,21 +44,27 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('ordinais_concursos', 'ordinais_percentos', 'parciais_concursos',
-                 'qtd_jogos', 'vl_ultimo_ordinal')
+                 'fracoes_concursos', 'qtd_jogos', 'vl_ultimo_ordinal', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Analise Ordinal dos Sorteios")
+        super().__init__("Computacao Ordinal dos Sorteios")
 
         # estruturas para a coleta de dados a partir do processamento de analise:
         self.ordinais_concursos: Optional[list[int]] = None
-        self.ordinais_percentos: Optional[list[float]] = None
         self.parciais_concursos: Optional[list[int]] = None
+        self.fracoes_concursos: Optional[list[int]] = None
+        self.ordinais_percentos: Optional[list[float]] = None
 
         # estruturas para avaliacao de jogo combinado da loteria:
         self.qtd_jogos: Optional[int] = None
         self.vl_ultimo_ordinal: Optional[int] = None
+        self.qtd_zerados: int = 0
+
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -73,6 +79,7 @@ class ComputeOrdinal(AbstractCompute):
         nmlot: str = payload.nome_loteria
         self.qtd_jogos = payload.qtd_jogos
         concursos: list[Concurso] = payload.concursos
+        ultimo_concurso: Concurso = concursos[-1]
         qtd_concursos: int = len(concursos)
         qtd_items: int = qtd_concursos
 
@@ -83,8 +90,6 @@ class ComputeOrdinal(AbstractCompute):
             sorteios_literal[bolas_str] = concurso.id_concurso
 
         # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada ordinal:
         self.ordinais_concursos = cb.new_list_int(qtd_items)
         self.parciais_concursos = cb.new_list_int(self.qtd_jogos // 100000)
 
@@ -101,21 +106,27 @@ class ComputeOrdinal(AbstractCompute):
                 self.ordinais_concursos[id_concurso] = ordinal_jogo
                 self.parciais_concursos[ordinal_jogo // 100000] += 1
 
-        # zera os contadores de cada faixa percentual de ordinal abaixo:
-        self.ordinais_percentos = cb.new_list_int(9)
+        # salva o ordinal do ultimo concurso para o EVALUATE posterior:
+        self.vl_ultimo_ordinal = self.ordinais_concursos[ultimo_concurso.id_concurso]
 
         # calcula o diferencial em percentual entre o concurso e os demais abaixo e acima:
+        self.fracoes_concursos = cb.new_list_int(9)
         vl_ordinal_anterior: int = self.ordinais_concursos[1]  # ordinal do primeiro concurso
         for concurso in concursos:
             idx: int = concurso.id_concurso
             # verifica o ordinal do concurso atual e diferenca com ordinal do anterior:
             vl_ordinal_atual: int = self.ordinais_concursos[idx]  # esta sincronizado com concursos
             dif_ordinal_anterior: int = abs(vl_ordinal_atual - vl_ordinal_anterior)
-            dif_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100)
-            self.ordinais_percentos[dif_percent_abaixo // 10] += 1
+            faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10
+            self.fracoes_concursos[faixa_percent_abaixo] += 1
 
             # atualiza o anterior (atual) para a proxima iteracao:
             vl_ordinal_anterior = vl_ordinal_atual
+
+        # calcula os percentuais de cada fracao diferencial:
+        self.ordinais_percentos = cb.new_list_float(9)
+        for key, value in enumerate(self.fracoes_concursos):
+            self.ordinais_percentos[key] = round((value / qtd_concursos) * 10000) / 100
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
@@ -123,30 +134,15 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
-        # identifica os concursos passados:
-        if "concursos_passados" in parms:
-            concursos_passados: list[Concurso] = parms["concursos_passados"]
-            id_ultimo_concurso: int = concursos_passados[-1].id_concurso
-            self.vl_ultimo_ordinal = self.ordinais_concursos[id_ultimo_concurso]
-
     def evaluate(self, jogo: tuple) -> float:
         ordinal: int = jogo[0]  # apenas foi passado o ordinal do jogo, ainda que como tupla[int]
         dif_ordinal_anterior: int = abs(ordinal - self.vl_ultimo_ordinal)
-
-        # print("ordinal =", ordinal)
-        # print("self.vl_ultimo_ordinal =", self.vl_ultimo_ordinal)
-        # print("dif_ordinal_anterior =", dif_ordinal_anterior)
-        # print("self.qtd_jogos =", self.qtd_jogos)
-
-        faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100)
-        percent: float = self.ordinais_percentos[faixa_percent_abaixo // 10]
+        faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10
+        percent: float = self.ordinais_percentos[faixa_percent_abaixo]
 
         # ignora valores muito baixos de probabilidade:
         if percent < 5:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)

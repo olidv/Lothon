@@ -50,7 +50,7 @@ class ComputeSemanal(AbstractCompute):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Analise Semanal de Premiacoes")
+        super().__init__("Computacao Semanal de Premiacoes")
 
         # estrutura para a coleta de dados a partir do processamento de analise:
         self.semanal_premiacoes: Optional[list[int]] = None

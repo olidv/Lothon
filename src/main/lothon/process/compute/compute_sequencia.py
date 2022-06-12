@@ -44,7 +44,7 @@ class ComputeSequencia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('sequencias_jogos', 'sequencias_percentos', 'sequencias_concursos',
-                 'frequencias_sequencias')
+                 'frequencias_sequencias', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -56,6 +56,7 @@ class ComputeSequencia(AbstractCompute):
         self.sequencias_percentos: Optional[list[float]] = None
         self.sequencias_concursos: Optional[list[int]] = None
         self.frequencias_sequencias: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -124,6 +125,7 @@ class ComputeSequencia(AbstractCompute):
 
         # ignora valores muito baixos de probabilidade:
         if percent < 9:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)

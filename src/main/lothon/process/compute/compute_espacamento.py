@@ -44,7 +44,7 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos',
-                 'frequencias_espacamentos')
+                 'frequencias_espacamentos', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -56,6 +56,7 @@ class ComputeEspacamento(AbstractCompute):
         self.espacamentos_percentos: Optional[list[float]] = None
         self.espacamentos_concursos: Optional[list[int]] = None
         self.frequencias_espacamentos: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -128,6 +129,7 @@ class ComputeEspacamento(AbstractCompute):
 
         # ignora valores muito baixos de probabilidade:
         if percent < 5:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)

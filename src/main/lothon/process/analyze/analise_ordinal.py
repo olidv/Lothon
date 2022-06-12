@@ -77,10 +77,10 @@ class AnaliseOrdinal(AbstractAnalyze):
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # printa para cada concurso, o respectivo ordinal das combinacoes de jogos da loteria:
-        output: str = f"\n\t ORDEM     PERC%     #CONCURSOS\n"
+        output: str = f"\n\t PARCIAL     PERC%     #CONCURSOS\n"
         for key, value in enumerate(cp.parciais_concursos):
-            percent: float = round((value / qtd_concursos) * 1000) / 10
-            output += f"\t    {key:0>2}    {formatf(percent,'5.1')}% ... {value:,}\n"
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            output += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... {value:,}\n"
         logger.debug(f"{nmlot}: Concursos para cada Ordem de 100mil jogos: {output}")
 
         # calcula o diferencial em percentual entre o concurso e os demais abaixo e acima:
@@ -114,9 +114,9 @@ class AnaliseOrdinal(AbstractAnalyze):
 
         # printa o resultado das faixas de percentuais:
         output: str = f"\n\t ABAIXO%     PERC%     #CONCURSOS\n"
-        for key, value in enumerate(cp.ordinais_percentos):
-            percent: float = round((value / qtd_concursos) * 1000) / 10
-            output += f"\t     {key*10:0>2}%    {formatf(percent,'5.1')}% ... {value:,}\n"
+        for key, value in enumerate(cp.fracoes_concursos):
+            percent: float = cp.ordinais_percentos[key]
+            output += f"\t     {key*10:0>2}%   {formatf(percent,'6.2')}% ... {value:,}\n"
         logger.debug(f"{nmlot}: Concursos para cada faixa de ordinais: {output}")
 
         _stopWatch = stopwatch(_startWatch)

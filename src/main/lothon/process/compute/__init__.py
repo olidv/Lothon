@@ -52,15 +52,15 @@ def get_process_chain() -> list[AbstractCompute]:
         # inicia pelas computacoes que podem ser feitas de forma mais simples:
 
         # teste com busca no dict:
-        _process_chain.append(ComputeOrdinal())      # 0:00:
-        _process_chain.append(ComputeParidade())     # 0:00:
-        _process_chain.append(ComputeSequencia())    # 0:00:
-        _process_chain.append(ComputeEspacamento())  # 0:00:
-        _process_chain.append(ComputeDistancia())    # 0:00:
-        _process_chain.append(ComputeSomatorio())    # 0:00:
-        _process_chain.append(ComputeMatricial())    # 0:00:
-        _process_chain.append(ComputeRepetencia())   # 0:00:
-        _process_chain.append(ComputeRecorrencia())  # 0:00:
+        _process_chain.append(ComputeOrdinal())      # 0:00:-31s
+        _process_chain.append(ComputeParidade())     # 0:00:-01s
+        _process_chain.append(ComputeSequencia())    # 0:00:-23s
+        _process_chain.append(ComputeEspacamento())  # 0:00:-03s
+        _process_chain.append(ComputeDistancia())    # 0:00:-13s
+        _process_chain.append(ComputeSomatorio())    # 0:00:+06s
+        _process_chain.append(ComputeMatricial())    # 0:00:-22s
+        _process_chain.append(ComputeRepetencia())   # 0:00:-04s
+        # _process_chain.append(ComputeRecorrencia())  # 0:00:+25m
 
         # ignora estes processos que ainda nao possuem rotina de evaluate:
         # _process_chain.append(ComputeFrequencia())   # 0:00:

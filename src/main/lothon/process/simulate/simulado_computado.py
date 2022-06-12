@@ -133,6 +133,19 @@ class SimuladoComputado(AbstractSimulate):
         qtd_concursos: int = len(concursos)
         # qtd_items: int = payload.qtd_bolas_sorteio
 
+        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
+        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
+            # "concursos_passados": concursos[:-100],  # FIXME
+            # "concursos": concursos,
+            # "id_ultimo_concurso": concursos[-1].id_concurso,
+        }
+        # configura cada um dos processos de calculo-evaluate, apos computarem os sorteios:
+        logger.debug("Configurando a cadeia de processos para computacao de jogos.")
+        for cproc in self.compute_chain:
+            # configuracao de parametros para os processamentos em cada classe de analise:
+            logger.debug(f"Processo '{cproc.id_process}': configurando parametros de SETUP...")
+            cproc.setup(parms)
+
         # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
         logger.debug("Executando o processamento das loterias para computacao de jogos.")
         for cproc in self.compute_chain:
@@ -145,20 +158,6 @@ class SimuladoComputado(AbstractSimulate):
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
         logger.debug(f"{nmlot}: Executando analise EVALUATE dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
-
-        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
-        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
-            "concursos_passados": concursos[:-100],  # FIXME
-            # "concursos": concursos,
-            # "id_ultimo_concurso": concursos[-1].id_concurso,
-        }
-
-        # configura cada um dos processos de analise, apos analisarem os sorteios:
-        logger.debug("Configurando a cadeia de processos para computacao de jogos.")
-        for cproc in self.compute_chain:
-            # configuracao de parametros para os processamentos em cada classe de analise:
-            logger.debug(f"Processo '{cproc.id_process}': configurando parametros de SETUP...")
-            cproc.setup(parms)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
         logger.debug("Processando EVALUATE de todas as combinacoes de jogos...")
@@ -180,6 +179,8 @@ class SimuladoComputado(AbstractSimulate):
                 self.compute_jogos.append(jogo)
 
         logger.debug(f"Numero de jogos nao zerados = {len(self.compute_jogos)}")
+        for cproc in self.compute_chain:  # pula o primeiro, Ordinal, que ja foi executado
+            logger.debug(f"{cproc.id_process}: Jogos zerados = {cproc.qtd_zerados:,}")
         if True is not None:
             return 0
 

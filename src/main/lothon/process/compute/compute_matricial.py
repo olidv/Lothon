@@ -44,12 +44,12 @@ class ComputeMatricial(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('colunas_jogos', 'colunas_percentos', 'colunas_concursos',
-                 'linhas_jogos', 'linhas_percentos', 'linhas_concursos')
+                 'linhas_jogos', 'linhas_percentos', 'linhas_concursos', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Analise Matricial dos Concursos")
+        super().__init__("Computacao Matricial dos Concursos")
 
         # estruturas para a coleta de dados a partir do processamento de analise:
         self.colunas_jogos: Optional[list[int]] = None
@@ -58,6 +58,7 @@ class ComputeMatricial(AbstractCompute):
         self.linhas_jogos: Optional[list[int]] = None
         self.linhas_percentos: Optional[list[float]] = None
         self.linhas_concursos: Optional[list[int]] = None
+        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -138,6 +139,7 @@ class ComputeMatricial(AbstractCompute):
 
         # ignora valores muito baixos de probabilidade:
         if percent_col < 9 or percent_lin < 5:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent_col) * to_fator(percent_lin)

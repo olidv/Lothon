@@ -43,7 +43,7 @@ class ComputeRecorrencia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('recorrencias_concursos', 'recorrencias_percentos',
-                 'concursos_passados')
+                 'concursos_passados', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -56,6 +56,11 @@ class ComputeRecorrencia(AbstractCompute):
 
         # estruturas para avaliacao de jogo combinado da loteria:
         self.concursos_passados: Optional[list[Concurso]] = None
+        self.qtd_zerados: int = 0
+
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -71,6 +76,9 @@ class ComputeRecorrencia(AbstractCompute):
         concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
         qtd_items: int = payload.qtd_bolas_sorteio
+
+        # salva os concursos analisados ate o momento para o EVALUATE posterior:
+        self.concursos_passados = concursos
 
         # contabiliza o maximo de repeticoes das dezenas de cada sorteio dos concursos:
         self.recorrencias_concursos = cb.new_list_int(qtd_items)
@@ -91,13 +99,6 @@ class ComputeRecorrencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
-        # identifica os concursos passados:
-        self.concursos_passados = parms["concursos_passados"]
-
     def evaluate(self, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero maximo de repeticoes nos concursos anteriores:
         qt_max_repeticoes: int = cb.max_recorrencias(jogo, self.concursos_passados)
@@ -105,6 +106,7 @@ class ComputeRecorrencia(AbstractCompute):
 
         # ignora valores muito baixos de probabilidade:
         if percent < 10:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)

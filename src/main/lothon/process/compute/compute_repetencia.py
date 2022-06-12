@@ -43,7 +43,7 @@ class ComputeRepetencia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('repetencias_concursos', 'repetencias_percentos', 'repetencias_series',
-                 'frequencias_repetencias', 'ultimo_concurso')
+                 'frequencias_repetencias', 'ultimo_sorteio', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -55,9 +55,14 @@ class ComputeRepetencia(AbstractCompute):
         self.repetencias_percentos: Optional[list[float]] = None
         self.repetencias_series: Optional[list[SerieSorteio]] = None
         self.frequencias_repetencias: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
 
         # estruturas para avaliacao de jogo combinado da loteria:
-        self.ultimo_concurso: Optional[Concurso] = None
+        self.ultimo_sorteio: Optional[tuple[int, ...]] = None
+
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -71,8 +76,12 @@ class ComputeRepetencia(AbstractCompute):
         # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
         concursos: list[Concurso] = payload.concursos
+        ultimo_concurso: Concurso = concursos[-1]
         qtd_concursos: int = len(concursos)
         qtd_items: int = payload.qtd_bolas_sorteio
+
+        # salva o sorteio do ultimo concurso para o EVALUATE posterior:
+        self.ultimo_sorteio = ultimo_concurso.bolas
 
         # zera os contadores de cada repetencia:
         self.repetencias_concursos = cb.new_list_int(qtd_items)
@@ -101,7 +110,6 @@ class ComputeRepetencia(AbstractCompute):
             serie.update_stats()
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso = concursos[-1]
         for serie in self.frequencias_repetencias[1:]:
             # vai aproveitar e contabilizar as medidas estatisticas para a bola:
             serie.last_sorteio(ultimo_concurso.id_concurso)
@@ -112,23 +120,14 @@ class ComputeRepetencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
-        # identifica os concursos passados:
-        if "concursos_passados" in parms:
-            concursos_passados: list[Concurso] = parms["concursos_passados"]
-            # identifica o ultimo concurso, que sera considerado o concurso anterior:
-            self.ultimo_concurso = concursos_passados[-1]
-
     def evaluate(self, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de repeticoes no jogo:
-        qt_dezenas_repetidas: int = cb.count_dezenas_repetidas(jogo, self.ultimo_concurso.bolas)
+        qt_dezenas_repetidas: int = cb.count_dezenas_repetidas(jogo, self.ultimo_sorteio)
         percent: float = self.repetencias_percentos[qt_dezenas_repetidas]
 
         # ignora valores muito baixos de probabilidade:
         if percent < 10:
+            self.qtd_zerados += 1
             return 0
         else:
             return to_fator(percent)
