@@ -1,5 +1,5 @@
 """
-   Package lothon.process
+   Package lothon.process.analyze
    Module  analise_repetencia.py
 
 """
@@ -13,14 +13,14 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from typing import Optional
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process.compute.compute_repetencia import ComputeRepetencia
 
 
 # ----------------------------------------------------------------------------
@@ -41,61 +41,18 @@ class AnaliseRepetencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('repetencias_concursos', 'repetencias_percentos', 'repetencias_series',
-                 'frequencias_repetencias', 'concurso_anterior')
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Repetencia do Ultimo Concurso")
 
-        # estruturas para a coleta de dados a partir do processamento de analise:
-        self.repetencias_concursos: Optional[list[int]] = None
-        self.repetencias_percentos: Optional[list[float]] = None
-        self.repetencias_series: Optional[list[SerieSorteio]] = None
-        self.frequencias_repetencias: Optional[list[SerieSorteio | None]] = None
-        # estruturas para avaliacao de jogo combinado da loteria:
-        self.concurso_anterior: Optional[Concurso] = None
-
-    # --- METODOS STATIC -----------------------------------------------------
-
-    @classmethod
-    def count_dezenas_repetidas(cls, bolas1: tuple[int, ...], bolas2: tuple[int, ...]) -> int:
-        # aqui nao precisa validar os parametros:
-        qtd_repete: int = 0
-        for num1 in bolas1:
-            if num1 in bolas2:
-                qtd_repete += 1
-
-        return qtd_repete
-
-    @classmethod
-    def count_repeticoes(cls, bolas1: tuple[int, ...], bolas2: tuple[int, ...],
-                         dezenas: list[SerieSorteio], id_concurso: int) -> int:
-        # valida os parametros:
-        if bolas1 is None or len(bolas1) == 0 or bolas2 is None or len(bolas2) == 0:
-            return 0
-
-        qtd_repete: int = 0
-        for num1 in bolas1:
-            if num1 in bolas2:
-                qtd_repete += 1
-                dezenas[num1].add_sorteio(id_concurso)
-
-        return qtd_repete
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
-
-    def init(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().init(parms)
-
-        # inicializa as estruturas de coleta de dados:
-        self.repetencias_concursos = None
-        self.repetencias_percentos = None
-        self.repetencias_series = None
-        self.frequencias_repetencias = None
-        self.concurso_anterior = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -108,35 +65,20 @@ class AnaliseRepetencia(AbstractAnalyze):
         nmlot: str = payload.nome_loteria
         concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = payload.qtd_bolas_sorteio
+
+        # inicializa componente para computacao dos sorteios da loteria:
+        cp = ComputeRepetencia()
+        cp.execute(payload)
 
         # efetua analise de repetencias de todos os sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de TODAS repetencias nos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
-        # zera os contadores de cada repetencia:
-        self.repetencias_concursos = self.new_list_int(qtd_items)
-        self.repetencias_percentos = self.new_list_float(qtd_items)
-        self.repetencias_series = self.new_list_series(qtd_items)
-        self.repetencias_series[0] = SerieSorteio(0)  # neste caso especifico tem a repetencia zero
-        self.frequencias_repetencias = self.new_list_series(payload.qtd_bolas)
-
-        # contabiliza repetencias de cada sorteio com todos o sorteio anterior:
-        concurso_anterior: Concurso = concursos[0]
-        for concurso in concursos[1:]:
-            qt_repeticoes: int = self.count_repeticoes(concurso.bolas,
-                                                       concurso_anterior.bolas,
-                                                       self.frequencias_repetencias,
-                                                       concurso.id_concurso)
-            self.repetencias_concursos[qt_repeticoes] += 1
-            self.repetencias_series[qt_repeticoes].add_sorteio(concurso.id_concurso)
-            concurso_anterior = concurso
-
-        # printa o resultado:
+        # printa as repetencias de cada sorteio com todos o sorteio anterior:
         output: str = f"\n\t  ? REPETE    PERC%     #TOTAL\n"
-        for key, value in enumerate(self.repetencias_concursos):
-            percent: float = round((value / qtd_concursos) * 10000) / 100
-            self.repetencias_percentos[key] = percent
+        for key, value in enumerate(cp.repetencias_concursos):
+            percent: float = cp.repetencias_percentos[key]
             output += f"\t {formatd(key,2)} repete: {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Repetencias Resultantes: {output}")
@@ -145,15 +87,11 @@ class AnaliseRepetencia(AbstractAnalyze):
         logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de repetencias"
                      f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
-        # contabiliza as medidas estatisticas para cada repetencia:
-        for serie in self.repetencias_series:
-            serie.update_stats()
-
-        # printa o resultado:
+        # printa as medidas estatisticas para cada repetencia:
         output: str = f"\n\tREPETE:   #SORTEIOS   ULTIMO    #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA    " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in self.repetencias_series:
+        for serie in cp.repetencias_series:
             output += f"\t    {formatd(serie.id,2)}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}       " \
@@ -167,24 +105,18 @@ class AnaliseRepetencia(AbstractAnalyze):
                       f"{formatf(serie.gmean_atraso,'7.1')}   " \
                       f"{formatf(serie.median_atraso,'7.1')}  " \
                       f"{formatf(serie.varia_atraso,'11.1')}        " \
-                      f"{formatf(serie.stdev_atraso,'8.1')} \n"
+                      f"{formatf(serie.stdev_atraso,'8.1')}\n"
         logger.debug(f"{nmlot}: FREQUENCIA de Repetencias Resultantes: {output}")
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de frequencia das dezenas repetidas "
                      f"nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
-        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso = concursos[-1]
-        for serie in self.frequencias_repetencias[1:]:
-            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
-            serie.last_sorteio(ultimo_concurso.id_concurso)
-
-        # printa o resultado:
+        # printa as medidas estatisticas para cada dezena/bola:
         output: str = f"\n\t BOLA:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA      MEDIANA    " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in self.frequencias_repetencias[1:]:
+        for serie in cp.frequencias_repetencias[1:]:
             output += f"\t  {formatd(serie.id,3)}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}        " \
@@ -198,32 +130,11 @@ class AnaliseRepetencia(AbstractAnalyze):
                       f"{formatf(serie.gmean_atraso,'7.1')}      " \
                       f"{formatf(serie.median_atraso,'7.1')}  " \
                       f"{formatf(serie.varia_atraso,'11.1')}        " \
-                      f"{formatf(serie.stdev_atraso,'8.1')} \n"
+                      f"{formatf(serie.stdev_atraso,'8.1')}\n"
         logger.debug(f"{nmlot}: Frequencia de Dezenas Repetidas: {output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
-
-    # --- ANALISE DE JOGOS ---------------------------------------------------
-
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        self.set_options(parms)
-
-        # identifica o ultimo concurso, que sera considerado o concurso anterior:
-        concursos: list[Concurso] = parms["concursos"]
-        self.concurso_anterior = concursos[-1]
-
-    def evaluate(self, pick) -> float:
-        # probabilidade de acerto depende do numero de repeticoes no jogo:
-        qt_dezenas_repetidas: int = self.count_dezenas_repetidas(pick, self.concurso_anterior.bolas)
-        percent: float = self.repetencias_percentos[qt_dezenas_repetidas]
-
-        # ignora valores muito baixos de probabilidade:
-        if percent < 10:
-            return 0
-        else:
-            return to_fator(percent)
 
 # ----------------------------------------------------------------------------

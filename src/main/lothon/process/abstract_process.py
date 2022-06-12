@@ -63,19 +63,16 @@ class AbstractProcess(ABC):
 
     def __init__(self, idp: str):
         self.id_process = idp
-        self.options = None
+        self.options = {}
 
     # --- METODOS ------------------------------------------------------------
 
-    def init(self, parms: dict):
-        # inicializa as opcoes de configuracao:
-        self.options = {}
-
+    def setup(self, parms: dict):
         # absorve os parametros fornecidos:
         self.set_options(parms)
 
     @abstractmethod
-    def execute(self, payload) -> int:
+    def execute(self, payload):
         pass
 
 # ----------------------------------------------------------------------------

@@ -1,11 +1,11 @@
 """
-   Package lothon.process.analyze
-   Module  analise_semanal.py
+   Package lothon.process.compute
+   Module  compute_semanal.py
 
 """
 
 __all__ = [
-    'AnaliseSemanal'
+    'ComputeSemanal'
 ]
 
 # ----------------------------------------------------------------------------
@@ -13,14 +13,15 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from typing import Optional
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria
-from lothon.process.analyze.abstract_analyze import AbstractAnalyze
-from lothon.process.compute.compute_semanal import ComputeSemanal
+from lothon.process.compute.abstract_compute import AbstractCompute
 
 
 # ----------------------------------------------------------------------------
@@ -38,18 +39,22 @@ DIAS: tuple[str, ...] = ('Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom')
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseSemanal(AbstractAnalyze):
+class ComputeSemanal(AbstractCompute):
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
+    __slots__ = ('semanal_premiacoes', 'semanal_ganhadores')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise Semanal de Premiacoes")
+
+        # estrutura para a coleta de dados a partir do processamento de analise:
+        self.semanal_premiacoes: Optional[list[int]] = None
+        self.semanal_ganhadores: Optional[list[int]] = None
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -66,31 +71,28 @@ class AnaliseSemanal(AbstractAnalyze):
 
         # identifica informacoes da loteria:
         nmlot: str = payload.nome_loteria
-        qtd_concursos: int = len(payload.concursos)
-        # qt_acertos_premio_maximo: int = min(payload.faixas)  # a menor faixa eh o premio principal
-        # qtd_items: int = 6  # dias da semana onde ocorrem sorteios - vai de 0=Seg, ..., 6=Dom
+        # qtd_concursos: int = len(payload.concursos)
+        qt_acertos_premio_maximo: int = min(payload.faixas)  # a menor faixa eh o premio principal
+        qtd_items: int = 6  # dias da semana onde ocorrem sorteios - vai de 0=Seg, ..., 6=Dom
 
-        # inicializa componente para computacao dos sorteios da loteria:
-        cp = ComputeSemanal()
-        cp.execute(payload)
-
-        # efetua analise de todas as premiacoes dos concursos da loteria:
-        logger.debug(f"{nmlot}: Executando analise semanal de premiacoes de TODOS os  "
-                     f"{formatd(qtd_concursos)}  concursos da loteria.")
-
-        # printa as premiacoes e identifica o dia da semana para cada faixa de premiacao:
-        output: str = f"\n\t DIA   #PREMIACOES    PERC%       #GANHADORES   PARTILHA\n"
-        total: float = sum(cp.semanal_premiacoes)
-        for idx, value in enumerate(cp.semanal_premiacoes):
-            percent: float = 0.0 if total == 0 else round((value / total) * 1000) / 10
-            ganhadores: int = cp.semanal_ganhadores[idx]
-            partilha: float = 0.0 if value == 0 else ganhadores / value
-            output += f"\t {DIAS[idx]}        {formatd(value,6)}   {formatf(percent,'5.1')}%" \
-                      f"   ...      {formatd(ganhadores,6)}      {formatf(partilha,'5.1')}\n"
-        logger.debug(f"{nmlot}: Premiacoes Semanais Resultantes: {output}")
+        # contabiliza as premiacoes e identifica o dia da semana para cada faixa de premiacao:
+        self.semanal_premiacoes = cb.new_list_int(qtd_items)  # vai de 0=Seg, ..., 6=Dom
+        self.semanal_ganhadores = cb.new_list_int(qtd_items)
+        for concurso in payload.concursos:
+            # identifica o numero de ganhadores do premio maximo:
+            qt_ganhadores: int = concurso.get_ganhadores_premio(qt_acertos_premio_maximo)
+            if qt_ganhadores > 0:
+                dia: int = concurso.data_sorteio.weekday()
+                self.semanal_premiacoes[dia] += 1
+                self.semanal_ganhadores[dia] += qt_ganhadores
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
+
+    # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
+
+    def evaluate(self, jogo: tuple) -> float:
+        return 1.0
 
 # ----------------------------------------------------------------------------

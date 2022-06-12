@@ -17,6 +17,7 @@ from typing import Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 import logging
+import math
 
 # Libs/Frameworks modules
 from bs4.element import ResultSet
@@ -51,6 +52,7 @@ class Loteria(ABC):
     tem_bolas: bool
     qtd_bolas: int
     qtd_bolas_sorteio: int
+    qtd_jogos: int = field(init=False)
     dias_sorteio: tuple[int, ...]
     faixas: dict[int, Faixa]
     concursos: Optional[list[Concurso]] = None
@@ -60,9 +62,8 @@ class Loteria(ABC):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __post_init__(self):
+        object.__setattr__(self, 'qtd_jogos', math.comb(self.qtd_bolas, self.qtd_bolas_sorteio))
         object.__setattr__(self, 'sort_index', self.id_loteria)
-        # tambem inicializa estrutura para registro das estatisticas coletaas apos analises:
-        object.__setattr__(self, 'statis', {})
 
     # --- METODOS ------------------------------------------------------------
 

@@ -6,9 +6,6 @@
 """
 
 __all__ = [
-    'numerology',
-    'is_par',
-    'is_impar',
     'str_to_bool',
     'to_bool',
     'strip_accents',
@@ -39,48 +36,6 @@ from typing import Optional
 
 
 locale.setlocale(locale.LC_ALL, '')
-
-
-# ----------------------------------------------------------------------------
-# FUNCOES PARA CALCULOS ESPECIAIS
-# ----------------------------------------------------------------------------
-
-def numerology(numeros: tuple[int, ...]) -> int:
-    # condicao de saida da recursividade:
-    if numeros is None or len(numeros) == 0:
-        return 0
-    elif len(numeros) == 1 and numeros[0] < 10:
-        return numeros[0]
-
-    # calcula a soma os numeros:
-    soma: int = sum(numeros)
-
-    # extrai os digitos da soma:
-    digitos: tuple[int, ...] = ()
-    while soma > 0:
-        digito: int = soma % 10
-        digitos += (digito,)
-        soma = soma // 10
-
-    return numerology(digitos)
-
-
-def is_par(val: int | float) -> bool:
-    if val is None:
-        return False
-    elif isinstance(val, int):
-        return (val % 2) == 0
-    else:
-        return (int(val) % 2) == 0
-
-
-def is_impar(val: int | float) -> bool:
-    if val is None:
-        return False
-    elif isinstance(val, int):
-        return (val % 2) != 0
-    else:
-        return (int(val) % 2) != 0
 
 
 # ----------------------------------------------------------------------------

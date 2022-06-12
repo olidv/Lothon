@@ -94,7 +94,7 @@ def run():
     for sproc in simulacao_chain:
         # configuracao de parametros para os processamentos:
         logger.debug(f"processo '{sproc.id_process}': inicializando configuracao.")
-        sproc.init(options)
+        sproc.setup(options)
 
     logger.debug("Vai executar todos os processos de simulacao para as loterias...")
     for key, loteria in loterias_caixa.items():

@@ -1,11 +1,11 @@
 """
-   Package lothon.process.analyze
-   Module  abstract_analyze.py
+   Package lothon.process
+   Module  abstract_compute.py
 
 """
 
 __all__ = [
-    'AbstractAnalyze'
+    'AbstractCompute'
 ]
 
 # ----------------------------------------------------------------------------
@@ -25,10 +25,10 @@ from lothon.domain import Loteria
 # CLASSE ABSTRATA
 # ----------------------------------------------------------------------------
 
-class AbstractAnalyze(AbstractProcess, ABC):
+class AbstractCompute(AbstractProcess, ABC):
     """
     Classe abstrata com definicao de propriedades e metodos para criacao de
-    processos de analise de jogos.
+    processos de computacao e calculo de jogos.
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
@@ -43,6 +43,10 @@ class AbstractAnalyze(AbstractProcess, ABC):
 
     @abstractmethod
     def execute(self, payload: Loteria) -> int:
+        pass
+
+    @abstractmethod
+    def evaluate(self, jogo: tuple) -> float:
         pass
 
 # ----------------------------------------------------------------------------

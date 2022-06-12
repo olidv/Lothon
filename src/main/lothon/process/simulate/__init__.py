@@ -17,8 +17,8 @@ __all__ = [
 # Own/Project modules
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
 from lothon.process.simulate.simulado_aleatorio import SimuladoAleatorio
-from lothon.process.simulate.simulado_analisado import SimuladoAnalisado
 from lothon.process.simulate.simulado_pareado import SimuladoPareado
+from lothon.process.simulate.simulado_computado import SimuladoComputado
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ def get_process_chain() -> list[AbstractSimulate]:
     if len(_process_chain) == 0:
         # _process_chain.append(SimuladoAleatorio())
         # _process_chain.append(SimuladoPareado())
-        _process_chain.append(SimuladoAnalisado())
+        _process_chain.append(SimuladoComputado())
 
     return _process_chain
 

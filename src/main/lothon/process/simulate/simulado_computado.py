@@ -1,11 +1,11 @@
 """
    Package lothon.process
-   Module  simulado_analisado.py
+   Module  simulado_computado.py
 
 """
 
 __all__ = [
-    'SimuladoAnalisado'
+    'SimuladoComputado'
 ]
 
 # ----------------------------------------------------------------------------
@@ -22,9 +22,10 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso, Faixa
-from lothon.process import analyze
-from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process import compute
+from lothon.process.compute.abstract_compute import AbstractCompute
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
 
@@ -43,25 +44,25 @@ pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class SimuladoAnalisado(AbstractSimulate):
+class SimuladoComputado(AbstractSimulate):
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('boloes_caixa', 'analise_chain', 'analise_jogos')
+    __slots__ = ('boloes_caixa', 'compute_chain', 'compute_jogos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Simulado com Dezenas Analisadas")
+        super().__init__("Simulado com Jogos Computados")
 
         # estruturas para auxilio na geracao de boles para simulacoes:
         self.boloes_caixa: dict[str: dict[int: int]] = None
 
         # cadeia de processos para analise de jogos na simulacao:
-        self.analise_chain: Optional[list[AbstractAnalyze]] = None
-        self.analise_jogos: Optional[list[tuple[int, ...]]] = None
+        self.compute_chain: Optional[list[AbstractCompute]] = None
+        self.compute_jogos: Optional[list[tuple[int, ...]]] = None
 
     # --- METODOS STATIC -----------------------------------------------------
 
@@ -78,7 +79,7 @@ class SimuladoAnalisado(AbstractSimulate):
         count: int = 0
         while count < qt_pares:
             bola = random.randint(1, set_bolas)
-            if bola not in bolas and is_par(bola):
+            if bola not in bolas and cb.is_par(bola):
                 bolas = bolas + (bola,)
                 count += 1
 
@@ -86,7 +87,7 @@ class SimuladoAnalisado(AbstractSimulate):
         count = 0
         while count < qt_impar:
             bola = random.randint(1, set_bolas)
-            if bola not in bolas and is_impar(bola):
+            if bola not in bolas and cb.is_impar(bola):
                 bolas = bolas + (bola,)
                 count += 1
 
@@ -102,30 +103,22 @@ class SimuladoAnalisado(AbstractSimulate):
         # gera jogos com dezenas selecionadas apos analisar os concursos passados:
         if concursos_passados is not None:
             for i in range(0, qtd_jogos):
-                bolao.append(SimuladoAnalisado.sortear_bolas(set_bolas, qtd_sorteadas))
+                bolao.append(cls.sortear_bolas(set_bolas, qtd_sorteadas))
 
         return bolao
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def init(self, parms: dict):
+    def setup(self, parms: dict):
         # absorve os parametros fornecidos:
-        super().init(parms)
+        super().setup(parms)
 
         # inicializa as estruturas de processamento das simulacoes:
         self.boloes_caixa = self.options["boloes_caixa"]
         del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
 
-        logger.debug("Inicializando a cadeia de processos para analise de jogos...")
-        self.analise_chain = analyze.get_process_chain()
-        self.analise_jogos = []
-
-        # configura cada um dos processos antes, mas apenas uma unica vez:
-        # options[""] = 0  # ...
-        for aproc in self.analise_chain:
-            # configuracao de parametros para os processamentos:
-            logger.debug(f"processo '{aproc.id_process}': inicializando configuracao.")
-            aproc.init(self.options)
+        # inicializa a cadeia de processos para computacao de jogos:
+        self.compute_chain = compute.get_process_chain()
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -141,46 +134,52 @@ class SimuladoAnalisado(AbstractSimulate):
         # qtd_items: int = payload.qtd_bolas_sorteio
 
         # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
-        for aproc in self.analise_chain:
+        logger.debug("Executando o processamento das loterias para computacao de jogos.")
+        for cproc in self.compute_chain:
             # executa a analise para cada loteria:
-            aproc.execute(payload)
-
-        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
-        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
-            "concursos": concursos,
-            "concursos_passados": concursos[:-100],  # FIXME
-            "id_ultimo_concurso": concursos[-1].id_concurso,
-        }
-
-        # configura cada um dos processos de analise, apos analisarem os sorteios:
-        for aproc in self.analise_chain:
-            # configuracao de parametros para os processamentos em cada classe de analise:
-            logger.debug(f"processo '{aproc.id_process}': configurando parametros de SETUP.")
-            aproc.setup(parms)
+            logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
+            cproc.execute(payload)
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
-        self.analise_jogos = []
+        self.compute_jogos = []
         qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
         logger.debug(f"{nmlot}: Executando analise EVALUATE dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
+        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
+        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
+            "concursos_passados": concursos[:-100],  # FIXME
+            # "concursos": concursos,
+            # "id_ultimo_concurso": concursos[-1].id_concurso,
+        }
+
+        # configura cada um dos processos de analise, apos analisarem os sorteios:
+        logger.debug("Configurando a cadeia de processos para computacao de jogos.")
+        for cproc in self.compute_chain:
+            # configuracao de parametros para os processamentos em cada classe de analise:
+            logger.debug(f"Processo '{cproc.id_process}': configurando parametros de SETUP...")
+            cproc.setup(parms)
+
         # contabiliza pares (e impares) de cada combinacao de jogo:
+        logger.debug("Processando EVALUATE de todas as combinacoes de jogos...")
         range_jogos: range = range(1, payload.qtd_bolas + 1)
+        vl_ordinal: int = 0
         for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            vl_metrica: float = 1.0  # valor 1 eh inerte, nao afeta nada e nao significa nada
-            for aproc in self.analise_chain:
+            # o primeiro Compute eh o ordinal
+            vl_ordinal += 1  # comeca do ordinal no. 1
+            vl_metrica: float = self.compute_chain[0].evaluate((vl_ordinal,))
+            for cproc in self.compute_chain[1:]:  # pula o primeiro, Ordinal, que ja foi executado
                 # configuracao de parametros para os processamentos em cada classe de analise:
-                # logger.debug(f"processo '{aproc.id_process}': EVALUATE do jogo {jogo}.")
-                vl_metrica *= aproc.evaluate(jogo)
+                vl_metrica *= cproc.evaluate(jogo)
                 # ja ignora o resto das analises se a metrica zerou:
                 if vl_metrica == 0:
                     break  # pula para o proximo jogo, acelerando o processamento
 
             # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
             if vl_metrica > 1:
-                self.analise_jogos.append(jogo)
+                self.compute_jogos.append(jogo)
 
-        logger.debug(f"Numero de jogos nao zerados = {len(self.analise_jogos)}")
+        logger.debug(f"Numero de jogos nao zerados = {len(self.compute_jogos)}")
         if True is not None:
             return 0
 
@@ -231,7 +230,7 @@ class SimuladoAnalisado(AbstractSimulate):
                 bolaob: list[tuple[int, ...]] = self.gerar_bolao_analisado(bolas, base, qtd_jogosb,
                                                                            concursos_passados)
                 # confere os boloes de BASE jogos
-                acertosb, premiosb = self.check_premiacao_jogos(concurso, bolaob)
+                acertosb, premiosb = concurso.check_premiacao_jogos(bolaob)
                 output += f"\t      {formatd(base,2)}           {formatd(qtd_jogosb,6)}" \
                           f"       {formatf(gastosb,'9.2')}                {formatd(acertosb,2)}" \
                           f"    {formatf(premiosb)}\n"
@@ -244,7 +243,7 @@ class SimuladoAnalisado(AbstractSimulate):
                                                                            qtd_apostas,
                                                                            concursos_passados)
                 # confere os boloes de x jogos
-                acertosx, premiosx = self.check_premiacao_jogos(concurso, bolaox, base)
+                acertosx, premiosx = concurso.check_premiacao_jogos(bolaox, base)
                 output += f"\t      {formatd(qtd_dezenas,2)}           {formatd(qtd_apostas,6)}" \
                           f"       {formatf(gastosx,'9.2')}                {formatd(acertosx,2)}" \
                           f"    {formatf(premiosx)}\n\n"

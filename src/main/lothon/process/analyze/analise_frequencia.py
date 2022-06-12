@@ -1,5 +1,5 @@
 """
-   Package lothon.process
+   Package lothon.process.analyze
    Module  analise_frequencia.py
 
 """
@@ -13,15 +13,16 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from typing import Optional
 import logging
 import statistics as stts
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso, SerieSorteio
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process.compute.compute_frequencia import ComputeFrequencia
 
 
 # ----------------------------------------------------------------------------
@@ -42,34 +43,18 @@ class AnaliseFrequencia(AbstractAnalyze):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('frequencias_dezenas',)
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
         super().__init__("Analise de Frequencia dos Concursos")
 
-        # estrutura para a coleta de dados a partir do processamento de analise:
-        self.frequencias_dezenas: Optional[list[SerieSorteio]] = None
-
-    # --- METODOS STATIC -----------------------------------------------------
-
-    @classmethod
-    def count_repeticoes(cls, bolas: tuple[int, ...], dezenas: list[int]):
-        # nao precisa validar os parametros:
-        for num in bolas:
-            dezenas[num] += 1
-
-        return
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
 
     # --- PROCESSAMENTO ------------------------------------------------------
-
-    def init(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().init(parms)
-
-        # inicializa as estruturas de coleta de dados:
-        self.frequencias_dezenas = None
 
     def execute(self, payload: Loteria) -> int:
         # valida se possui concursos a serem analisados:
@@ -82,32 +67,21 @@ class AnaliseFrequencia(AbstractAnalyze):
         nmlot: str = payload.nome_loteria
         concursos: list[Concurso] = payload.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas
+        # qtd_items: int = payload.qtd_bolas
+
+        # inicializa componente para computacao dos sorteios da loteria:
+        cp = ComputeFrequencia()
+        cp.execute(payload)
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de frequencia de TODAS as "
                      f"dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
-        # zera os contadores de frequencias e atrasos:
-        self.frequencias_dezenas = self.new_list_series(qtd_items)
-
-        # contabiliza as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
-        for concurso in concursos:
-            # registra o concurso para cada dezena sorteada:
-            for bola in concurso.bolas:
-                self.frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
-
-        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso = concursos[-1]
-        for serie in self.frequencias_dezenas[1:]:
-            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
-            serie.last_sorteio(ultimo_concurso.id_concurso)
-
-        # printa o resultado:
+        # printa as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
         output: str = f"\n\t BOLA:   #SORTEIOS   ULTIMO      #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA   MEDIA   H.MEDIA   G.MEDIA      MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in self.frequencias_dezenas[1:]:
+        for serie in cp.frequencias_dezenas[1:]:
             output += f"\t  {formatd(serie.id,3)}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}           " \
@@ -121,7 +95,7 @@ class AnaliseFrequencia(AbstractAnalyze):
                       f"{formatf(serie.gmean_atraso,'5.1')}        " \
                       f"{formatf(serie.median_atraso,'5.1')}       " \
                       f"{formatf(serie.varia_atraso,'5.1')}           " \
-                      f"{formatf(serie.stdev_atraso,'5.1')} \n"
+                      f"{formatf(serie.stdev_atraso,'5.1')}\n"
         logger.debug(f"{nmlot}: Frequencia de Dezenas Resultantes: {output}")
 
         # efetua analise de frequencias medias das dezenas em todos os concursos:
@@ -171,7 +145,7 @@ class AnaliseFrequencia(AbstractAnalyze):
         for concurso in concursos[1:]:
             bolas_concurso: tuple[int, ...] = concurso.bolas
             # registra o atraso de cada dezena sorteada no concurso corrente:
-            atrasos: list[SerieSorteio] = self.new_list_series(len(bolas_concurso)-1)
+            atrasos: list[SerieSorteio] = cb.new_list_series(len(bolas_concurso)-1)
             for concurso_anterior in concursos_anteriores:
                 id_dezena: int = -1
                 for dezena in bolas_concurso:
@@ -221,11 +195,11 @@ class AnaliseFrequencia(AbstractAnalyze):
         concursos_anteriores: list[Concurso] = concursos[:qtd_concursos_anteriores]
         for concurso_atual in concursos[qtd_concursos_anteriores:]:
             # zera os contadores de cada concurso:
-            dezenas_sorteios: list[int] = self.new_list_int(payload.qtd_bolas)
+            dezenas_sorteios: list[int] = cb.new_list_int(payload.qtd_bolas)
 
             # quantas vezes cada uma das bolas sorteadas do concurso atual repetiu nos anteriores:
             for concurso_anterior in concursos_anteriores:
-                self.count_repeticoes(concurso_anterior.bolas, dezenas_sorteios)
+                cb.count_ocorrencias(concurso_anterior.bolas, dezenas_sorteios)
 
             # transforma a lista em dicionario para sortear pela frequencia nos sorteios:
             dezenas_frequencias: dict[int: int] = {}
@@ -235,7 +209,7 @@ class AnaliseFrequencia(AbstractAnalyze):
             # ordena o dicionario para identificar o ranking de cada dezena:
             dezenas_frequencias = {k: v for k, v in sorted(dezenas_frequencias.items(),
                                                            key=lambda item: item[1], reverse=True)}
-            dezenas_ranking: list[int] = self.new_list_int(payload.qtd_bolas)
+            dezenas_ranking: list[int] = cb.new_list_int(payload.qtd_bolas)
             idx: int = 0
             for k, v in dezenas_frequencias.items():
                 idx += 1  # comeca do ranking #1
@@ -254,7 +228,7 @@ class AnaliseFrequencia(AbstractAnalyze):
             # calcula a variancia e desvio padrao dos rankings antes do fim da linha:
             varia_rank: float = stts.pvariance(ranking_bolas)
             stdev_rank: float = stts.pstdev(ranking_bolas)
-            output += f"     {formatf(varia_rank,'9.3')}         {formatf(stdev_rank,'9.3')} \n"
+            output += f"     {formatf(varia_rank,'9.3')}         {formatf(stdev_rank,'9.3')}\n"
 
             # inclui o concurso atual como anterior para a proxima iteracao:
             concursos_anteriores.append(concurso_atual)
@@ -263,14 +237,5 @@ class AnaliseFrequencia(AbstractAnalyze):
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
-
-    # --- ANALISE DE JOGOS ---------------------------------------------------
-
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        self.set_options(parms)
-
-    def evaluate(self, pick) -> float:
-        return 1.1  # valor temporario
 
 # ----------------------------------------------------------------------------

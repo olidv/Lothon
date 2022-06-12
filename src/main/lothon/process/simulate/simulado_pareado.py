@@ -20,6 +20,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso, Faixa
 from lothon.process.simulate.abstract_simulate import AbstractSimulate
 
@@ -70,7 +71,7 @@ class SimuladoPareado(AbstractSimulate):
         count: int = 0
         while count < qt_pares:
             bola = random.randint(1, set_bolas)
-            if bola not in bolas and is_par(bola):
+            if bola not in bolas and cb.is_par(bola):
                 bolas = bolas + (bola,)
                 count += 1
 
@@ -78,7 +79,7 @@ class SimuladoPareado(AbstractSimulate):
         count = 0
         while count < qt_impar:
             bola = random.randint(1, set_bolas)
-            if bola not in bolas and is_impar(bola):
+            if bola not in bolas and cb.is_impar(bola):
                 bolas = bolas + (bola,)
                 count += 1
 
@@ -100,9 +101,9 @@ class SimuladoPareado(AbstractSimulate):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def init(self, parms: dict):
+    def setup(self, parms: dict):
         # absorve os parametros fornecidos:
-        super().init(parms)
+        super().setup(parms)
 
         # inicializa as estruturas de processamento das simulacoes:
         self.boloes_caixa = self.options["boloes_caixa"]
@@ -167,7 +168,7 @@ class SimuladoPareado(AbstractSimulate):
                 bolaob: list[tuple[int, ...]] = self.gerar_bolao_pareado(bolas, base, qtd_jogosb,
                                                                          concursos_passados)
                 # confere os boloes de BASE jogos
-                acertosb, premiosb = self.check_premiacao_jogos(concurso, bolaob)
+                acertosb, premiosb = concurso.check_premiacao_jogos(bolaob)
                 output += f"\t      {formatd(base,2)}         {formatd(qtd_jogosb,6)}" \
                           f"       {formatf(gastosb,'9.2')}                {formatd(acertosb,2)}" \
                           f"    {formatf(premiosb)}\n"
@@ -180,7 +181,7 @@ class SimuladoPareado(AbstractSimulate):
                                                                          qtd_apostas,
                                                                          concursos_passados)
                 # confere os boloes de x jogos
-                acertosx, premiosx = self.check_premiacao_jogos(concurso, bolaox, base)
+                acertosx, premiosx = concurso.check_premiacao_jogos(bolaox, base)
                 output += f"\t      {formatd(qtd_dezenas,2)}         {formatd(qtd_apostas,6)}" \
                           f"       {formatf(gastosx,'9.2')}                {formatd(acertosx,2)}" \
                           f"    {formatf(premiosx)}\n\n"

@@ -79,9 +79,9 @@ class SimuladoAleatorio(AbstractSimulate):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def init(self, parms: dict):
+    def setup(self, parms: dict):
         # absorve os parametros fornecidos:
-        super().init(parms)
+        super().setup(parms)
 
         # inicializa as estruturas de processamento das simulacoes:
         self.boloes_caixa = self.options["boloes_caixa"]
@@ -146,7 +146,7 @@ class SimuladoAleatorio(AbstractSimulate):
                 bolaob: list[tuple[int, ...]] = self.gerar_bolao_aleatorio(bolas, base, qtd_jogosb)
 
                 # confere os boloes de BASE jogos
-                acertosb, premiosb = self.check_premiacao_jogos(concurso, bolaob)
+                acertosb, premiosb = concurso.check_premiacao_jogos(bolaob)
                 output += f"\t      {formatd(base,2)}           {formatd(qtd_jogosb,6)}" \
                           f"       {formatf(gastosb,'9.2')}                {formatd(acertosb,2)}" \
                           f"    {formatf(premiosb)}\n"
@@ -158,7 +158,7 @@ class SimuladoAleatorio(AbstractSimulate):
                 bolaox: list[tuple[int, ...]] = self.gerar_bolao_aleatorio(bolas, qtd_dezenas,
                                                                            qtd_apostas)
                 # confere os boloes de x jogos
-                acertosx, premiosx = self.check_premiacao_jogos(concurso, bolaox, base)
+                acertosx, premiosx = concurso.check_premiacao_jogos(bolaox, base)
                 output += f"\t      {formatd(qtd_dezenas,2)}           {formatd(qtd_apostas,6)}" \
                           f"       {formatf(gastosx,'9.2')}                {formatd(acertosx,2)}" \
                           f"    {formatf(premiosx)}\n\n"
