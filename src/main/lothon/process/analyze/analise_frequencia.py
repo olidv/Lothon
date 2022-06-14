@@ -56,22 +56,22 @@ class AnaliseFrequencia(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas
+        # qtd_items: int = loteria.qtd_bolas
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeFrequencia()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de frequencia de TODAS as "
@@ -186,7 +186,7 @@ class AnaliseFrequencia(AbstractAnalyze):
 
         # formata o cabecalho da impressao do resultado:
         output: str = f"\n\t CONCURSO"
-        for val in range(1, payload.qtd_bolas_sorteio + 1):
+        for val in range(1, loteria.qtd_bolas_sorteio + 1):
             output += f"     {val:0>2}"
         output += f"     VARIANCIA     DESVIO-PADRAO\n"
 
@@ -195,7 +195,7 @@ class AnaliseFrequencia(AbstractAnalyze):
         concursos_anteriores: list[Concurso] = concursos[:qtd_concursos_anteriores]
         for concurso_atual in concursos[qtd_concursos_anteriores:]:
             # zera os contadores de cada concurso:
-            dezenas_sorteios: list[int] = cb.new_list_int(payload.qtd_bolas)
+            dezenas_sorteios: list[int] = cb.new_list_int(loteria.qtd_bolas)
 
             # quantas vezes cada uma das bolas sorteadas do concurso atual repetiu nos anteriores:
             for concurso_anterior in concursos_anteriores:
@@ -209,7 +209,7 @@ class AnaliseFrequencia(AbstractAnalyze):
             # ordena o dicionario para identificar o ranking de cada dezena:
             dezenas_frequencias = {k: v for k, v in sorted(dezenas_frequencias.items(),
                                                            key=lambda item: item[1], reverse=True)}
-            dezenas_ranking: list[int] = cb.new_list_int(payload.qtd_bolas)
+            dezenas_ranking: list[int] = cb.new_list_int(loteria.qtd_bolas)
             idx: int = 0
             for k, v in dezenas_frequencias.items():
                 idx += 1  # comeca do ranking #1

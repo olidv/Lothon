@@ -44,7 +44,9 @@ class ComputeNumerologia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('numerologias_jogos', 'numerologias_percentos', 'numerologias_concursos',
-                 'frequencias_numerologias')
+                 'ultimas_numerologias_repetidas', 'ultimas_numerologias_percentos',
+                 'vl_numerologia_ultimo_concurso', 'vl_numerologia_penultimo_concurso',
+                 'frequencias_numerologias', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -55,7 +57,12 @@ class ComputeNumerologia(AbstractCompute):
         self.numerologias_jogos: Optional[list[int]] = None
         self.numerologias_percentos: Optional[list[float]] = None
         self.numerologias_concursos: Optional[list[int]] = None
+        self.ultimas_numerologias_repetidas: Optional[list[int]] = None
+        self.ultimas_numerologias_percentos: Optional[list[float]] = None
+        self.vl_numerologia_ultimo_concurso: int = 0
+        self.vl_numerologia_penultimo_concurso: int = 0
         self.frequencias_numerologias: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -63,28 +70,25 @@ class ComputeNumerologia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
-        # qtd_concursos: int = len(concursos)
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
+        qtd_concursos: int = len(concursos)
         qtd_items: int = 9  # numero de zero a nove
 
         # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada somatorio:
         self.numerologias_jogos = cb.new_list_int(qtd_items)
-
-        # calcula a numerologia de cada combinacao de jogo:
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+            # calcula a numerologia de cada combinacao de jogo:
             numero: int = cb.calc_numerology(jogo)
             self.numerologias_jogos[numero] += 1
 
@@ -99,9 +103,24 @@ class ComputeNumerologia(AbstractCompute):
 
         # calcula a numerologia de cada sorteio dos concursos:
         self.numerologias_concursos = cb.new_list_int(qtd_items)
+        self.ultimas_numerologias_repetidas = cb.new_list_int(qtd_items)
+        self.vl_numerologia_ultimo_concurso = -1
+        self.vl_numerologia_penultimo_concurso = -1
         for concurso in concursos:
-            numero: int = cb.calc_numerology(concurso.bolas)
-            self.numerologias_concursos[numero] += 1
+            vl_numerologia: int = cb.calc_numerology(concurso.bolas)
+            self.numerologias_concursos[vl_numerologia] += 1
+            # verifica se repetiu a numerologia do ultimo concurso:
+            if vl_numerologia == self.vl_numerologia_ultimo_concurso:
+                self.ultimas_numerologias_repetidas[vl_numerologia] += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.vl_numerologia_penultimo_concurso = self.vl_numerologia_ultimo_concurso
+            self.vl_numerologia_ultimo_concurso = vl_numerologia
+
+        # contabiliza o percentual das ultimas numerologias:
+        self.ultimas_numerologias_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.ultimas_numerologias_repetidas):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            self.ultimas_numerologias_percentos[key] = percent
 
         # zera os contadores de frequencias e atrasos das numerologias:
         self.frequencias_numerologias = cb.new_list_series(qtd_items)
@@ -109,8 +128,8 @@ class ComputeNumerologia(AbstractCompute):
         # contabiliza as frequencias e atrasos das numerologias em todos os sorteios ja realizados:
         for concurso in concursos:
             # contabiliza a numerologia do concurso:
-            numero = cb.calc_numerology(concurso.bolas)
-            self.frequencias_numerologias[numero].add_sorteio(concurso.id_concurso)
+            vl_numerologia = cb.calc_numerology(concurso.bolas)
+            self.frequencias_numerologias[vl_numerologia].add_sorteio(concurso.id_concurso)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
         ultimo_concurso: Concurso = concursos[-1]
@@ -124,7 +143,33 @@ class ComputeNumerologia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
-        return 1.0
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende da numerologia do jogo:
+        vl_numerologia: int = cb.calc_numerology(jogo)
+        percent: float = self.numerologias_percentos[vl_numerologia]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 10:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_fator(percent)
+
+        # verifica se esse jogo repetiu a numerologia do ultimo e penultimo concursos:
+        if vl_numerologia != self.vl_numerologia_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_numerologia == self.vl_numerologia_ultimo_concurso == \
+                self.vl_numerologia_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima numerologia:
+        percent_repetida: float = self.ultimas_numerologias_percentos[vl_numerologia]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a numerologia:
+            return fator_percent * to_redutor(percent_repetida)
 
 # ----------------------------------------------------------------------------

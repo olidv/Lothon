@@ -55,23 +55,23 @@ class AnaliseEspacamento(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas // (payload.qtd_bolas_sorteio - 1)
+        qtd_items: int = loteria.qtd_bolas // (loteria.qtd_bolas_sorteio - 1)
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeEspacamento()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise de espacamento medio dos  "
@@ -97,6 +97,14 @@ class AnaliseEspacamento(AbstractAnalyze):
             output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Espacamentos Resultantes: {output}")
+
+        # printa quais os espacamentos que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  ? ESPACO     PERC%       #REPETIDOS\n"
+        for key, value in enumerate(cp.ultimos_espacamentos_repetidos):
+            percent: float = cp.ultimos_espacamentos_percentos[key]
+            output += f"\t {formatd(key,2)} espaco:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo espacamento: {output}")
 
         # efetua analise de frequencia de todos os espacamentos dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de espacamentos medios "
@@ -131,7 +139,7 @@ class AnaliseEspacamento(AbstractAnalyze):
         concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
         list6_espacamentos: list[int] = []
-        for concurso_atual in payload.concursos:
+        for concurso_atual in loteria.concursos:
             # zera os contadores de cada sequencia:
             espacamentos_passados: list[int] = cb.new_list_int(qtd_items)
 

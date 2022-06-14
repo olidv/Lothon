@@ -55,23 +55,23 @@ class AnaliseDecenario(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = (payload.qtd_bolas-1) // 10
+        qtd_items: int = (loteria.qtd_bolas-1) // 10
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeDecenario()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise de decenario dos  "
@@ -90,13 +90,25 @@ class AnaliseDecenario(AbstractAnalyze):
 
         # printa os decenarios de cada sorteio ja realizado:
         output: str = f"\n\t ? DEZENA     PERC%       %DIF%     #TOTAL\n"
-        total: int = payload.qtd_bolas_sorteio * qtd_concursos
+        total: int = loteria.qtd_bolas_sorteio * qtd_concursos
         for key, value in enumerate(cp.decenarios_concursos):
             percent: float = round((value / total) * 10000) / 100
             dif: float = percent - cp.decenarios_percentos[key]
             output += f"\t {key} dezena:  {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}%  " \
                       f"   #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Decenarios Resultantes: {output}")
+
+        # printa a representacao string de cada decenario dos sorteios realizados:
+        output: str = f"\n\t CONCURSO       DECENARIO\n"
+        for concurso in concursos:
+            id_concurso: int = concurso.id_concurso
+            str_decenario: str = cp.str_decenarios_concursos[id_concurso]
+            output += f"\t   {formatd(id_concurso,6)}  ...  {str_decenario}\n"
+        logger.debug(f"{nmlot}: Representacao STR dos Decenarios: {output}")
+
+        # printa quais o percentual de decenarios que repetiram no ultimo sorteio dos concursos:
+        logger.debug(f"{nmlot}: Percentual de concursos que repetiram o ultimo decenario: "
+                     f"{formatf(cp.ultimos_decenarios_percentos,'6.2')}%")
 
         # efetua analise de frequencia de todos os decenarios dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de decenarios "
@@ -130,7 +142,7 @@ class AnaliseDecenario(AbstractAnalyze):
         # contabiliza decenarios de cada evolucao de concurso:
         concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
-        for concurso_atual in payload.concursos:
+        for concurso_atual in loteria.concursos:
             # zera os contadores de cada decenario:
             decenarios_passados: list[int] = cb.new_list_int(qtd_items)
 
@@ -146,7 +158,7 @@ class AnaliseDecenario(AbstractAnalyze):
             output: str = f"\n\t ? DEZENA     PERC%       %DIF%  " \
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
                           f"Ultimo Decenario == {decenario_atual}\n"
-            total: int = payload.qtd_bolas_sorteio * qtd_concursos_passados
+            total: int = loteria.qtd_bolas_sorteio * qtd_concursos_passados
             for key, value in enumerate(decenarios_passados):
                 percent: float = round((value / total) * 10000) / 100
                 dif: float = percent - cp.decenarios_percentos[key]

@@ -58,18 +58,18 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         # qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas
+        qtd_items: int = loteria.qtd_bolas
 
         # zera os contadores de frequencias e atrasos:
         self.frequencias_dezenas = cb.new_list_series(qtd_items)
@@ -92,7 +92,7 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         return 1.0
 
 # ----------------------------------------------------------------------------

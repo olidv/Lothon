@@ -54,23 +54,23 @@ class AnaliseOrdinal(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
         # qtd_items: int = qtd_concursos
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeOrdinal()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise ordinal dos  "

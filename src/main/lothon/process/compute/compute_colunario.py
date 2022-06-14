@@ -43,8 +43,11 @@ class ComputeColunario(AbstractCompute):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('colunarios_jogos', 'colunarios_percentos', 'colunarios_concursos',
-                 'frequencias_colunarios')
+    __slots__ = ('colunarios_jogos', 'colunarios_percentos', 
+                 'colunarios_concursos', 'str_colunarios_concursos',
+                 'ultimos_colunarios_repetidos', 'ultimos_colunarios_percentos',
+                 'str_colunarios_ultimo_concurso', 'str_colunarios_penultimo_concurso',
+                 'frequencias_colunarios', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -55,7 +58,13 @@ class ComputeColunario(AbstractCompute):
         self.colunarios_jogos: Optional[list[int]] = None
         self.colunarios_percentos: Optional[list[float]] = None
         self.colunarios_concursos: Optional[list[int]] = None
+        self.str_colunarios_concursos: Optional[list[str]] = None
+        self.ultimos_colunarios_repetidos: int = 0
+        self.ultimos_colunarios_percentos: float = 0.0
+        self.str_colunarios_ultimo_concurso: str = ''
+        self.str_colunarios_penultimo_concurso: str = ''
         self.frequencias_colunarios: Optional[list[SerieSorteio]] = None
+        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -63,18 +72,18 @@ class ComputeColunario(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
-        qtd_jogos: int = payload.qtd_jogos
-        # qtd_concursos: int = len(concursos)
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
+        qtd_jogos: int = loteria.qtd_jogos
+        qtd_concursos: int = len(concursos)
         qtd_items: int = 9
 
         # efetua analise de todas as combinacoes de jogos da loteria:
@@ -83,28 +92,46 @@ class ComputeColunario(AbstractCompute):
         self.colunarios_jogos = cb.new_list_int(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
             cb.count_colunarios(jogo, self.colunarios_jogos)
 
         # contabiliza o percentual dos colunarios:
         self.colunarios_percentos = cb.new_list_float(qtd_items)
-        total: int = payload.qtd_bolas_sorteio * qtd_jogos
+        total: int = loteria.qtd_bolas_sorteio * qtd_jogos
         for key, value in enumerate(self.colunarios_jogos):
             percent: float = round((value / total) * 10000) / 100
             self.colunarios_percentos[key] = percent
 
-        # zera os contadores de cada sequencia:
-        self.colunarios_concursos = cb.new_list_int(qtd_items)
-
         # contabiliza colunarios de cada sorteio ja realizado:
+        self.colunarios_concursos = cb.new_list_int(qtd_items)
+        self.str_colunarios_concursos = [None]  # deixa o primeiro item, zero-index, ja preenchido
+        self.ultimos_colunarios_repetidos = 0
+        self.str_colunarios_ultimo_concurso = ''
+        self.str_colunarios_penultimo_concurso = ''
         for concurso in concursos:
             cb.count_colunarios(concurso.bolas, self.colunarios_concursos)
+            # gera a representacao string do colunario para registro e comparacao:
+            colunarios: list[int] = cb.new_list_int(qtd_items)
+            cb.count_colunarios(concurso.bolas, colunarios)
+            str_colunarios: str = cb.to_string(colunarios)
+            self.str_colunarios_concursos.append(str_colunarios)
+            # verifica se repetiu os colunarios do ultimo concurso:
+            if str_colunarios == self.str_colunarios_ultimo_concurso:
+                self.ultimos_colunarios_repetidos += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.str_colunarios_penultimo_concurso = self.str_colunarios_ultimo_concurso
+            self.str_colunarios_ultimo_concurso = str_colunarios
 
-        # zera os contadores de frequencias e atrasos dos colunarios:
-        self.frequencias_colunarios = cb.new_list_series(qtd_items)
+        # contabiliza o percentual dos colunarios repetidos:
+        self.ultimos_colunarios_percentos = round((self.ultimos_colunarios_repetidos /
+                                                   qtd_concursos) * 10000) / 100
+
+        print("***** self.ultimos_colunarios_repetidos = ", self.ultimos_colunarios_repetidos)
+        print("***** self.ultimos_colunarios_percentos = ", self.ultimos_colunarios_percentos)
 
         # contabiliza as frequencias e atrasos dos colunarios em todos os sorteios ja realizados:
+        self.frequencias_colunarios = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # contabiliza a frequencia dos colunarios do concurso:
             for num in concurso.bolas:
@@ -123,7 +150,32 @@ class ComputeColunario(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
-        return 1.0
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de cada colunario no jogo:
+        colunarios: list[int] = cb.new_list_int(9)
+        cb.count_colunarios(jogo, colunarios)
+        fator_percent: float = 1.0
+        for key, value in enumerate(colunarios):
+            if value > 0:
+                # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+                fator_percent *= to_fator(self.colunarios_percentos[key]) ** value
+
+        # gera a representacao string do colunario para comparacao:
+        str_colunarios: str = cb.to_string(colunarios)
+
+        # verifica se esse jogo repetiu os colunarios do ultimo e penultimo concursos:
+        if str_colunarios != self.str_colunarios_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif str_colunarios == self.str_colunarios_ultimo_concurso == \
+                self.str_colunarios_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao dos ultimos colunarios:
+        if self.ultimos_colunarios_percentos < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir os colunarios:
+            return fator_percent * to_redutor(self.ultimos_colunarios_percentos)
 
 # ----------------------------------------------------------------------------

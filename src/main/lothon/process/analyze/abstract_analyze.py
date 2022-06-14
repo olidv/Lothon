@@ -42,7 +42,7 @@ class AbstractAnalyze(AbstractProcess, ABC):
     # --- METODOS ------------------------------------------------------------
 
     @abstractmethod
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         pass
 
 # ----------------------------------------------------------------------------

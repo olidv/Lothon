@@ -14,6 +14,7 @@ __all__ = [
 
 # Built-in/Generic modules
 from abc import ABC, abstractmethod
+from typing import Any
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -72,7 +73,7 @@ class AbstractProcess(ABC):
         self.set_options(parms)
 
     @abstractmethod
-    def execute(self, payload):
+    def execute(self, payload: Any):
         pass
 
 # ----------------------------------------------------------------------------

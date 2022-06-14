@@ -7,6 +7,7 @@
 __all__ = [
     'new_list_int',
     'new_list_float',
+    'new_list_str',
     'new_list_series',
     'numerology',
     'is_par',
@@ -70,6 +71,12 @@ def new_list_float(qtd_items: int, valor: float = 0.0) -> list[float]:
     list_zerado: list[float] = [valor] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
 
     return list_zerado
+
+
+def new_list_str(qtd_items: int, valor: str = '') -> list[str]:
+    list_vazia: list[str] = [valor] * (qtd_items + 1)  # adiciona 1 para ignorar zero-index
+
+    return list_vazia
 
 
 def new_list_series(qtd_items: int) -> list[SerieSorteio]:
@@ -143,29 +150,29 @@ def get_linha(dezena: int) -> int:
 
 
 def get_colunario(coluna: int) -> int:
-    if coluna is not None:
-        return coluna % 10
-    else:
+    if coluna is None or coluna == 0:
         return 0
+
+    return coluna % 10
 
 
 def get_decenario(dezena: int) -> int:
-    if dezena is not None and dezena > 0:
-        return (dezena - 1) // 10
-    else:
+    if dezena is None or dezena == 0:
         return 0
 
+    return (dezena - 1) // 10
 
-def to_string(bolas: tuple[int, ...]) -> str:
+
+def to_string(valores) -> str:  # valores: list | tuple | Iterable | Collection
     # valida os parametros:
-    if bolas is None or len(bolas) == 0:
+    if valores is None or len(valores) == 0:
         return ''
 
-    tupla_str: str = ''
-    for num in bolas:
-        tupla_str += f"{num:0>2}"
+    tostr: str = ''
+    for num in valores:
+        tostr += f"{num:0>2}"
 
-    return tupla_str
+    return tostr
 
 
 # ----------------------------------------------------------------------------
@@ -348,7 +355,7 @@ def calc_distancia(bolas: tuple[int, ...]) -> int:
         return 0
 
     # calcula a distancia entre a menor e a maior bola:
-    return max(bolas) - min(bolas)
+    return abs(max(bolas) - min(bolas))
 
 
 def count_decenarios(bolas: tuple[int, ...], decenario: list[int]) -> None:

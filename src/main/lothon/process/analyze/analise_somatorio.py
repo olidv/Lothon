@@ -55,24 +55,24 @@ class AnaliseSomatorio(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = sum(range(payload.qtd_bolas - payload.qtd_bolas_sorteio + 1,
-        #                            payload.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
+        # qtd_items: int = sum(range(loteria.qtd_bolas - loteria.qtd_bolas_sorteio + 1,
+        #                            loteria.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeSomatorio()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise de somatorio dos  "
@@ -98,6 +98,14 @@ class AnaliseSomatorio(AbstractAnalyze):
             output += f"\t {formatd(key,3)} somado:  {formatf(percent,'7.3')}% ... " \
                       f"{formatf(dif,'7.3')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Somatorios Resultantes: {output}")
+
+        # printa quais os somatorios que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t   ? SOMADO     PERC%       #REPETIDOS\n"
+        for key, value in enumerate(cp.ultimos_somatorios_repetidos):
+            percent: float = cp.ultimos_somatorios_percentos[key]
+            output += f"\t {formatd(key,3)} somado:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo somatorio: {output}")
 
         # efetua analise comparativa dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise COMPARATIVA de somatorio dos  "

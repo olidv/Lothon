@@ -55,22 +55,22 @@ class AnaliseCiclo(AbstractAnalyze):
 
     # --- PROCESSAMENTO DOS SORTEIOS -----------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas
+        qtd_items: int = loteria.qtd_bolas
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeCiclo()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas os ciclos fechados ao longo dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de TODOS os ciclos fechados nos  "
@@ -98,7 +98,7 @@ class AnaliseCiclo(AbstractAnalyze):
                 continue
             else:
                 # no inicio do ciclo, as dezenas sorteadas sao eliminadas do conjunto total:
-                output += ' ' + ('---' * (payload.qtd_bolas - payload.qtd_bolas_sorteio)) + '\n'
+                output += ' ' + ('---' * (loteria.qtd_bolas - loteria.qtd_bolas_sorteio)) + '\n'
 
             # zera contadores para proximo ciclo:
             dezenas = cb.new_list_int(qtd_items)

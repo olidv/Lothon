@@ -52,6 +52,14 @@ class SimuladoAleatorio(AbstractSimulate):
         # estrutura para auxilio na geracao de boles para simulacoes:
         self.boloes_caixa: dict[str: dict[int: int]] = None
 
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
+
+        # inicializa as estruturas de processamento das simulacoes:
+        self.boloes_caixa = self.options["boloes_caixa"]
+        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
+
     # --- METODOS STATIC -----------------------------------------------------
 
     @classmethod
@@ -79,24 +87,16 @@ class SimuladoAleatorio(AbstractSimulate):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
-        # inicializa as estruturas de processamento das simulacoes:
-        self.boloes_caixa = self.options["boloes_caixa"]
-        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
-
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # nao ha necessidade de validar se possui concursos, pois nao serao analisados:
-        if payload is None:
+        if loteria is None:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
 
         # efetua simulacao de jogos aleatorios em todos os sorteios da loteria:
@@ -104,10 +104,10 @@ class SimuladoAleatorio(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]
-        faixas: dict[int, Faixa] = payload.faixas
-        bolas: int = payload.qtd_bolas
-        base: int = payload.qtd_bolas_sorteio
+        boloes: dict[int: int] = self.boloes_caixa[loteria.id_loteria]
+        faixas: dict[int, Faixa] = loteria.faixas
+        bolas: int = loteria.qtd_bolas
+        base: int = loteria.qtd_bolas_sorteio
         precob: float = faixas[base].preco
 
         total_gastosb: float = 0.00

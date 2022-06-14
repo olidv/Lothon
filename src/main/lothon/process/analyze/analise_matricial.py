@@ -54,23 +54,23 @@ class AnaliseMatricial(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = loteria.qtd_bolas_sorteio
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeMatricial()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise matricial dos  "
@@ -109,6 +109,15 @@ class AnaliseMatricial(AbstractAnalyze):
             outputl += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}% " \
                        f"    #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Maximo de Colunas e Linhas dos concursos: {outputc}{outputl}")
+
+        # printa quais matrizes de colunas e linhas repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  MATRIZ     PERC%       #REPETIDAS\n"
+        for key, value in cp.ultimas_matrizes_repetidas.items():
+            percent: float = cp.ultimas_matrizes_percentos[key]
+            output += f"\t    {key}   {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram a matriz da maxima coluna e linha: "
+                     f"{output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

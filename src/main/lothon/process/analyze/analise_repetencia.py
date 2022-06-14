@@ -54,22 +54,22 @@ class AnaliseRepetencia(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = loteria.qtd_bolas_sorteio
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeRepetencia()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise de repetencias de todos os sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de TODAS repetencias nos  "
@@ -82,6 +82,14 @@ class AnaliseRepetencia(AbstractAnalyze):
             output += f"\t {formatd(key,2)} repete: {formatf(percent,'6.2')}% ... " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Repetencias Resultantes: {output}")
+
+        # printa quais as repetencias que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  ? REPETE     PERC%       #REPETIDAS\n"
+        for key, value in enumerate(cp.ultimas_repetencias_repetidas):
+            percent: float = cp.ultimas_repetencias_percentos[key]
+            output += f"\t {formatd(key,2)} repete:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram a ultima repetencia: {output}")
 
         # efetua analise de todas as repeticoes dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de repetencias"

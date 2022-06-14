@@ -44,6 +44,8 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos',
+                 'ultimos_espacamentos_repetidos', 'ultimos_espacamentos_percentos',
+                 'qtd_espacamentos_ultimo_concurso', 'qtd_espacamentos_penultimo_concurso',
                  'frequencias_espacamentos', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
@@ -55,6 +57,10 @@ class ComputeEspacamento(AbstractCompute):
         self.espacamentos_jogos: Optional[list[int]] = None
         self.espacamentos_percentos: Optional[list[float]] = None
         self.espacamentos_concursos: Optional[list[int]] = None
+        self.ultimos_espacamentos_repetidos: Optional[list[int]] = None
+        self.ultimos_espacamentos_percentos: Optional[list[float]] = None
+        self.qtd_espacamentos_ultimo_concurso: int = 0
+        self.qtd_espacamentos_penultimo_concurso: int = 0
         self.frequencias_espacamentos: Optional[list[SerieSorteio]] = None
         self.qtd_zerados: int = 0
 
@@ -64,28 +70,25 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
-        # qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas // (payload.qtd_bolas_sorteio - 1)
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = loteria.qtd_bolas // (loteria.qtd_bolas_sorteio - 1)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada espacada:
         self.espacamentos_jogos = cb.new_list_int(qtd_items)
-
-        # calcula o espacamento medio de cada combinacao de jogo:
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+            # calcula o espacamento medio de cada combinacao de jogo:
             vl_espacamento = cb.calc_espacada(jogo)
             self.espacamentos_jogos[vl_espacamento] += 1
 
@@ -97,9 +100,24 @@ class ComputeEspacamento(AbstractCompute):
 
         # calcula o espacamento de cada sorteio dos concursos:
         self.espacamentos_concursos = cb.new_list_int(qtd_items)
+        self.ultimos_espacamentos_repetidos = cb.new_list_int(qtd_items)
+        self.qtd_espacamentos_ultimo_concurso = -1
+        self.qtd_espacamentos_penultimo_concurso = -1
         for concurso in concursos:
             vl_espacamento: int = cb.calc_espacada(concurso.bolas)
             self.espacamentos_concursos[vl_espacamento] += 1
+            # verifica se repetiu o espacamento do ultimo concurso:
+            if vl_espacamento == self.qtd_espacamentos_ultimo_concurso:
+                self.ultimos_espacamentos_repetidos[vl_espacamento] += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.qtd_espacamentos_penultimo_concurso = self.qtd_espacamentos_ultimo_concurso
+            self.qtd_espacamentos_ultimo_concurso = vl_espacamento
+
+        # contabiliza o percentual dos ultims espacamentos:
+        self.ultimos_espacamentos_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.ultimos_espacamentos_repetidos):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            self.ultimos_espacamentos_percentos[key] = percent
 
         # zera os contadores de frequencias e atrasos dos espacamentos:
         self.frequencias_espacamentos = cb.new_list_series(qtd_items)
@@ -122,8 +140,8 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
-        # probabilidade de acerto depende do numero de pares no jogo:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de espacamentos no jogo:
         vl_espacamento = cb.calc_espacada(jogo)
         percent: float = self.espacamentos_percentos[vl_espacamento]
 
@@ -131,7 +149,24 @@ class ComputeEspacamento(AbstractCompute):
         if percent < 5:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_fator(percent)
+
+        # verifica se esse jogo repetiu o espacamento do ultimo e penultimo concursos:
+        if vl_espacamento != self.qtd_espacamentos_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_espacamento == self.qtd_espacamentos_ultimo_concurso == \
+                self.qtd_espacamentos_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo espacamento:
+        percent_repetido: float = self.ultimos_espacamentos_percentos[vl_espacamento]
+        if percent_repetido < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o espacamento:
+            return fator_percent * to_redutor(percent_repetido)
 
 # ----------------------------------------------------------------------------

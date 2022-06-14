@@ -64,6 +64,17 @@ class SimuladoComputado(AbstractSimulate):
         self.compute_chain: Optional[list[AbstractCompute]] = None
         self.compute_jogos: Optional[list[tuple[int, ...]]] = None
 
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
+
+        # inicializa as estruturas de processamento das simulacoes:
+        self.boloes_caixa = self.options["boloes_caixa"]
+        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
+
+        # inicializa a cadeia de processos para computacao de jogos:
+        self.compute_chain = compute.get_process_chain()
+
     # --- METODOS STATIC -----------------------------------------------------
 
     @classmethod
@@ -109,29 +120,18 @@ class SimuladoComputado(AbstractSimulate):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def setup(self, parms: dict):
-        # absorve os parametros fornecidos:
-        super().setup(parms)
-
-        # inicializa as estruturas de processamento das simulacoes:
-        self.boloes_caixa = self.options["boloes_caixa"]
-        del self.options["boloes_caixa"]  # nao precisa no options, ja tem 'self.boloes_caixa'
-
-        # inicializa a cadeia de processos para computacao de jogos:
-        self.compute_chain = compute.get_process_chain()
-
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = loteria.qtd_bolas_sorteio
 
         # define os parametros para configurar o processamento de 'evaluate()' dos processos:
         parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
@@ -151,36 +151,42 @@ class SimuladoComputado(AbstractSimulate):
         for cproc in self.compute_chain:
             # executa a analise para cada loteria:
             logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
-            cproc.execute(payload)
+            cproc.execute(loteria)
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
         self.compute_jogos = []
-        qtd_jogos: int = math.comb(payload.qtd_bolas, payload.qtd_bolas_sorteio)
+        qtd_jogos: int = math.comb(loteria.qtd_bolas, loteria.qtd_bolas_sorteio)
         logger.debug(f"{nmlot}: Executando analise EVALUATE dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
-        logger.debug("Processando EVALUATE de todas as combinacoes de jogos...")
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
         vl_ordinal: int = 0
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
-            # o primeiro Compute eh o ordinal
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
             vl_ordinal += 1  # comeca do ordinal no. 1
-            vl_metrica: float = self.compute_chain[0].evaluate((vl_ordinal,))
-            for cproc in self.compute_chain[1:]:  # pula o primeiro, Ordinal, que ja foi executado
-                # configuracao de parametros para os processamentos em cada classe de analise:
-                vl_metrica *= cproc.evaluate(jogo)
-                # ja ignora o resto das analises se a metrica zerou:
+            vl_metrica: float = 1.0
+            for cproc in self.compute_chain:
+                # executa o processamento de avaliacao do jogo, para verificar se sera descartado:
+                vl_metrica *= cproc.evaluate(vl_ordinal, jogo)
+                # ignora o resto das analises se a metrica zerou:
                 if vl_metrica == 0:
                     break  # pula para o proximo jogo, acelerando o processamento
 
             # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
-            if vl_metrica > 1:
+            if vl_metrica > 0:
                 self.compute_jogos.append(jogo)
+        logger.debug("Finalizou o EVALUATE de todas as combinacoes de jogos...")
 
-        logger.debug(f"Numero de jogos nao zerados = {len(self.compute_jogos)}")
-        for cproc in self.compute_chain:  # pula o primeiro, Ordinal, que ja foi executado
-            logger.debug(f"{cproc.id_process}: Jogos zerados = {cproc.qtd_zerados:,}")
+        # verifica quantos jogos foram descartados e quantos serao considerados:
+        qtd_considerados: int = len(self.compute_jogos)
+        qtd_zerados: int = 0
+        for cproc in self.compute_chain:
+            qtd_zerados += cproc.qtd_zerados
+            logger.debug(f"{cproc.id_process}: Jogos Zerados = {formatd(cproc.qtd_zerados)}")
+
+        logger.debug(f"Resultado da avaliacao dos  {formatd(qtd_jogos)}  jogos combinados:\n"
+                     f"\tNumero de jogos descartados (zerado) = {formatd(qtd_zerados)}\n"
+                     f"\tNumero de jogos a serem considerados = {formatd(qtd_considerados)}\n")
         if True is not None:
             return 0
 
@@ -189,10 +195,10 @@ class SimuladoComputado(AbstractSimulate):
                      f"  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # zera os contadores dos ciclos fechados:
-        boloes: dict[int: int] = self.boloes_caixa[payload.id_loteria]
-        faixas: dict[int, Faixa] = payload.faixas
-        bolas: int = payload.qtd_bolas
-        base: int = payload.qtd_bolas_sorteio
+        boloes: dict[int: int] = self.boloes_caixa[loteria.id_loteria]
+        faixas: dict[int, Faixa] = loteria.faixas
+        bolas: int = loteria.qtd_bolas
+        base: int = loteria.qtd_bolas_sorteio
         precob: float = faixas[base].preco
 
         total_gastosb: float = 0.00

@@ -43,7 +43,10 @@ class ComputeDistancia(AbstractCompute):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('distancias_jogos', 'distancias_percentos', 'distancias_concursos', 'qtd_zerados')
+    __slots__ = ('distancias_jogos', 'distancias_percentos', 'distancias_concursos', 
+                 'ultimas_distancias_repetidas', 'ultimas_distancias_percentos',
+                 'vl_distancia_ultimo_concurso', 'vl_distancia_penultimo_concurso',
+                 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -54,6 +57,10 @@ class ComputeDistancia(AbstractCompute):
         self.distancias_jogos: Optional[list[int]] = None
         self.distancias_percentos: Optional[list[float]] = None
         self.distancias_concursos: Optional[list[int]] = None
+        self.ultimas_distancias_repetidas: Optional[list[int]] = None
+        self.ultimas_distancias_percentos: Optional[list[float]] = None
+        self.vl_distancia_ultimo_concurso: int = 0
+        self.vl_distancia_penultimo_concurso: int = 0
         self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
@@ -62,19 +69,19 @@ class ComputeDistancia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
-        # qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = loteria.qtd_bolas
 
         # efetua analise de todas as combinacoes de jogos da loteria:
 
@@ -82,8 +89,8 @@ class ComputeDistancia(AbstractCompute):
         self.distancias_jogos = cb.new_list_int(qtd_items)
 
         # calcula a distancia de cada combinacao de jogo:
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
             vl_distancia = cb.calc_distancia(jogo)
             self.distancias_jogos[vl_distancia] += 1
 
@@ -95,9 +102,24 @@ class ComputeDistancia(AbstractCompute):
 
         # calcula a distancia de cada sorteio dos concursos:
         self.distancias_concursos = cb.new_list_int(qtd_items)
+        self.ultimas_distancias_repetidas = cb.new_list_int(qtd_items)
+        self.vl_distancia_ultimo_concurso = -1
+        self.vl_distancia_penultimo_concurso = -1
         for concurso in concursos:
             vl_distancia: int = cb.calc_distancia(concurso.bolas)
             self.distancias_concursos[vl_distancia] += 1
+            # verifica se repetiu a distancia do ultimo concurso:
+            if vl_distancia == self.vl_distancia_ultimo_concurso:
+                self.ultimas_distancias_repetidas[vl_distancia] += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.vl_distancia_penultimo_concurso = self.vl_distancia_ultimo_concurso
+            self.vl_distancia_ultimo_concurso = vl_distancia
+
+        # contabiliza o percentual das ultimas distancias:
+        self.ultimas_distancias_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.ultimas_distancias_repetidas):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            self.ultimas_distancias_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
@@ -105,7 +127,7 @@ class ComputeDistancia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende da distancia entre as dezenas:
         vl_distancia: int = cb.calc_distancia(jogo)
         percent: float = self.distancias_percentos[vl_distancia]
@@ -114,7 +136,24 @@ class ComputeDistancia(AbstractCompute):
         if percent < 2:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_fator(percent)
+
+        # verifica se esse jogo repetiu a distancia do ultimo e penultimo concursos:
+        if vl_distancia != self.vl_distancia_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_distancia == self.vl_distancia_ultimo_concurso == \
+                self.vl_distancia_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima distancia:
+        percent_repetida: float = self.ultimas_distancias_percentos[vl_distancia]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a distancia:
+            return fator_percent * to_redutor(percent_repetida)
 
 # ----------------------------------------------------------------------------

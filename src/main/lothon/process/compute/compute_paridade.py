@@ -44,6 +44,8 @@ class ComputeParidade(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('paridades_jogos', 'paridades_percentos', 'paridades_concursos',
+                 'ultimas_paridades_repetidas', 'ultimas_paridades_percentos',
+                 'qtd_pares_ultimo_concurso', 'qtd_pares_penultimo_concurso',
                  'frequencias_paridades', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
@@ -55,6 +57,10 @@ class ComputeParidade(AbstractCompute):
         self.paridades_jogos: Optional[list[int]] = None
         self.paridades_percentos: Optional[list[float]] = None
         self.paridades_concursos: Optional[list[int]] = None
+        self.ultimas_paridades_repetidas: Optional[list[int]] = None
+        self.ultimas_paridades_percentos: Optional[list[float]] = None
+        self.qtd_pares_ultimo_concurso: int = 0
+        self.qtd_pares_penultimo_concurso: int = 0
         self.frequencias_paridades: Optional[list[SerieSorteio]] = None
         self.qtd_zerados: int = 0
 
@@ -64,28 +70,26 @@ class ComputeParidade(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
-        # qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas_sorteio
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = loteria.qtd_bolas_sorteio
 
         # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada paridade:
         self.paridades_jogos = cb.new_list_int(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
             qtd_pares: int = cb.count_pares(jogo)
             self.paridades_jogos[qtd_pares] += 1
 
@@ -95,16 +99,29 @@ class ComputeParidade(AbstractCompute):
             percent: float = round((value / qtd_jogos) * 10000) / 100
             self.paridades_percentos[key] = percent
 
-        # contabiliza pares (e impares) de cada sorteio dos concursos:
+        # contabiliza os pares (e impares) de cada sorteio dos concursos:
         self.paridades_concursos = cb.new_list_int(qtd_items)
+        self.ultimas_paridades_repetidas = cb.new_list_int(qtd_items)
+        self.qtd_pares_ultimo_concurso = -1
+        self.qtd_pares_penultimo_concurso = -1
         for concurso in concursos:
             qtd_pares: int = cb.count_pares(concurso.bolas)
             self.paridades_concursos[qtd_pares] += 1
+            # verifica se repetiu a paridade do ultimo concurso:
+            if qtd_pares == self.qtd_pares_ultimo_concurso:
+                self.ultimas_paridades_repetidas[qtd_pares] += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.qtd_pares_penultimo_concurso = self.qtd_pares_ultimo_concurso
+            self.qtd_pares_ultimo_concurso = qtd_pares
 
-        # zera os contadores de frequencias e atrasos das paridades:
-        self.frequencias_paridades = cb.new_list_series(qtd_items)
+        # contabiliza o percentual das ultimas paridades:
+        self.ultimas_paridades_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.ultimas_paridades_repetidas):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            self.ultimas_paridades_percentos[key] = percent
 
         # contabiliza as frequencias e atrasos das paridades em todos os sorteios ja realizados:
+        self.frequencias_paridades = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # contabiliza o numero de paridades do concurso:
             qtd_pares = cb.count_pares(concurso.bolas)
@@ -122,7 +139,7 @@ class ComputeParidade(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de pares no jogo:
         qt_pares: int = cb.count_pares(jogo)
         percent: float = self.paridades_percentos[qt_pares]
@@ -131,7 +148,23 @@ class ComputeParidade(AbstractCompute):
         if percent < 10:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_fator(percent)
+
+        # verifica se esse jogo repetiu a paridade do ultimo e penultimo concursos:
+        if qt_pares != self.qtd_pares_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif qt_pares == self.qtd_pares_ultimo_concurso == self.qtd_pares_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima paridade:
+        percent_repetida: float = self.ultimas_paridades_percentos[qt_pares]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a paridade:
+            return fator_percent * to_redutor(percent_repetida)
 
 # ----------------------------------------------------------------------------

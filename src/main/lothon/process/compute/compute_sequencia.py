@@ -44,6 +44,8 @@ class ComputeSequencia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('sequencias_jogos', 'sequencias_percentos', 'sequencias_concursos',
+                 'ultimas_sequencias_repetidas', 'ultimas_sequencias_percentos',
+                 'qtd_sequencias_ultimo_concurso', 'qtd_sequencias_penultimo_concurso',
                  'frequencias_sequencias', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
@@ -55,6 +57,10 @@ class ComputeSequencia(AbstractCompute):
         self.sequencias_jogos: Optional[list[int]] = None
         self.sequencias_percentos: Optional[list[float]] = None
         self.sequencias_concursos: Optional[list[int]] = None
+        self.ultimas_sequencias_repetidas: Optional[list[int]] = None
+        self.ultimas_sequencias_percentos: Optional[list[float]] = None
+        self.qtd_sequencias_ultimo_concurso: int = 0
+        self.qtd_sequencias_penultimo_concurso: int = 0
         self.frequencias_sequencias: Optional[list[SerieSorteio]] = None
         self.qtd_zerados: int = 0
 
@@ -64,26 +70,26 @@ class ComputeSequencia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        qtd_jogos: int = payload.qtd_jogos
-        concursos: list[Concurso] = payload.concursos
-        # qtd_concursos: int = len(concursos)
-        qtd_items: int = payload.qtd_bolas_sorteio - 1
+        nmlot: str = loteria.nome_loteria
+        qtd_jogos: int = loteria.qtd_jogos
+        concursos: list[Concurso] = loteria.concursos
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = loteria.qtd_bolas_sorteio - 1
 
         # efetua analise de todas as combinacoes de jogos da loteria:
 
         # contabiliza sequencias de cada combinacao de jogo:
         self.sequencias_jogos = cb.new_list_int(qtd_items)
-        range_jogos: range = range(1, payload.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, payload.qtd_bolas_sorteio):
+        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
             qt_sequencias = cb.count_sequencias(jogo)
             self.sequencias_jogos[qt_sequencias] += 1
 
@@ -95,9 +101,24 @@ class ComputeSequencia(AbstractCompute):
 
         # contabiliza sequencias de cada sorteio dos concursos:
         self.sequencias_concursos = cb.new_list_int(qtd_items)
+        self.ultimas_sequencias_repetidas = cb.new_list_int(qtd_items)
+        self.qtd_sequencias_ultimo_concurso = -1
+        self.qtd_sequencias_penultimo_concurso = -1
         for concurso in concursos:
             qt_sequencias: int = cb.count_sequencias(concurso.bolas)
             self.sequencias_concursos[qt_sequencias] += 1
+            # verifica se repetiu o numero de sequencias do ultimo concurso:
+            if qt_sequencias == self.qtd_sequencias_ultimo_concurso:
+                self.ultimas_sequencias_repetidas[qt_sequencias] += 1
+            # atualiza ambos flags, para ultimo e penultimo concursos
+            self.qtd_sequencias_penultimo_concurso = self.qtd_sequencias_ultimo_concurso
+            self.qtd_sequencias_ultimo_concurso = qt_sequencias
+
+        # contabiliza o percentual das ultimas sequencias:
+        self.ultimas_sequencias_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.ultimas_sequencias_repetidas):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            self.ultimas_sequencias_percentos[key] = percent
 
         # contabiliza as frequencias e atrasos das sequencias em todos os sorteios ja realizados:
         self.frequencias_sequencias = cb.new_list_series(qtd_items)
@@ -118,7 +139,7 @@ class ComputeSequencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de sequencias no jogo:
         qt_sequencias: int = cb.count_sequencias(jogo)
         percent: float = self.sequencias_percentos[qt_sequencias]
@@ -127,7 +148,24 @@ class ComputeSequencia(AbstractCompute):
         if percent < 9:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_fator(percent)
+
+        # verifica se esse jogo repetiu o numero de sequencias do ultimo e penultimo concursos:
+        if qt_sequencias != self.qtd_sequencias_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif qt_sequencias == self.qtd_sequencias_ultimo_concurso == \
+                self.qtd_sequencias_penultimo_concurso:
+            self.qtd_zerados += 1
+            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo numero de sequencias:
+        percent_repetida: float = self.ultimas_sequencias_percentos[qt_sequencias]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o numero de sequencias:
+            return fator_percent * to_redutor(percent_repetida)
 
 # ----------------------------------------------------------------------------

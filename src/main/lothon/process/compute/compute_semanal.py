@@ -62,23 +62,23 @@ class ComputeSemanal(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        # qtd_concursos: int = len(payload.concursos)
-        qt_acertos_premio_maximo: int = min(payload.faixas)  # a menor faixa eh o premio principal
+        nmlot: str = loteria.nome_loteria
+        # qtd_concursos: int = len(loteria.concursos)
+        qt_acertos_premio_maximo: int = min(loteria.faixas)  # a menor faixa eh o premio principal
         qtd_items: int = 6  # dias da semana onde ocorrem sorteios - vai de 0=Seg, ..., 6=Dom
 
         # contabiliza as premiacoes e identifica o dia da semana para cada faixa de premiacao:
         self.semanal_premiacoes = cb.new_list_int(qtd_items)  # vai de 0=Seg, ..., 6=Dom
         self.semanal_ganhadores = cb.new_list_int(qtd_items)
-        for concurso in payload.concursos:
+        for concurso in loteria.concursos:
             # identifica o numero de ganhadores do premio maximo:
             qt_ganhadores: int = concurso.get_ganhadores_premio(qt_acertos_premio_maximo)
             if qt_ganhadores > 0:
@@ -92,7 +92,7 @@ class ComputeSemanal(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         return 1.0
 
 # ----------------------------------------------------------------------------

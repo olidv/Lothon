@@ -55,22 +55,22 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         # valida se possui concursos a serem analisados:
-        if payload is None or payload.concursos is None or len(payload.concursos) == 0:
+        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = payload.nome_loteria
-        concursos: list[Concurso] = payload.concursos
+        nmlot: str = loteria.nome_loteria
+        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = payload.qtd_bolas_sorteio
+        # qtd_items: int = loteria.qtd_bolas_sorteio
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeRecorrencia()
-        cp.execute(payload)
+        cp.execute(loteria)
 
         # efetua analise das recorrencias nos concursos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de recorrencias dos  "
@@ -90,7 +90,7 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
         # formata o cabecalho da impressao do resultado:
         output: str = f"\n\t CONCURSO"
-        for val in range(0, payload.qtd_bolas_sorteio + 1):
+        for val in range(0, loteria.qtd_bolas_sorteio + 1):
             output += f"     {val:0>2}"
         output += f"\n"
 
@@ -99,7 +99,7 @@ class AnaliseRecorrencia(AbstractAnalyze):
         concursos_anteriores: list[Concurso] = concursos[:qtd_concursos_anteriores]
         for concurso_atual in concursos[qtd_concursos_anteriores:]:
             # zera os contadores de cada recorrencia:
-            dezenas_repetidas: list[int] = cb.new_list_int(payload.qtd_bolas_sorteio)
+            dezenas_repetidas: list[int] = cb.new_list_int(loteria.qtd_bolas_sorteio)
 
             # calcula a paridade dos concursos passados ate o concurso anterior:
             for concurso_anterior in concursos_anteriores:

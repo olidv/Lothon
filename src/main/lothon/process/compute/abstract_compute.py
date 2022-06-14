@@ -42,11 +42,11 @@ class AbstractCompute(AbstractProcess, ABC):
     # --- METODOS ------------------------------------------------------------
 
     @abstractmethod
-    def execute(self, payload: Loteria) -> int:
+    def execute(self, loteria: Loteria) -> int:
         pass
 
     @abstractmethod
-    def evaluate(self, jogo: tuple) -> float:
+    def evaluate(self, ordinal: int, jogo: tuple) -> float:
         pass
 
 # ----------------------------------------------------------------------------
