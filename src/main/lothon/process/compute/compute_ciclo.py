@@ -70,6 +70,8 @@ class ComputeCiclo(AbstractCompute):
         concursos: list[Concurso] = loteria.concursos
         # qtd_concursos: int = len(concursos)
         qtd_items: int = loteria.qtd_bolas
+        # com 90% das bolas ja pode fechar o ciclo
+        limit_ciclo: int = loteria.qtd_bolas - (loteria.qtd_bolas * 9 // 10)
 
         # inicializa a serie para os ciclos fechados:
         self.frequencias_ciclos = SerieSorteio(0)
@@ -84,7 +86,8 @@ class ComputeCiclo(AbstractCompute):
             cb.count_dezenas(concurso.bolas, dezenas)
 
             # se ainda tem algum zero, entao nao fechou o ciclo:
-            if 0 in dezenas:
+            qtd_falta_ciclo: int = dezenas.count(0)  # quantas dezenas faltam para fechar o ciclo?
+            if qtd_falta_ciclo > limit_ciclo:
                 continue
 
             # fechando o ciclo, contabiliza o ciclo fechado (onde fecha o ciclo eh inclusivo):

@@ -145,9 +145,6 @@ class ComputeMatricial(AbstractCompute):
             percent: float = round((value / qtd_concursos) * 10000) / 100
             self.ultimas_matrizes_percentos[key] = percent
 
-        print("***** self.ultimas_matrizes_repetidas = ", self.ultimas_matrizes_repetidas)
-        print("***** self.ultimas_matrizes_percentos = ", self.ultimas_matrizes_percentos)
-
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0

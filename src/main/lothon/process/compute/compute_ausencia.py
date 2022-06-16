@@ -1,11 +1,11 @@
 """
    Package lothon.process.compute
-   Module  compute_frequencia.py
+   Module  compute_ausencia.py
 
 """
 
 __all__ = [
-    'ComputeFrequencia'
+    'ComputeAusencia'
 ]
 
 # ----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Loteria, Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -39,14 +39,13 @@ QTD_TOPOS_RANKING: int = 10
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class ComputeFrequencia(AbstractCompute):
+class ComputeAusencia(AbstractCompute):
     """
     Implementacao de classe para .
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('frequencias_dezenas', 'topos_dezenas', 'topos_concursos',
-                 'topos_frequentes', 'topos_percentos',
+    __slots__ = ('topos_concursos', 'topos_dezenas', 'topos_ausentes', 'topos_percentos',
                  'ultimos_topos_repetidos', 'ultimos_topos_percentos',
                  'qtd_topos_ultimo_concurso', 'qtd_topos_penultimo_concurso',
                  'qtd_zerados')
@@ -54,13 +53,12 @@ class ComputeFrequencia(AbstractCompute):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Computacao de Frequencia dos Concursos")
+        super().__init__("Computacao da Ausencia das Dezenas")
 
         # estrutura para a coleta de dados a partir do processamento de analise:
-        self.frequencias_dezenas: Optional[list[SerieSorteio]] = None
-        self.topos_dezenas: Optional[list[int]] = None
         self.topos_concursos: Optional[list[int]] = None
-        self.topos_frequentes: Optional[list[int]] = None
+        self.topos_dezenas: Optional[list[int]] = None
+        self.topos_ausentes: Optional[list[int]] = None
         self.topos_percentos: Optional[list[float]] = None
         self.ultimos_topos_repetidos: Optional[list[int]] = None
         self.ultimos_topos_percentos: Optional[list[float]] = None
@@ -74,7 +72,7 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- METODOS ------------------------------------------------------------
 
-    def count_topos_frequencia(self, bolas: tuple[int, ...]) -> int:
+    def count_topos_ausencia(self, bolas: tuple[int, ...]) -> int:
         qtd_topos: int = cb.count_recorrencias(bolas, self.topos_dezenas)
         return qtd_topos
 
@@ -91,41 +89,25 @@ class ComputeFrequencia(AbstractCompute):
         nmlot: str = loteria.nome_loteria
         concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas
+        # qtd_items: int = loteria.qtd_bolas
 
-        # zera os contadores de frequencias e atrasos:
-        self.frequencias_dezenas = cb.new_list_series(qtd_items)
-
-        # contabiliza as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
-        for concurso in concursos:
-            # registra o concurso para cada dezena sorteada:
-            for bola in concurso.bolas:
-                self.frequencias_dezenas[bola].add_sorteio(concurso.id_concurso)
-
-        # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
-        ultimo_concurso: Concurso = concursos[-1]
-        for serie in self.frequencias_dezenas[1:]:
-            # vai aproveitar e contabilizar as medidas estatisticas para a bola:
-            serie.last_sorteio(ultimo_concurso.id_concurso)
-
-        # contabiliza as frequencias evolutivas das dezenas para extrair os topos mais frequentes:
+        # contabiliza os atrasos evolutivos das dezenas para extrair os topos mais frequentes:
         self.topos_concursos = cb.new_list_int(qtd_concursos)  # registro o topo de cada concurso
-        self.topos_frequentes = cb.new_list_int(QTD_TOPOS_RANKING)
+        self.topos_ausentes = cb.new_list_int(QTD_TOPOS_RANKING)
         self.ultimos_topos_repetidos = cb.new_list_int(QTD_TOPOS_RANKING)
         self.qtd_topos_ultimo_concurso = -1
         self.qtd_topos_penultimo_concurso = -1
 
-        concursos_anteriores: list[Concurso] = [concursos[0]]
+        concursos_anteriores: list[Concurso] = concursos[:1]
         for concurso in concursos[1:]:
-            # extrai o topo do ranking com as dezenas com maior frequencia:
-            topos_concurso: list[int] = cb.calc_topos_frequencia(concursos_anteriores,
-                                                                 loteria.qtd_bolas,
-                                                                 QTD_TOPOS_RANKING)
+            # extrai o topo do ranking com as dezenas com maior ausencia:
+            topos_concurso: list[int] = cb.calc_topos_ausencia(concursos_anteriores,
+                                                               loteria.qtd_bolas, QTD_TOPOS_RANKING)
 
-            # identifica o numero de dezenas do concurso que estao entre o topo de frequencias:
+            # identifica o numero de dezenas do concurso que estao entre o topo de ausencia:
             qtd_topos: int = cb.count_recorrencias(concurso.bolas, topos_concurso)
             self.topos_concursos[concurso.id_concurso] = qtd_topos
-            self.topos_frequentes[qtd_topos] += 1
+            self.topos_ausentes[qtd_topos] += 1
 
             # verifica se repetiu o numero de topos do ultimo concurso:
             if qtd_topos == self.qtd_topos_ultimo_concurso:
@@ -137,13 +119,12 @@ class ComputeFrequencia(AbstractCompute):
             # adiciona o concurso atual para a proxima iteracao (ai ele sera um concurso anterior):
             concursos_anteriores.append(concurso)
 
-        # extrai os topos do ranking com as dezenas com maior frequencia em todos os concursos:
-        self.topos_dezenas = cb.calc_topos_frequencia(concursos, loteria.qtd_bolas,
-                                                      QTD_TOPOS_RANKING)
+        # extrai os topos do ranking com as dezenas com maior ausencia em todos os concursos:
+        self.topos_dezenas = cb.calc_topos_ausencia(concursos, loteria.qtd_bolas, QTD_TOPOS_RANKING)
 
         # contabiliza o percentual dos topos dos concursos:
         self.topos_percentos = cb.new_list_float(QTD_TOPOS_RANKING)
-        for key, value in enumerate(self.topos_frequentes):
+        for key, value in enumerate(self.topos_ausentes):
             percent: float = round((value / qtd_concursos) * 10000) / 100
             self.topos_percentos[key] = percent
 
@@ -161,7 +142,7 @@ class ComputeFrequencia(AbstractCompute):
 
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de topos no jogo:
-        qtd_topos: int = self.count_topos_frequencia(jogo)
+        qtd_topos: int = self.count_topos_ausencia(jogo)
         percent: float = self.topos_percentos[qtd_topos]
 
         # ignora valores muito baixos de probabilidade:

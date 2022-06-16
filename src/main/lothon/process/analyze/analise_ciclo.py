@@ -67,6 +67,8 @@ class AnaliseCiclo(AbstractAnalyze):
         concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
         qtd_items: int = loteria.qtd_bolas
+        # com 90% das bolas ja pode fechar o ciclo
+        limit_ciclo: int = loteria.qtd_bolas - (loteria.qtd_bolas * 9 // 10)
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeCiclo()
@@ -89,7 +91,8 @@ class AnaliseCiclo(AbstractAnalyze):
             cb.count_dezenas(concurso.bolas, dezenas)
 
             # se ainda tem algum zero, entao nao fechou o ciclo:
-            if 0 in dezenas:
+            qtd_falta_ciclo: int = dezenas.count(0)  # quantas dezenas faltam para fechar o ciclo?
+            if qtd_falta_ciclo > limit_ciclo:
                 # printa as dezenas que ainda faltam para zerar:
                 for idx, value in enumerate(dezenas[1:]):
                     if value == 0:

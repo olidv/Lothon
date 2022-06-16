@@ -47,6 +47,7 @@ __all__ = [
 # Built-in/Generic modules
 import itertools
 import math
+from collections.abc import Collection
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -163,7 +164,7 @@ def get_decenario(dezena: int) -> int:
     return (dezena - 1) // 10
 
 
-def to_string(valores) -> str:  # valores: list | tuple | Iterable | Collection
+def to_string(valores: Collection) -> str:  # valores: list | tuple | Iterable | Collection
     # valida os parametros:
     if valores is None or len(valores) == 0:
         return ''
@@ -173,6 +174,46 @@ def to_string(valores) -> str:  # valores: list | tuple | Iterable | Collection
         tostr += f"{num:0>2}"
 
     return tostr
+
+
+def to_dict(valores: Collection, order_key: bool = False, order_value: bool = False,
+            reverse_key: bool = False, reverse_value: bool = False) -> dict:
+    # identifica as frequencias das dezenas em ordem: FIXME: criar funcao helper em cb
+    dicio: dict = {}
+    for key, value in enumerate(valores):
+        dicio[key] = value
+
+    # ordena o dicionario conforme solicitado - parametros mutualmente exclusivos (usar apenas um):
+    if order_key:
+        dicio = {k: v for k, v in sorted(dicio.items(), key=lambda item: item[0])}
+    elif order_value:
+        dicio = {k: v for k, v in sorted(dicio.items(), key=lambda item: item[1])}
+    elif reverse_key:
+        dicio = {k: v for k, v in sorted(dicio.items(), key=lambda item: item[0], reverse=True)}
+    elif reverse_value:
+        dicio = {k: v for k, v in sorted(dicio.items(), key=lambda item: item[1], reverse=True)}
+
+    return dicio
+
+
+def sort_dict(dicio: dict, order_key: bool = False, order_value: bool = False,
+              reverse_key: bool = False, reverse_value: bool = False) -> dict:
+    # ordena o dicionario conforme solicitado - parametros mutualmente exclusivos (usar apenas um):
+    if order_key:
+        return {k: v for k, v in sorted(dicio.items(), key=lambda item: item[0])}
+    elif order_value:
+        return {k: v for k, v in sorted(dicio.items(), key=lambda item: item[1])}
+    elif reverse_key:
+        return {k: v for k, v in sorted(dicio.items(), key=lambda item: item[0], reverse=True)}
+    elif reverse_value:
+        return {k: v for k, v in sorted(dicio.items(), key=lambda item: item[1], reverse=True)}
+    else:  # nada informado, nada faz...
+        return dicio
+
+
+def take_keys(dicio: dict, qtd_keys: int) -> list:
+    list_keys: list = [k for k in list(dicio.keys())[0:qtd_keys]]
+    return list_keys
 
 
 # ----------------------------------------------------------------------------
@@ -250,7 +291,7 @@ def soma_dezenas(bolas: tuple[int, ...]) -> int:
     return soma
 
 
-def count_recorrencias(bolas1: tuple[int, ...], bolas2: tuple[int, ...]) -> int:
+def count_recorrencias(bolas1: Collection, bolas2: Collection) -> int:
     # valida os parametros:
     if bolas1 is None or len(bolas1) == 0 or bolas2 is None or len(bolas2) == 0:
         return False
@@ -281,6 +322,45 @@ def max_recorrencias(bolas: tuple[int, ...], concursos: list[Concurso],
             qt_max_recorrencias = qt_recorrencias
 
     return qt_max_recorrencias
+
+
+def calc_topos_frequencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: int) -> list[int]:
+    # extrai as frequencias de todas as bolas ate o concurso atual:
+    frequencias_concursos: list[int] = new_list_int(qtd_bolas)
+    for concurso in concursos:
+        # registra a frequencia geral de todas as bolas dos concursos anteriores:
+        for dezena in concurso.bolas:
+            frequencias_concursos[dezena] += 1
+
+    # identifica as frequencias das dezenas em ordem reversa da frequencia nos sorteios:
+    frequencias_dezenas: dict = to_dict(frequencias_concursos, reverse_value=True)
+
+    # extrai o topo do ranking com as dezenas com maior frequencia e retorna:
+    list_topos: list[int] = take_keys(frequencias_dezenas, qtd_topos)
+    return list_topos
+
+
+def calc_topos_ausencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: int) -> list[int]:
+    # contabiliza o numero de concursos em que cada dezena ficou ausente ate ser sorteada:
+    ausencias_concursos: list[int] = new_list_int(qtd_bolas, -1)
+    qtd_concursos: int = 0
+    for concurso in reversed(concursos):
+        # registra o sorteio da dezena com o numero de concursos em que ficou ausente:
+        for dezena in concurso.bolas:
+            if ausencias_concursos[dezena] == -1:
+                ausencias_concursos[dezena] = qtd_concursos
+        # vai continuar processando enquanto não tiver contado todas as dezenas
+        if -1 in ausencias_concursos:
+            qtd_concursos += 1
+        else:  # nao tendo mais dezenas a processar, ja pode pular fora:
+            break
+
+    # identifica as ausencias das dezenas em ordem reversa do atraso ate o ultimo sorteio:
+    ausencias_dezenas: dict = to_dict(ausencias_concursos, reverse_value=True)
+
+    # extrai o topo do ranking com as dezenas com maior ausencia e retorna:
+    list_topos: list[int] = take_keys(ausencias_dezenas, qtd_topos)
+    return list_topos
 
 
 def count_pares(bolas: tuple[int, ...]) -> int:

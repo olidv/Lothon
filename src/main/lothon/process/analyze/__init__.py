@@ -27,6 +27,7 @@ from lothon.process.analyze.analise_ciclo import AnaliseCiclo
 from lothon.process.analyze.analise_numerologia import AnaliseNumerologia
 from lothon.process.analyze.analise_somatorio import AnaliseSomatorio
 from lothon.process.analyze.analise_frequencia import AnaliseFrequencia
+from lothon.process.analyze.analise_ausencia import AnaliseAusencia
 from lothon.process.analyze.analise_colunario import AnaliseColunario
 from lothon.process.analyze.analise_distancia import AnaliseDistancia
 from lothon.process.analyze.analise_espacamento import AnaliseEspacamento
@@ -49,7 +50,7 @@ _process_chain: list[AbstractAnalyze] = []
 def get_process_chain() -> list[AbstractAnalyze]:
     global _process_chain
     if len(_process_chain) == 0:
-        # inicia pelas analises que podem ser feitas de forma mais simples:
+        # SIM: inicia pelas analises que podem ser feitas de forma mais simples...
         # _process_chain.append(AnaliseParidade())     # 0:00:32
         # _process_chain.append(AnaliseSequencia())    # 0:00:47
         # _process_chain.append(AnaliseEspacamento())  # 0:01:03
@@ -62,12 +63,13 @@ def get_process_chain() -> list[AbstractAnalyze]:
         # _process_chain.append(AnaliseMatricial())    # 0:00:32
         # _process_chain.append(AnaliseOrdinal())      # 0:00:32
         # _process_chain.append(AnaliseDispersao())    # 0:00:00
+        # _process_chain.append(AnaliseFrequencia())   # 0:00:00
+        _process_chain.append(AnaliseAusencia())   # 0:00:00
 
-        # ???
-        _process_chain.append(AnaliseFrequencia())   # 0:00:00
-
-        # NAO
+        # SIM: com ressalvas, pois demora muito tempo para processar...
         # _process_chain.append(AnaliseRecorrencia())  # 0:00:31
+
+        # NAO: componentes sem EVALUATE implementado...
         # _process_chain.append(AnaliseCiclo())        # 0:00:00
         # _process_chain.append(AnaliseSemanal())      # 0:00:00
 

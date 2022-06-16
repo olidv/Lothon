@@ -127,9 +127,6 @@ class ComputeColunario(AbstractCompute):
         self.ultimos_colunarios_percentos = round((self.ultimos_colunarios_repetidos /
                                                    qtd_concursos) * 10000) / 100
 
-        print("***** self.ultimos_colunarios_repetidos = ", self.ultimos_colunarios_repetidos)
-        print("***** self.ultimos_colunarios_percentos = ", self.ultimos_colunarios_percentos)
-
         # contabiliza as frequencias e atrasos dos colunarios em todos os sorteios ja realizados:
         self.frequencias_colunarios = cb.new_list_series(qtd_items)
         for concurso in concursos:

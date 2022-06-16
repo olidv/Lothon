@@ -67,7 +67,6 @@ class AnaliseFrequencia(AbstractAnalyze):
         nmlot: str = loteria.nome_loteria
         concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        # qtd_items: int = loteria.qtd_bolas
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeFrequencia()
@@ -103,34 +102,52 @@ class AnaliseFrequencia(AbstractAnalyze):
                      f"em TODOS os  {formatd(qtd_concursos)}  concursos da loteria.")
 
         # inicializa o print de resultado dos contadores de frequencias:
-        output: str = f"\n\tCONCURSO  FREQUENCIAS:   MENOR   MAIOR   MODA   MEDIA   MEDIANA\n"
+        output: str = f"\n\tCONCURSO  FREQUENCIAS:   MENOR   MAIOR   MODA   MEDIA   MEDIANA" \
+                      f"    #TOPOS\n"
 
         # contabiliza as frequencias das dezenas em todos os sorteios ja realizados:
         concursos_anteriores: list[Concurso] = [concursos[0]]
         for concurso in concursos[1:]:
-            bolas_concurso: tuple[int, ...] = concurso.bolas
-            # registra a frequencia de cada dezena sorteada no concurso corrente:
-            frequencias: list[int] = [0] * len(bolas_concurso)  # uma frequencia para cada bola
+            # uma frequencia para cada bola sorteada no concurso corrente, ignorando zero-index:
+            frequencias_concurso: list[int] = cb.new_list_int(loteria.qtd_bolas_sorteio - 1)
             for concurso_anterior in concursos_anteriores:
+                # registra a frequencia de cada dezena sorteada no concurso corrente:
                 id_dezena: int = -1
-                for dezena in bolas_concurso:
+                for dezena in concurso.bolas:
                     id_dezena += 1  # na primeira iteracao, vai incrementar para zero
                     if dezena in concurso_anterior.bolas:
-                        frequencias[id_dezena] += 1
+                        frequencias_concurso[id_dezena] += 1
 
             # formata os valores para o concurso atual:
-            frequencias = sorted(frequencias)  # ja ordena para o calculo da mediana
+            frequencias_concurso = sorted(frequencias_concurso)  # agiliza o calculo da mediana
             output += f"\t   {formatd(concurso.id_concurso,5)}  ............   " \
-                      f"{formatd(min(frequencias),5)}   " \
-                      f"{formatd(max(frequencias),5)}  " \
-                      f"{formatd(round(stts.mode(frequencias)),5)}   " \
-                      f"{formatd(round(stts.fmean(frequencias)),5)}     " \
-                      f"{formatd(round(stts.median(frequencias)),5)}\n"
+                      f"{formatd(min(frequencias_concurso),5)}   " \
+                      f"{formatd(max(frequencias_concurso),5)}  " \
+                      f"{formatd(round(stts.mode(frequencias_concurso)),5)}   " \
+                      f"{formatd(round(stts.fmean(frequencias_concurso)),5)}     " \
+                      f"{formatd(round(stts.median(frequencias_concurso)),5)}        " \
+                      f"{formatd(cp.topos_concursos[concurso.id_concurso], 2)}\n"
 
             # adiciona o concurso atual para a proxima iteracao (ai ele sera um concurso anterior):
             concursos_anteriores.append(concurso)
         # apos percorrer todos os concursos, printa as frequencias medias:
         logger.debug(f"{nmlot}: Frequencias Medias das Dezenas Sorteadas: {output}")
+
+        # printa os topos de cada sorteio dos concursos:
+        output: str = f"\n\t  ? TOPOS     PERC%       #TOTAL\n"
+        for key, value in enumerate(cp.topos_frequentes):
+            percent: float = cp.topos_percentos[key]
+            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Topos de Frequencia Resultantes: {output}")
+
+        # printa quais os pares (e impares) que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  ? TOPOS     PERC%       #REPETIDOS\n"
+        for key, value in enumerate(cp.ultimos_topos_repetidos):
+            percent: float = cp.ultimos_topos_percentos[key]
+            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo topo: {output}")
 
         # efetua analise de atrasos medios das dezenas em todos os concursos:
         logger.debug(f"{nmlot}: Executando analise media de atrasos das dezenas sorteadas "
@@ -207,8 +224,8 @@ class AnaliseFrequencia(AbstractAnalyze):
                 dezenas_frequencias[key] = val
 
             # ordena o dicionario para identificar o ranking de cada dezena:
-            dezenas_frequencias = {k: v for k, v in sorted(dezenas_frequencias.items(),
-                                                           key=lambda item: item[1], reverse=True)}
+            dezenas_frequencias = cb.sort_dict(dezenas_frequencias, reverse_value=True)
+
             dezenas_ranking: list[int] = cb.new_list_int(loteria.qtd_bolas)
             idx: int = 0
             for k, v in dezenas_frequencias.items():
