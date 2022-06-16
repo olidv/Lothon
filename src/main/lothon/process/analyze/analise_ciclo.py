@@ -135,6 +135,24 @@ class AnaliseCiclo(AbstractAnalyze):
                   f"{formatf(cp.frequencias_ciclos.stdev_atraso,'7.1')}\n"
         logger.debug(f"{nmlot}: Ciclos Fechados Resultantes: {output}")
 
+        # printa os ciclos fechados ao longo dos concursos:
+        ciclos: list = cb.rtrim_list(cp.ciclos_concursos)
+        percentos: list = cb.rtrim_list(cp.ciclos_percentos)
+        output: str = f"\n\t  ? CICLO     PERC%       #TOTAL\n"
+        for key, value in enumerate(ciclos):
+            output += f"\t {formatd(key,2)} ciclo:  {formatf(percentos[key],'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Ciclos Fechados Resultantes: {output}")
+
+        # printa quais os ciclos que repetiram ao longo dos concursos:
+        ciclos: list = cb.rtrim_list(cp.ultimos_ciclos_repetidos)
+        percentos: list = cb.rtrim_list(cp.ultimos_ciclos_percentos)
+        output: str = f"\n\t  ? CICLO     PERC%       #REPETIDOS\n"
+        for key, value in enumerate(ciclos):
+            output += f"\t {formatd(key,2)} ciclo:  {formatf(percentos[key],'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram ultimo ciclo: {output}")
+
         # indica o tempo do processamento:
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

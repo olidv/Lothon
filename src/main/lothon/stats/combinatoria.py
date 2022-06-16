@@ -216,6 +216,25 @@ def take_keys(dicio: dict, qtd_keys: int) -> list:
     return list_keys
 
 
+def rtrim_list(valores: list) -> list:
+    lista_trimmed: list = []
+
+    # identifica a ultima posicao com valor valido:
+    idx_ultima: int = len(valores) - 1
+    while idx_ultima >= 0:
+        # desconsidera o ultimo elemento, se estiver zerado ou vazio:
+        if valores[idx_ultima] == 0:
+            idx_ultima -= 1
+        else:
+            break
+
+    # copia os elementos para a nova lista:
+    if idx_ultima >= 0:
+        lista_trimmed = valores[0:idx_ultima+1]
+
+    return lista_trimmed
+
+
 # ----------------------------------------------------------------------------
 # PROCESSAMENTO DE DEZENAS E SORTEIOS
 # ----------------------------------------------------------------------------

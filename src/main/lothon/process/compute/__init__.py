@@ -66,12 +66,12 @@ def get_process_chain() -> list[AbstractCompute]:
         _process_chain.append(ComputeRepetencia())   # 0:00:-04s
         _process_chain.append(ComputeDispersao())    # 0:00:
         _process_chain.append(ComputeFrequencia())   # 0:00:
-        _process_chain.append(ComputeAusencia())   # 0:00:
+        _process_chain.append(ComputeAusencia())     # 0:00:
+        _process_chain.append(ComputeCiclo())        # 0:00:
 
         # ignora estes processos que ainda nao possuem rotina de evaluate:
         # _process_chain.append(ComputeRecorrencia())  # 0:00:+25m  ...  30 min, 7 seg, 765 ms
         #                                                                38 min, 8 seg, 555 ms
-        # _process_chain.append(ComputeCiclo())        # 0:00:
         # _process_chain.append(ComputeSemanal())      # 0:00:
 
     return _process_chain
