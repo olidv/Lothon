@@ -141,7 +141,7 @@ class AnaliseFrequencia(AbstractAnalyze):
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Topos de Frequencia Resultantes: {output}")
 
-        # printa quais os pares (e impares) que repetiram no ultimo sorteio dos concursos:
+        # printa quais os topos de frequencias que repetiram no ultimo sorteio dos concursos:
         output: str = f"\n\t  ? TOPOS     PERC%       #REPETIDOS\n"
         for key, value in enumerate(cp.ultimos_topos_repetidos):
             percent: float = cp.ultimos_topos_percentos[key]

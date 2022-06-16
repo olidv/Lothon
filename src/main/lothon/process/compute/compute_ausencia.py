@@ -91,7 +91,7 @@ class ComputeAusencia(AbstractCompute):
         qtd_concursos: int = len(concursos)
         # qtd_items: int = loteria.qtd_bolas
 
-        # contabiliza os atrasos evolutivos das dezenas para extrair os topos mais frequentes:
+        # contabiliza os atrasos evolutivos das dezenas para extrair os topos mais ausentes:
         self.topos_concursos = cb.new_list_int(qtd_concursos)  # registro o topo de cada concurso
         self.topos_ausentes = cb.new_list_int(QTD_TOPOS_RANKING)
         self.ultimos_topos_repetidos = cb.new_list_int(QTD_TOPOS_RANKING)
@@ -115,6 +115,15 @@ class ComputeAusencia(AbstractCompute):
             # atualiza ambos flags, para ultimo e penultimo concursos
             self.qtd_topos_penultimo_concurso = self.qtd_topos_ultimo_concurso
             self.qtd_topos_ultimo_concurso = qtd_topos
+
+            print("***** topos_concurso = ", topos_concurso)
+            print("***** concurso.bolas = ", concurso.bolas)
+            print("***** qtd_topos = ", qtd_topos, "\n")
+            print("***** self.topos_concursos = ", self.topos_concursos)
+            print("***** self.topos_ausentes = ", self.topos_ausentes, "\n")
+            print("***** self.ultimos_topos_repetidos = ", self.ultimos_topos_repetidos)
+            print("***** self.qtd_topos_penultimo_concurso = ", self.qtd_topos_penultimo_concurso)
+            print("***** self.qtd_topos_ultimo_concurso = ", self.qtd_topos_ultimo_concurso, "\n")
 
             # adiciona o concurso atual para a proxima iteracao (ai ele sera um concurso anterior):
             concursos_anteriores.append(concurso)

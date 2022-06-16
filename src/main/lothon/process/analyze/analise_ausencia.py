@@ -20,7 +20,7 @@ import logging
 from lothon.util.eve import *
 from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
-from lothon.process.compute.compute_frequencia import ComputeFrequencia
+from lothon.process.compute.compute_ausencia import ComputeAusencia
 
 
 # ----------------------------------------------------------------------------
@@ -67,28 +67,36 @@ class AnaliseAusencia(AbstractAnalyze):
         qtd_concursos: int = len(concursos)
 
         # inicializa componente para computacao dos sorteios da loteria:
-        cp = ComputeFrequencia()
+        cp = ComputeAusencia()
         cp.execute(loteria)
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de ausencia de TODAS as "
                      f"dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
+        # inicializa o print de resultado dos contadores de ausencias:
+        output: str = f"\n\tCONCURSO  AUSENCIAS:   #TOPOS\n"
+        for concurso in concursos[1:]:
+            # formata os valores para o concurso atual:
+            output += f"\t   {formatd(concurso.id_concurso,5)}  ..........  " \
+                      f"{formatd(cp.topos_concursos[concurso.id_concurso], 2)}\n"
+        logger.debug(f"{nmlot}: Topos de Ausencias das Dezenas Sorteadas: {output}")
+
         # printa os topos de cada sorteio dos concursos:
         output: str = f"\n\t  ? TOPOS     PERC%       #TOTAL\n"
-        for key, value in enumerate(cp.topos_frequentes):
+        for key, value in enumerate(cp.topos_ausentes):
             percent: float = cp.topos_percentos[key]
             output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Topos de Ausencia Resultantes: {output}")
 
-        # printa quais os pares (e impares) que repetiram no ultimo sorteio dos concursos:
+        # printa quais os topos de ausencias que repetiram no ultimo sorteio dos concursos:
         output: str = f"\n\t  ? TOPOS     PERC%       #REPETIDOS\n"
         for key, value in enumerate(cp.ultimos_topos_repetidos):
             percent: float = cp.ultimos_topos_percentos[key]
             output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
                       f"#{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo topo: {output}")
+        logger.debug(f"{nmlot}: Concursos que repetiram ultimo topo: {output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

@@ -98,7 +98,7 @@ class AnaliseDistancia(AbstractAnalyze):
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
         logger.debug(f"{nmlot}: Distancias Resultantes: {output}")
 
-        # printa quais os pares (e impares) que repetiram no ultimo sorteio dos concursos:
+        # printa quais as distancias que repetiram no ultimo sorteio dos concursos:
         output: str = f"\n\t  ? PARES     PERC%       #REPETIDAS\n"
         for key, value in enumerate(cp.ultimas_distancias_repetidas):
             percent: float = cp.ultimas_distancias_percentos[key]

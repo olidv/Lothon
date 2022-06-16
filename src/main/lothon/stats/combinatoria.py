@@ -347,7 +347,7 @@ def calc_topos_ausencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: in
     for concurso in reversed(concursos):
         # registra o sorteio da dezena com o numero de concursos em que ficou ausente:
         for dezena in concurso.bolas:
-            if ausencias_concursos[dezena] == -1:
+            if ausencias_concursos[dezena] == -1:  # se a dezena ainda estiver ausente:
                 ausencias_concursos[dezena] = qtd_concursos
         # vai continuar processando enquanto não tiver contado todas as dezenas
         if -1 in ausencias_concursos:
