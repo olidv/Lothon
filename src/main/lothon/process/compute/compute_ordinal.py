@@ -44,8 +44,7 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('ordinais_concursos', 'ordinais_percentos', 'parciais_concursos',
-                 'fracoes_concursos', 'qtd_jogos', 'vl_ordinal_ultimo_concurso',
-                 'qtd_zerados')
+                 'fracoes_concursos', 'qtd_jogos', 'vl_ordinal_ultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -61,7 +60,6 @@ class ComputeOrdinal(AbstractCompute):
         # estruturas para avaliacao de jogo combinado da loteria:
         self.qtd_jogos: Optional[int] = None
         self.vl_ordinal_ultimo_concurso: Optional[int] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -78,11 +76,11 @@ class ComputeOrdinal(AbstractCompute):
 
         # identifica informacoes da loteria:
         nmlot: str = loteria.nome_loteria
-        self.qtd_jogos = loteria.qtd_jogos
         concursos: list[Concurso] = loteria.concursos
         ultimo_concurso: Concurso = concursos[-1]
         qtd_concursos: int = len(concursos)
         qtd_items: int = qtd_concursos
+        self.qtd_jogos = loteria.qtd_jogos
 
         # primeiro organiza dicionario com todos os concursos:
         sorteios_literal: dict[str: int] = {}

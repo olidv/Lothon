@@ -46,7 +46,7 @@ class ComputeEspacamento(AbstractCompute):
     __slots__ = ('espacamentos_jogos', 'espacamentos_percentos', 'espacamentos_concursos',
                  'ultimos_espacamentos_repetidos', 'ultimos_espacamentos_percentos',
                  'qtd_espacamentos_ultimo_concurso', 'qtd_espacamentos_penultimo_concurso',
-                 'frequencias_espacamentos', 'qtd_zerados')
+                 'frequencias_espacamentos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -62,7 +62,6 @@ class ComputeEspacamento(AbstractCompute):
         self.qtd_espacamentos_ultimo_concurso: int = 0
         self.qtd_espacamentos_penultimo_concurso: int = 0
         self.frequencias_espacamentos: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

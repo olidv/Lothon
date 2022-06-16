@@ -47,7 +47,7 @@ class ComputeDecenario(AbstractCompute):
                  'decenarios_concursos', 'str_decenarios_concursos',
                  'ultimos_decenarios_repetidos', 'ultimos_decenarios_percentos',
                  'str_decenarios_ultimo_concurso', 'str_decenarios_penultimo_concurso',
-                 'frequencias_decenarios', 'qtd_zerados')
+                 'frequencias_decenarios')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -64,7 +64,6 @@ class ComputeDecenario(AbstractCompute):
         self.str_decenarios_ultimo_concurso: str = ''
         self.str_decenarios_penultimo_concurso: str = ''
         self.frequencias_decenarios: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

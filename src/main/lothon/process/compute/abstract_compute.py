@@ -32,12 +32,15 @@ class AbstractCompute(AbstractProcess, ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
+    __slots__ = ('qtd_zerados',)
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, idp: str):
         super().__init__(idp)
+
+        # auxiliar para avaliacao de jogos combinados da loteria:
+        self.qtd_zerados: int = 0
 
     # --- METODOS ------------------------------------------------------------
 

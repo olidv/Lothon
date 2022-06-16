@@ -46,7 +46,7 @@ class ComputeSequencia(AbstractCompute):
     __slots__ = ('sequencias_jogos', 'sequencias_percentos', 'sequencias_concursos',
                  'ultimas_sequencias_repetidas', 'ultimas_sequencias_percentos',
                  'qtd_sequencias_ultimo_concurso', 'qtd_sequencias_penultimo_concurso',
-                 'frequencias_sequencias', 'qtd_zerados')
+                 'frequencias_sequencias')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -62,7 +62,6 @@ class ComputeSequencia(AbstractCompute):
         self.qtd_sequencias_ultimo_concurso: int = 0
         self.qtd_sequencias_penultimo_concurso: int = 0
         self.frequencias_sequencias: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

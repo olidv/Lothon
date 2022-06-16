@@ -46,7 +46,7 @@ class ComputeParidade(AbstractCompute):
     __slots__ = ('paridades_jogos', 'paridades_percentos', 'paridades_concursos',
                  'ultimas_paridades_repetidas', 'ultimas_paridades_percentos',
                  'qtd_pares_ultimo_concurso', 'qtd_pares_penultimo_concurso',
-                 'frequencias_paridades', 'qtd_zerados')
+                 'frequencias_paridades')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -62,7 +62,6 @@ class ComputeParidade(AbstractCompute):
         self.qtd_pares_ultimo_concurso: int = 0
         self.qtd_pares_penultimo_concurso: int = 0
         self.frequencias_paridades: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

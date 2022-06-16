@@ -47,8 +47,7 @@ class ComputeDispersao(AbstractCompute):
     __slots__ = ('frequencias_dezenas', 'atrasos_dezenas',
                  'dispersoes_concursos', 'dispersoes_percentos',
                  'ultimas_dispersoes_repetidas', 'ultimas_dispersoes_percentos',
-                 'vl_dispersao_ultimo_concurso', 'vl_dispersao_penultimo_concurso',
-                 'qtd_zerados')
+                 'vl_dispersao_ultimo_concurso', 'vl_dispersao_penultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -64,7 +63,6 @@ class ComputeDispersao(AbstractCompute):
         self.ultimas_dispersoes_percentos: Optional[list[float]] = None
         self.vl_dispersao_ultimo_concurso: int = 0
         self.vl_dispersao_penultimo_concurso: int = 0
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

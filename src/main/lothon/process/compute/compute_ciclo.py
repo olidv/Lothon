@@ -51,8 +51,7 @@ class ComputeCiclo(AbstractCompute):
     __slots__ = ('frequencias_ciclos', 'ciclos_concursos', 'ciclos_percentos',
                  'ultimos_ciclos_repetidos', 'ultimos_ciclos_percentos',
                  'vl_ciclo_ultimo_concurso', 'vl_ciclo_penultimo_concurso',
-                 'concursos_passados', 'qtd_dezenas', 'limit_bolas_ciclo',
-                 'qtd_zerados')
+                 'concursos_passados', 'qtd_dezenas', 'limit_bolas_ciclo')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -67,10 +66,11 @@ class ComputeCiclo(AbstractCompute):
         self.ultimos_ciclos_percentos: Optional[list[float]] = None
         self.vl_ciclo_ultimo_concurso: int = 0
         self.vl_ciclo_penultimo_concurso: int = 0
+
+        # estruturas para avaliacao de jogo combinado da loteria:
         self.concursos_passados: Optional[list[Concurso]] = None
         self.qtd_dezenas: int = 0
         self.limit_bolas_ciclo: int = 0
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

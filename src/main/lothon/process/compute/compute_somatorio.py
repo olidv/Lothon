@@ -45,8 +45,7 @@ class ComputeSomatorio(AbstractCompute):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('somatorios_jogos', 'somatorios_percentos', 'somatorios_concursos', 
                  'ultimos_somatorios_repetidos', 'ultimos_somatorios_percentos',
-                 'vl_somatorio_ultimo_concurso', 'vl_somatorio_penultimo_concurso',
-                 'qtd_zerados')
+                 'vl_somatorio_ultimo_concurso', 'vl_somatorio_penultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -61,7 +60,6 @@ class ComputeSomatorio(AbstractCompute):
         self.ultimos_somatorios_percentos: Optional[list[float]] = None
         self.vl_somatorio_ultimo_concurso: int = 0
         self.vl_somatorio_penultimo_concurso: int = 0
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

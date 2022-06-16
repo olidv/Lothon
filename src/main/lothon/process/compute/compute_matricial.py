@@ -46,8 +46,7 @@ class ComputeMatricial(AbstractCompute):
     __slots__ = ('colunas_jogos', 'colunas_percentos', 'colunas_concursos',
                  'linhas_jogos', 'linhas_percentos', 'linhas_concursos',
                  'ultimas_matrizes_repetidas', 'ultimas_matrizes_percentos',
-                 'str_matriz_ultimo_concurso', 'str_matriz_penultimo_concurso',
-                 'qtd_zerados')
+                 'str_matriz_ultimo_concurso', 'str_matriz_penultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -65,7 +64,6 @@ class ComputeMatricial(AbstractCompute):
         self.ultimas_matrizes_percentos: dict[str: float] = None
         self.str_matriz_ultimo_concurso: str = ''
         self.str_matriz_penultimo_concurso: str = ''
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

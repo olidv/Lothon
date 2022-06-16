@@ -45,8 +45,7 @@ class ComputeDistancia(AbstractCompute):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('distancias_jogos', 'distancias_percentos', 'distancias_concursos', 
                  'ultimas_distancias_repetidas', 'ultimas_distancias_percentos',
-                 'vl_distancia_ultimo_concurso', 'vl_distancia_penultimo_concurso',
-                 'qtd_zerados')
+                 'vl_distancia_ultimo_concurso', 'vl_distancia_penultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -61,7 +60,6 @@ class ComputeDistancia(AbstractCompute):
         self.ultimas_distancias_percentos: Optional[list[float]] = None
         self.vl_distancia_ultimo_concurso: int = 0
         self.vl_distancia_penultimo_concurso: int = 0
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

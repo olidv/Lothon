@@ -46,7 +46,7 @@ class ComputeNumerologia(AbstractCompute):
     __slots__ = ('numerologias_jogos', 'numerologias_percentos', 'numerologias_concursos',
                  'ultimas_numerologias_repetidas', 'ultimas_numerologias_percentos',
                  'vl_numerologia_ultimo_concurso', 'vl_numerologia_penultimo_concurso',
-                 'frequencias_numerologias', 'qtd_zerados')
+                 'frequencias_numerologias')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -62,7 +62,6 @@ class ComputeNumerologia(AbstractCompute):
         self.vl_numerologia_ultimo_concurso: int = 0
         self.vl_numerologia_penultimo_concurso: int = 0
         self.frequencias_numerologias: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

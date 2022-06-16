@@ -47,7 +47,7 @@ class ComputeColunario(AbstractCompute):
                  'colunarios_concursos', 'str_colunarios_concursos',
                  'ultimos_colunarios_repetidos', 'ultimos_colunarios_percentos',
                  'str_colunarios_ultimo_concurso', 'str_colunarios_penultimo_concurso',
-                 'frequencias_colunarios', 'qtd_zerados')
+                 'frequencias_colunarios')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -64,7 +64,6 @@ class ComputeColunario(AbstractCompute):
         self.str_colunarios_ultimo_concurso: str = ''
         self.str_colunarios_penultimo_concurso: str = ''
         self.frequencias_colunarios: Optional[list[SerieSorteio]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

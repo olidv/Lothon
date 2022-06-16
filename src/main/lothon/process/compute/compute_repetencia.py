@@ -45,7 +45,7 @@ class ComputeRepetencia(AbstractCompute):
     __slots__ = ('repetencias_concursos', 'repetencias_percentos', 'repetencias_series',
                  'ultimas_repetencias_repetidas', 'ultimas_repetencias_percentos',
                  'qtd_repetencias_ultimo_concurso', 'qtd_repetencias_penultimo_concurso',
-                 'frequencias_repetencias', 'ultimo_sorteio', 'qtd_zerados')
+                 'frequencias_repetencias', 'ultimo_sorteio')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -64,7 +64,6 @@ class ComputeRepetencia(AbstractCompute):
 
         # estruturas para avaliacao de jogo combinado da loteria:
         self.ultimo_sorteio: Optional[tuple[int, ...]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

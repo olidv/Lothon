@@ -47,8 +47,7 @@ class ComputeAusencia(AbstractCompute):
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('topos_concursos', 'topos_dezenas', 'topos_ausentes', 'topos_percentos',
                  'ultimos_topos_repetidos', 'ultimos_topos_percentos',
-                 'qtd_topos_ultimo_concurso', 'qtd_topos_penultimo_concurso',
-                 'qtd_zerados')
+                 'qtd_topos_ultimo_concurso', 'qtd_topos_penultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -64,7 +63,6 @@ class ComputeAusencia(AbstractCompute):
         self.ultimos_topos_percentos: Optional[list[float]] = None
         self.qtd_topos_ultimo_concurso: int = 0
         self.qtd_topos_penultimo_concurso: int = 0
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

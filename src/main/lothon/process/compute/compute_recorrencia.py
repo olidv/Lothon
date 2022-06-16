@@ -43,7 +43,7 @@ class ComputeRecorrencia(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('recorrencias_concursos', 'recorrencias_percentos',
-                 'concursos_passados', 'qtd_zerados')
+                 'concursos_passados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -56,7 +56,6 @@ class ComputeRecorrencia(AbstractCompute):
 
         # estruturas para avaliacao de jogo combinado da loteria:
         self.concursos_passados: Optional[list[Concurso]] = None
-        self.qtd_zerados: int = 0
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
