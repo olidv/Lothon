@@ -70,7 +70,12 @@ class AnaliseOrdinal(AbstractAnalyze):
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeOrdinal()
-        cp.execute(loteria)
+        cp.setup({
+            'qtd_bolas': loteria.qtd_bolas,
+            'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
+            'qtd_jogos': loteria.qtd_jogos
+        })
+        cp.execute(loteria.concursos)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise ordinal dos  "

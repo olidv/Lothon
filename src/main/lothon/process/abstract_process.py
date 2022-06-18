@@ -30,43 +30,21 @@ class AbstractProcess(ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('_id_process', '_options')
+    __slots__ = ('id_process', 'options')
 
-    @property
-    def id_process(self) -> str:
-        return self._id_process
+    # --- INICIALIZACAO ------------------------------------------------------
 
-    @id_process.setter
-    def id_process(self, value):
-        if isinstance(value, str):
-            self._id_process = value
-        else:
-            self._id_process = str(value)
+    def __init__(self, idp: str):
+        self.id_process: str = idp
+        self.options: dict = {}
 
-    @property
-    def options(self) -> dict:
-        return self._options
-
-    @options.setter
-    def options(self, value):
-        if value is None or isinstance(value, dict):
-            self._options = value
-        else:
-            raise ValueError(f"Valor invalido para a propriedade  options : dict = {value}.")
+    # --- METODOS ------------------------------------------------------------
 
     def set_options(self, parms: dict):
         # absorve os parametros fornecidos:
         if parms is not None:
             for k, v in parms.items():
                 self.options[k] = v
-
-    # --- INICIALIZACAO ------------------------------------------------------
-
-    def __init__(self, idp: str):
-        self.id_process = idp
-        self.options = {}
-
-    # --- METODOS ------------------------------------------------------------
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

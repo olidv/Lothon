@@ -20,7 +20,7 @@ from typing import Optional
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Concurso, SerieSorteio
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -51,7 +51,7 @@ class ComputeCiclo(AbstractCompute):
     __slots__ = ('frequencias_ciclos', 'ciclos_concursos', 'ciclos_percentos',
                  'ultimos_ciclos_repetidos', 'ultimos_ciclos_percentos',
                  'vl_ciclo_ultimo_concurso', 'vl_ciclo_penultimo_concurso',
-                 'concursos_passados', 'qtd_dezenas', 'limit_bolas_ciclo')
+                 'concursos_passados', 'limit_bolas_ciclo')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -69,7 +69,6 @@ class ComputeCiclo(AbstractCompute):
 
         # estruturas para avaliacao de jogo combinado da loteria:
         self.concursos_passados: Optional[list[Concurso]] = None
-        self.qtd_dezenas: int = 0
         self.limit_bolas_ciclo: int = 0
 
     def setup(self, parms: dict):
@@ -80,7 +79,7 @@ class ComputeCiclo(AbstractCompute):
 
     def count_concursos_ciclo(self, bolas: tuple[int, ...]) -> int:
         # contabiliza o ultimo ciclo fechado nos concursos fornecidos:
-        dezenas: list[int] = cb.new_list_int(self.qtd_dezenas)
+        dezenas: list[int] = cb.new_list_int(self.qtd_bolas)
         dezenas[0] = -1
 
         # inicia registrando as dezenas do jogo:
@@ -105,20 +104,17 @@ class ComputeCiclo(AbstractCompute):
 
     # --- PROCESSAMENTO DOS SORTEIOS -----------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        self.qtd_dezenas = loteria.qtd_bolas
         # nao precisa de sortear 100% das bolas para fechar o ciclo:
-        self.limit_bolas_ciclo = loteria.qtd_bolas - (loteria.qtd_bolas * LIMIT_BOLAS // 100)
+        self.limit_bolas_ciclo = self.qtd_bolas - (self.qtd_bolas * LIMIT_BOLAS // 100)
 
         # inicializa as estruturas para registrar os ciclos fechados:
         self.frequencias_ciclos = SerieSorteio(0)
@@ -128,7 +124,7 @@ class ComputeCiclo(AbstractCompute):
         self.vl_ciclo_penultimo_concurso = -1
 
         # contabiliza os ciclos fechados em todos os sorteios ja realizados:
-        dezenas: list[int] = cb.new_list_int(self.qtd_dezenas)
+        dezenas: list[int] = cb.new_list_int(self.qtd_bolas)
         dezenas[0] = -1
         qtd_concursos_ciclo: int = 0
         for concurso in concursos:
@@ -155,7 +151,7 @@ class ComputeCiclo(AbstractCompute):
             self.vl_ciclo_ultimo_concurso = qtd_concursos_ciclo
 
             # zera contadores para proximo ciclo:
-            dezenas = cb.new_list_int(self.qtd_dezenas)
+            dezenas = cb.new_list_int(self.qtd_bolas)
             dezenas[0] = -1  # p/ nao conflitar com o teste de fechamento do ciclo: 0 in dezena
             qtd_concursos_ciclo = 0
 
@@ -179,7 +175,7 @@ class ComputeCiclo(AbstractCompute):
 
         # indica o tempo do processamento:
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

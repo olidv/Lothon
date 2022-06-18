@@ -20,7 +20,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -76,16 +76,14 @@ class ComputeAusencia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
         # qtd_items: int = loteria.qtd_bolas
 
@@ -100,7 +98,7 @@ class ComputeAusencia(AbstractCompute):
         for concurso in concursos[1:]:
             # extrai o topo do ranking com as dezenas com maior ausencia:
             topos_concurso: list[int] = cb.calc_topos_ausencia(concursos_anteriores,
-                                                               loteria.qtd_bolas, QTD_TOPOS_RANKING)
+                                                               self.qtd_bolas, QTD_TOPOS_RANKING)
 
             # identifica o numero de dezenas do concurso que estao entre o topo de ausencia:
             qtd_topos: int = cb.count_recorrencias(concurso.bolas, topos_concurso)
@@ -114,20 +112,11 @@ class ComputeAusencia(AbstractCompute):
             self.qtd_topos_penultimo_concurso = self.qtd_topos_ultimo_concurso
             self.qtd_topos_ultimo_concurso = qtd_topos
 
-            print("***** topos_concurso = ", topos_concurso)
-            print("***** concurso.bolas = ", concurso.bolas)
-            print("***** qtd_topos = ", qtd_topos, "\n")
-            print("***** self.topos_concursos = ", self.topos_concursos)
-            print("***** self.topos_ausentes = ", self.topos_ausentes, "\n")
-            print("***** self.ultimos_topos_repetidos = ", self.ultimos_topos_repetidos)
-            print("***** self.qtd_topos_penultimo_concurso = ", self.qtd_topos_penultimo_concurso)
-            print("***** self.qtd_topos_ultimo_concurso = ", self.qtd_topos_ultimo_concurso, "\n")
-
             # adiciona o concurso atual para a proxima iteracao (ai ele sera um concurso anterior):
             concursos_anteriores.append(concurso)
 
         # extrai os topos do ranking com as dezenas com maior ausencia em todos os concursos:
-        self.topos_dezenas = cb.calc_topos_ausencia(concursos, loteria.qtd_bolas, QTD_TOPOS_RANKING)
+        self.topos_dezenas = cb.calc_topos_ausencia(concursos, self.qtd_bolas, QTD_TOPOS_RANKING)
 
         # contabiliza o percentual dos topos dos concursos:
         self.topos_percentos = cb.new_list_float(QTD_TOPOS_RANKING)
@@ -142,7 +131,7 @@ class ComputeAusencia(AbstractCompute):
             self.ultimos_topos_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

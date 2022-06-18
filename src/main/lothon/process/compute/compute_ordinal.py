@@ -21,7 +21,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -44,7 +44,7 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- PROPRIEDADES -------------------------------------------------------
     __slots__ = ('ordinais_concursos', 'ordinais_percentos', 'parciais_concursos',
-                 'fracoes_concursos', 'qtd_jogos', 'vl_ordinal_ultimo_concurso')
+                 'fracoes_concursos', 'vl_ordinal_ultimo_concurso')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -58,7 +58,6 @@ class ComputeOrdinal(AbstractCompute):
         self.ordinais_percentos: Optional[list[float]] = None
 
         # estruturas para avaliacao de jogo combinado da loteria:
-        self.qtd_jogos: Optional[int] = None
         self.vl_ordinal_ultimo_concurso: Optional[int] = None
 
     def setup(self, parms: dict):
@@ -67,20 +66,17 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         ultimo_concurso: Concurso = concursos[-1]
         qtd_concursos: int = len(concursos)
         qtd_items: int = qtd_concursos
-        self.qtd_jogos = loteria.qtd_jogos
 
         # primeiro organiza dicionario com todos os concursos:
         sorteios_literal: dict[str: int] = {}
@@ -93,9 +89,9 @@ class ComputeOrdinal(AbstractCompute):
         self.parciais_concursos = cb.new_list_int(self.qtd_jogos // 100000)
 
         # para cada concurso, vai atribuir o respectivo ordinal das combinacoes de jogos da loteria:
-        range_jogos: range = range(1, loteria.qtd_bolas + 1)
+        range_jogos: range = range(1, self.qtd_bolas + 1)
         ordinal_jogo: int = 0
-        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
             ordinal_jogo += 1  # primeiro jogo ira comecar do #1
 
             # procura no dicionario de literais o jogo corrente:
@@ -128,7 +124,7 @@ class ComputeOrdinal(AbstractCompute):
             self.ordinais_percentos[key] = round((value / qtd_concursos) * 10000) / 100
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

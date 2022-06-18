@@ -21,7 +21,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Concurso, SerieSorteio
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -69,24 +69,21 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        qtd_jogos: int = loteria.qtd_jogos
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas // (loteria.qtd_bolas_sorteio - 1)
+        qtd_items: int = self.qtd_bolas // (self.qtd_bolas_sorteio - 1)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         self.espacamentos_jogos = cb.new_list_int(qtd_items)
-        range_jogos: range = range(1, loteria.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
             # calcula o espacamento medio de cada combinacao de jogo:
             vl_espacamento = cb.calc_espacada(jogo)
             self.espacamentos_jogos[vl_espacamento] += 1
@@ -94,7 +91,7 @@ class ComputeEspacamento(AbstractCompute):
         # contabiliza o percentual dos espacamentos:
         self.espacamentos_percentos = cb.new_list_float(qtd_items)
         for key, value in enumerate(self.espacamentos_jogos):
-            percent: float = round((value / qtd_jogos) * 10000) / 100
+            percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.espacamentos_percentos[key] = percent
 
         # calcula o espacamento de cada sorteio dos concursos:
@@ -134,7 +131,7 @@ class ComputeEspacamento(AbstractCompute):
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

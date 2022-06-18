@@ -20,7 +20,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Concurso, SerieSorteio
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -71,19 +71,17 @@ class ComputeRepetencia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         ultimo_concurso: Concurso = concursos[-1]
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas_sorteio
+        qtd_items: int = self.qtd_bolas_sorteio
 
         # salva o sorteio do ultimo concurso para o EVALUATE posterior:
         self.ultimo_sorteio = ultimo_concurso.bolas
@@ -91,7 +89,7 @@ class ComputeRepetencia(AbstractCompute):
         # zera os contadores de cada repetencia:
         self.repetencias_concursos = cb.new_list_int(qtd_items)
         self.repetencias_series = cb.new_list_series(qtd_items)
-        self.frequencias_repetencias = cb.new_list_series(loteria.qtd_bolas)
+        self.frequencias_repetencias = cb.new_list_series(self.qtd_bolas)
         self.ultimas_repetencias_repetidas = cb.new_list_int(qtd_items)
 
         # contabiliza repetencias de cada sorteio com todos o sorteio anterior:
@@ -135,7 +133,7 @@ class ComputeRepetencia(AbstractCompute):
             self.ultimas_repetencias_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

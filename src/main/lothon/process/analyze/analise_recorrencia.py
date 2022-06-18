@@ -70,7 +70,12 @@ class AnaliseRecorrencia(AbstractAnalyze):
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeRecorrencia()
-        cp.execute(loteria)
+        cp.setup({
+            'qtd_bolas': loteria.qtd_bolas,
+            'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
+            'qtd_jogos': loteria.qtd_jogos
+        })
+        cp.execute(loteria.concursos)
 
         # efetua analise das recorrencias nos concursos da loteria:
         logger.debug(f"{nmlot}: Executando analise TOTAL de recorrencias dos  "

@@ -21,7 +21,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -67,19 +67,16 @@ class ComputeDistancia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        qtd_jogos: int = loteria.qtd_jogos
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas
+        qtd_items: int = self.qtd_bolas
 
         # efetua analise de todas as combinacoes de jogos da loteria:
 
@@ -87,15 +84,15 @@ class ComputeDistancia(AbstractCompute):
         self.distancias_jogos = cb.new_list_int(qtd_items)
 
         # calcula a distancia de cada combinacao de jogo:
-        range_jogos: range = range(1, loteria.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
             vl_distancia = cb.calc_distancia(jogo)
             self.distancias_jogos[vl_distancia] += 1
 
         # contabiliza o percentual das distancias:
         self.distancias_percentos = cb.new_list_float(qtd_items)
         for key, value in enumerate(self.distancias_jogos):
-            percent: float = round((value / qtd_jogos) * 10000) / 100
+            percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.distancias_percentos[key] = percent
 
         # calcula a distancia de cada sorteio dos concursos:
@@ -120,7 +117,7 @@ class ComputeDistancia(AbstractCompute):
             self.ultimas_distancias_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

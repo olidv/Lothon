@@ -18,9 +18,9 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
-from lothon.process.compute.compute_semanal import ComputeSemanal
 
 
 # ----------------------------------------------------------------------------
@@ -67,23 +67,30 @@ class AnaliseSemanal(AbstractAnalyze):
         # identifica informacoes da loteria:
         nmlot: str = loteria.nome_loteria
         qtd_concursos: int = len(loteria.concursos)
-        # qt_acertos_premio_maximo: int = min(loteria.faixas)  # a menor faixa eh o premio principal
-        # qtd_items: int = 6  # dias da semana onde ocorrem sorteios - vai de 0=Seg, ..., 6=Dom
-
-        # inicializa componente para computacao dos sorteios da loteria:
-        cp = ComputeSemanal()
-        cp.execute(loteria)
+        qt_acertos_premio_maximo: int = min(loteria.faixas)  # a menor faixa eh o premio principal
+        qtd_items: int = 6  # dias da semana onde ocorrem sorteios - vai de 0=Seg, ..., 6=Dom
 
         # efetua analise de todas as premiacoes dos concursos da loteria:
         logger.debug(f"{nmlot}: Executando analise semanal de premiacoes de TODOS os  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
+        # contabiliza as premiacoes e identifica o dia da semana para cada faixa de premiacao:
+        semanal_premiacoes = cb.new_list_int(qtd_items)  # vai de 0=Seg, ..., 6=Dom
+        semanal_ganhadores = cb.new_list_int(qtd_items)
+        for concurso in loteria.concursos:
+            # identifica o numero de ganhadores do premio maximo:
+            qt_ganhadores: int = concurso.get_ganhadores_premio(qt_acertos_premio_maximo)
+            if qt_ganhadores > 0:
+                dia: int = concurso.data_sorteio.weekday()
+                semanal_premiacoes[dia] += 1
+                semanal_ganhadores[dia] += qt_ganhadores
+
         # printa as premiacoes e identifica o dia da semana para cada faixa de premiacao:
         output: str = f"\n\t DIA   #PREMIACOES    PERC%       #GANHADORES   PARTILHA\n"
-        total: float = sum(cp.semanal_premiacoes)
-        for idx, value in enumerate(cp.semanal_premiacoes):
+        total: float = sum(semanal_premiacoes)
+        for idx, value in enumerate(semanal_premiacoes):
             percent: float = 0.0 if total == 0 else round((value / total) * 1000) / 10
-            ganhadores: int = cp.semanal_ganhadores[idx]
+            ganhadores: int = semanal_ganhadores[idx]
             partilha: float = 0.0 if value == 0 else ganhadores / value
             output += f"\t {DIAS[idx]}        {formatd(value,6)}   {formatf(percent,'5.1')}%" \
                       f"   ...      {formatd(ganhadores,6)}      {formatf(partilha,'5.1')}\n"

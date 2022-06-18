@@ -12,6 +12,7 @@ __all__ = [
     'Faixa',
     'Premio',
     'Bola',
+    'Jogo',
     'SerieSorteio',
     'get_dia_de_sorte',
     'get_dupla_sena',

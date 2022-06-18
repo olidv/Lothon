@@ -17,8 +17,8 @@ from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.domain import Concurso
 from lothon.process.abstract_process import AbstractProcess
-from lothon.domain import Loteria
 
 
 # ----------------------------------------------------------------------------
@@ -32,20 +32,33 @@ class AbstractCompute(AbstractProcess, ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('qtd_zerados',)
+    __slots__ = ('qtd_bolas', 'qtd_bolas_sorteio', 'qtd_jogos', 'qtd_zerados')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, idp: str):
         super().__init__(idp)
 
-        # auxiliar para avaliacao de jogos combinados da loteria:
+        # auxiliares para avaliacao de jogos combinados e concursos da loteria:
+        self.qtd_bolas: int = 0
+        self.qtd_bolas_sorteio: int = 0
+        self.qtd_jogos: int = 0
         self.qtd_zerados: int = 0
+
+    def setup(self, parms: dict):
+        # absorve os parametros fornecidos:
+        super().setup(parms)
+
+        # verifica se algum valor das propriedades foi fornecido:
+        self.qtd_bolas = self.options.get('qtd_bolas', 0)
+        self.qtd_bolas_sorteio = self.options.get('qtd_bolas_sorteio', 0)
+        self.qtd_jogos = self.options.get('qtd_jogos', 0)
+        self.qtd_zerados = self.options.get('qtd_zerados', 0)
 
     # --- METODOS ------------------------------------------------------------
 
     @abstractmethod
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         pass
 
     @abstractmethod

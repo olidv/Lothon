@@ -13,7 +13,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-@dataclass(slots=True, order=True)
+@dataclass(slots=True)
 class Jogo:
     """
     Implementacao de classe para .
@@ -34,11 +34,17 @@ class Jogo:
     fator: float
     dezenas: tuple[int, ...]
 
-    sort_index: float = field(init=False, repr=False)
+    # --- METODOS ------------------------------------------------------------
 
-    # --- INICIALIZACAO ------------------------------------------------------
+    def to_string(self) -> str:
+        # valida os parametros:
+        if self.dezenas is None or len(self.dezenas) == 0:
+            return ''
 
-    def __post_init__(self):
-        object.__setattr__(self, 'sort_index', self.fator)
+        tostr: str = ''
+        for num in self.dezenas:
+            tostr += f"{num:0>2}"
+
+        return tostr
 
 # ----------------------------------------------------------------------------

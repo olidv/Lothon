@@ -21,7 +21,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -67,25 +67,22 @@ class ComputeSomatorio(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        qtd_jogos: int = loteria.qtd_jogos
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = sum(range(loteria.qtd_bolas - loteria.qtd_bolas_sorteio + 1,
-                                   loteria.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
+        qtd_items: int = sum(range(self.qtd_bolas - self.qtd_bolas_sorteio + 1,
+                                   self.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
 
         # efetua analise de todas as combinacoes de jogos da loteria:
         self.somatorios_jogos = cb.new_list_int(qtd_items)
-        range_jogos: range = range(1, loteria.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
             # contabiliza a somatorio de cada combinacao de jogo:
             soma_dezenas = cb.soma_dezenas(jogo)
             self.somatorios_jogos[soma_dezenas] += 1
@@ -93,7 +90,7 @@ class ComputeSomatorio(AbstractCompute):
         # contabiliza o percentual dos somatorios:
         self.somatorios_percentos = cb.new_list_float(qtd_items)
         for key, value in enumerate(self.somatorios_jogos):
-            percent: float = round((value / qtd_jogos) * 100000) / 1000
+            percent: float = round((value / self.qtd_jogos) * 100000) / 1000
             self.somatorios_percentos[key] = percent
 
         # contabiliza a somatorio de cada sorteio dos concursos:
@@ -118,7 +115,7 @@ class ComputeSomatorio(AbstractCompute):
             self.ultimos_somatorios_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

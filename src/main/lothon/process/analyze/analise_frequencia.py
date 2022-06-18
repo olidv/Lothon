@@ -70,7 +70,12 @@ class AnaliseFrequencia(AbstractAnalyze):
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeFrequencia()
-        cp.execute(loteria)
+        cp.setup({
+            'qtd_bolas': loteria.qtd_bolas,
+            'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
+            'qtd_jogos': loteria.qtd_jogos
+        })
+        cp.execute(loteria.concursos)
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de frequencia de TODAS as "

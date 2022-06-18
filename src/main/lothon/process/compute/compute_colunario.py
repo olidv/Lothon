@@ -21,7 +21,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Concurso, SerieSorteio
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -71,17 +71,14 @@ class ComputeColunario(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
-        qtd_jogos: int = loteria.qtd_jogos
         qtd_concursos: int = len(concursos)
         qtd_items: int = 9
 
@@ -91,13 +88,13 @@ class ComputeColunario(AbstractCompute):
         self.colunarios_jogos = cb.new_list_int(qtd_items)
 
         # contabiliza pares (e impares) de cada combinacao de jogo:
-        range_jogos: range = range(1, loteria.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
             cb.count_colunarios(jogo, self.colunarios_jogos)
 
         # contabiliza o percentual dos colunarios:
         self.colunarios_percentos = cb.new_list_float(qtd_items)
-        total: int = loteria.qtd_bolas_sorteio * qtd_jogos
+        total: int = self.qtd_bolas_sorteio * self.qtd_jogos
         for key, value in enumerate(self.colunarios_jogos):
             percent: float = round((value / total) * 10000) / 100
             self.colunarios_percentos[key] = percent
@@ -141,7 +138,7 @@ class ComputeColunario(AbstractCompute):
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

@@ -22,7 +22,7 @@ import statistics as stts
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Concurso
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -107,18 +107,16 @@ class ComputeDispersao(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas
+        qtd_items: int = self.qtd_bolas
 
         # zera os contadores de frequencias e atrasos - usa -1 para nao conflitar com teste == 0:
         self.frequencias_dezenas = cb.new_list_int(qtd_items, -1)
@@ -169,7 +167,7 @@ class ComputeDispersao(AbstractCompute):
             self.ultimas_dispersoes_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

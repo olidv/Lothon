@@ -313,7 +313,7 @@ def soma_dezenas(bolas: tuple[int, ...]) -> int:
 def count_recorrencias(bolas1: Collection, bolas2: Collection) -> int:
     # valida os parametros:
     if bolas1 is None or len(bolas1) == 0 or bolas2 is None or len(bolas2) == 0:
-        return False
+        return 0
 
     qtd_recorre: int = 0
     for num1 in bolas1:
@@ -327,7 +327,7 @@ def max_recorrencias(bolas: tuple[int, ...], concursos: list[Concurso],
                      id_concurso_ignore: int = 0) -> int:
     # valida os parametros:
     if bolas is None or len(bolas) == 0 or concursos is None or len(concursos) == 0:
-        return False
+        return 0
 
     # ja percorre todos os concursos e retorna o numero maximo de recorrencias de [bolas]:
     qt_max_recorrencias: int = 0

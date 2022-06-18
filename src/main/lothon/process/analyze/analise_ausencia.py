@@ -68,7 +68,12 @@ class AnaliseAusencia(AbstractAnalyze):
 
         # inicializa componente para computacao dos sorteios da loteria:
         cp = ComputeAusencia()
-        cp.execute(loteria)
+        cp.setup({
+            'qtd_bolas': loteria.qtd_bolas,
+            'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
+            'qtd_jogos': loteria.qtd_jogos
+        })
+        cp.execute(loteria.concursos)
 
         # efetua analise de todas as dezenas dos sorteios da loteria:
         logger.debug(f"{nmlot}: Executando analise de ausencia de TODAS as "

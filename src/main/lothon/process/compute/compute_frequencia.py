@@ -20,7 +20,7 @@ import logging
 # Own/Project modules
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, SerieSorteio
+from lothon.domain import Concurso, SerieSorteio
 from lothon.process.compute.abstract_compute import AbstractCompute
 
 
@@ -78,18 +78,16 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
-    def execute(self, loteria: Loteria) -> int:
+    def execute(self, concursos: list[Concurso]) -> int:
         # valida se possui concursos a serem analisados:
-        if loteria is None or loteria.concursos is None or len(loteria.concursos) == 0:
+        if concursos is None or len(concursos) == 0:
             return -1
         else:
             _startWatch = startwatch()
 
         # identifica informacoes da loteria:
-        nmlot: str = loteria.nome_loteria
-        concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = loteria.qtd_bolas
+        qtd_items: int = self.qtd_bolas
 
         # zera os contadores de frequencias e atrasos:
         self.frequencias_dezenas = cb.new_list_series(qtd_items)
@@ -117,8 +115,7 @@ class ComputeFrequencia(AbstractCompute):
         for concurso in concursos[1:]:
             # extrai o topo do ranking com as dezenas com maior frequencia:
             topos_concurso: list[int] = cb.calc_topos_frequencia(concursos_anteriores,
-                                                                 loteria.qtd_bolas,
-                                                                 QTD_TOPOS_RANKING)
+                                                                 self.qtd_bolas, QTD_TOPOS_RANKING)
 
             # identifica o numero de dezenas do concurso que estao entre o topo de frequencias:
             qtd_topos: int = cb.count_recorrencias(concurso.bolas, topos_concurso)
@@ -136,8 +133,7 @@ class ComputeFrequencia(AbstractCompute):
             concursos_anteriores.append(concurso)
 
         # extrai os topos do ranking com as dezenas com maior frequencia em todos os concursos:
-        self.topos_dezenas = cb.calc_topos_frequencia(concursos, loteria.qtd_bolas,
-                                                      QTD_TOPOS_RANKING)
+        self.topos_dezenas = cb.calc_topos_frequencia(concursos, self.qtd_bolas, QTD_TOPOS_RANKING)
 
         # contabiliza o percentual dos topos dos concursos:
         self.topos_percentos = cb.new_list_float(QTD_TOPOS_RANKING)
@@ -152,7 +148,7 @@ class ComputeFrequencia(AbstractCompute):
             self.ultimos_topos_percentos[key] = percent
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------

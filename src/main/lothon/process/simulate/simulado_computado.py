@@ -135,9 +135,9 @@ class SimuladoComputado(AbstractSimulate):
 
         # define os parametros para configurar o processamento de 'evaluate()' dos processos:
         parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
-            # "concursos_passados": concursos[:-100],  # FIXME
-            # "concursos": concursos,
-            # "id_ultimo_concurso": concursos[-1].id_concurso,
+            'qtd_bolas': loteria.qtd_bolas,
+            'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
+            'qtd_jogos': loteria.qtd_jogos
         }
         # configura cada um dos processos de calculo-evaluate, apos computarem os sorteios:
         logger.debug("Configurando a cadeia de processos para computacao de jogos.")
@@ -151,7 +151,7 @@ class SimuladoComputado(AbstractSimulate):
         for cproc in self.compute_chain:
             # executa a analise para cada loteria:
             logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
-            cproc.execute(loteria)
+            cproc.execute(loteria.concursos)
 
         # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
         self.compute_jogos = []
