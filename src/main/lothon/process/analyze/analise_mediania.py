@@ -1,11 +1,11 @@
 """
    Package lothon.process.analyze
-   Module  analise_numerologia.py
+   Module  analise_mediania.py
 
 """
 
 __all__ = [
-    'AnaliseNumerologia'
+    'AnaliseMediania'
 ]
 
 # ----------------------------------------------------------------------------
@@ -17,11 +17,13 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
+import math
+
 from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
-from lothon.process.compute.compute_numerologia import ComputeNumerologia
+from lothon.process.compute.compute_mediania import ComputeMediania
 
 
 # ----------------------------------------------------------------------------
@@ -36,7 +38,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseNumerologia(AbstractAnalyze):
+class AnaliseMediania(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -47,7 +49,7 @@ class AnaliseNumerologia(AbstractAnalyze):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self):
-        super().__init__("Analise de Numerologia das Dezenas")
+        super().__init__("Analise da Raiz-Media das Dezenas")
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:
@@ -67,10 +69,10 @@ class AnaliseNumerologia(AbstractAnalyze):
         qtd_jogos: int = loteria.qtd_jogos
         concursos: list[Concurso] = loteria.concursos
         qtd_concursos: int = len(concursos)
-        qtd_items: int = 9  # numero de zero a nove
+        qtd_items: int = round(math.sqrt(loteria.qtd_bolas))  # vai depender do valor da ultima bola
 
         # inicializa componente para computacao dos sorteios da loteria:
-        cp = ComputeNumerologia()
+        cp = ComputeMediania()
         cp.setup({
             'qtd_bolas': loteria.qtd_bolas,
             'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
@@ -79,53 +81,53 @@ class AnaliseNumerologia(AbstractAnalyze):
         cp.execute(loteria.concursos)
 
         # efetua analise de todas as combinacoes de jogos da loteria:
-        logger.debug(f"{nmlot}: Executando analise de numerologia dos  "
+        logger.debug(f"{nmlot}: Executando analise de raiz-media dos  "
                      f"{formatd(qtd_jogos)}  jogos combinados da loteria.")
 
-        # printa a numerologia de cada combinacao de jogo:
-        output: str = f"\n\t ? NUMERO     PERC%     #TOTAL\n"
-        for key, value in enumerate(cp.numerologias_jogos):
-            if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
-                continue
+        # printa a raiz-media de cada combinacao de jogo:
+        output: str = f"\n\t ? MEDIA     PERC%     #TOTAL\n"
+        for key, value in enumerate(cp.medias_jogos):
+            # if key == 0:  # ignora o zero-index, pois nenhuma raiz-media darah zero.
+            #     continue
 
-            percent: float = cp.numerologias_percentos[key]
-            output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Numerologias Resultantes: {output}")
+            percent: float = cp.medias_percentos[key]
+            output += f"\t {key} media:  {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Raiz-Medias Resultantes: {output}")
 
         # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
-        logger.debug(f"{nmlot}: Executando analise TOTAL de numerologia dos  "
+        logger.debug(f"{nmlot}: Executando analise TOTAL de raiz-media dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
-        # printa a numerologia de cada sorteio dos concursos:
-        output: str = f"\n\t ? NUMERO     PERC%       %DIF%     #TOTAL\n"
-        for key, value in enumerate(cp.numerologias_concursos):
-            if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
-                continue
+        # printa a raiz-media de cada sorteio dos concursos:
+        output: str = f"\n\t ? MEDIA     PERC%       %DIF%     #TOTAL\n"
+        for key, value in enumerate(cp.medias_concursos):
+            # if key == 0:  # ignora o zero-index, pois nenhuma raiz-media darah zero.
+            #     continue
 
             percent: float = round((value / qtd_concursos) * 10000) / 100
-            dif: float = percent - cp.numerologias_percentos[key]
-            output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
+            dif: float = percent - cp.medias_percentos[key]
+            output += f"\t {key} media:  {formatf(percent,'6.2')}% ... " \
                       f"{formatf(dif,'6.2')}%     #{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Numerologias Resultantes: {output}")
+        logger.debug(f"{nmlot}: Raiz-Medias Resultantes: {output}")
 
-        # printa quais as numerologias que repetiram no ultimo sorteio dos concursos:
-        output: str = f"\n\t  ? NUMERO     PERC%       #REPETIDAS\n"
-        for key, value in enumerate(cp.ultimas_numerologias_repetidas):
-            percent: float = cp.ultimas_numerologias_percentos[key]
-            output += f"\t {formatd(key,2)} numero:  {formatf(percent,'6.2')}%  ...  " \
+        # printa quais as raiz-medias que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  ? MEDIA     PERC%       #REPETIDAS\n"
+        for key, value in enumerate(cp.ultimas_medias_repetidas):
+            percent: float = cp.ultimas_medias_percentos[key]
+            output += f"\t {formatd(key,2)} media:  {formatf(percent,'6.2')}%  ...  " \
                       f"#{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Concursos que repetiram a ultima numerologia: {output}")
+        logger.debug(f"{nmlot}: Concursos que repetiram a ultima raiz-media: {output}")
 
-        # efetua analise de todas as numerologias dos sorteios da loteria:
-        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de numerologias"
+        # efetua analise de todas as raiz-medias dos sorteios da loteria:
+        logger.debug(f"{nmlot}: Executando analise de FREQUENCIA de raiz-medias"
                      f"de dezenas nos  {formatd(qtd_concursos)}  concursos da loteria.")
 
-        # printa as frequencias e atrasos das numerologias em todos os sorteios ja realizados:
-        output: str = f"\n\tNUMERO:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
+        # printa as frequencias e atrasos das raiz-medias em todos os sorteios ja realizados:
+        output: str = f"\n\tMEDIA:   #SORTEIOS   ULTIMO     #ATRASOS   ULTIMO   MENOR   " \
                       f"MAIOR   MODA    MEDIA   H.MEDIA   G.MEDIA   MEDIANA   " \
                       f"VARIANCIA   DESVIO-PADRAO\n"
-        for serie in cp.frequencias_numerologias[1:]:
-            output += f"\t     {serie.id}:       " \
+        for serie in cp.frequencias_medias[1:]:
+            output += f"\t    {serie.id}:       " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}        " \
                       f"{formatd(serie.len_atrasos,5)}    " \
@@ -139,45 +141,45 @@ class AnaliseNumerologia(AbstractAnalyze):
                       f"{formatf(serie.median_atraso,'6.1')}   " \
                       f"{formatf(serie.varia_atraso,'9.1')}          " \
                       f"{formatf(serie.stdev_atraso,'6.1')}\n"
-        logger.debug(f"{nmlot}: FREQUENCIA de Numerologias Resultantes: {output}")
+        logger.debug(f"{nmlot}: FREQUENCIA de Raiz-Medias Resultantes: {output}")
 
         # efetua analise evolutiva de todos os concursos de maneira progressiva:
-        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de numerologia dos  "
+        logger.debug(f"{nmlot}: Executando analise EVOLUTIVA de raiz-media dos  "
                      f"{formatd(qtd_concursos)}  concursos da loteria.")
 
-        # calcula a numerologia de cada evolucao de concurso:
+        # calcula a raiz-media de cada evolucao de concurso:
         concursos_passados: list[Concurso] = []
         qtd_concursos_passados = 1  # evita divisao por zero
-        list6_numerologias: list[int] = []
+        list6_medias: list[int] = []
         for concurso_atual in loteria.concursos:
-            # zera os contadores de cada numerologia:
-            numerologias_passados: list[int] = cb.new_list_int(qtd_items)
+            # zera os contadores de cada raiz-media:
+            medias_passados: list[int] = cb.new_list_int(qtd_items)
 
-            # calcula a numerologia dos concursos passados ate o concurso anterior:
+            # calcula a raiz-media dos concursos passados ate o concurso anterior:
             for concurso_passado in concursos_passados:
-                numero_passado = cb.calc_numerology(concurso_passado.bolas)
-                numerologias_passados[numero_passado] += 1
+                media_passada = cb.root_mean(concurso_passado.bolas)
+                medias_passados[media_passada] += 1
 
-            # calcula a numerologia do concurso atual para comparar a evolucao:
-            numero_atual = cb.calc_numerology(concurso_atual.bolas)
-            list6_numerologias.append(numero_atual)
-            # soh mantem as ultimas 6 numerologias:
-            while len(list6_numerologias) > 6:
-                del list6_numerologias[0]
+            # calcula a raiz-media do concurso atual para comparar a evolucao:
+            media_atual = cb.root_mean(concurso_atual.bolas)
+            list6_medias.append(media_atual)
+            # soh mantem as ultimas 6 raiz-medias:
+            while len(list6_medias) > 6:
+                del list6_medias[0]
 
             # printa o resultado:
-            output: str = f"\n\t ? NUMERO     PERC%       %DIF%  " \
+            output: str = f"\n\t ? MEDIA     PERC%       %DIF%  " \
                           f"----->  CONCURSO Nr {concurso_atual.id_concurso} :  " \
-                          f"Ultimos Numeros == { list(reversed(list6_numerologias))}\n"
-            for key, value in enumerate(numerologias_passados):
-                if key == 0:  # ignora o zero-index, pois nenhuma numerologia darah zero.
-                    continue
+                          f"Ultimas Raiz-Medias == { list(reversed(list6_medias))}\n"
+            for key, value in enumerate(medias_passados):
+                # if key == 0:  # ignora o zero-index, pois nenhuma raiz-media darah zero.
+                #     continue
 
                 percent: float = round((value / qtd_concursos_passados) * 10000) / 100
-                dif: float = percent - cp.numerologias_percentos[key]
-                output += f"\t {key} numero:  {formatf(percent,'6.2')}% ... " \
+                dif: float = percent - cp.medias_percentos[key]
+                output += f"\t {key} media:  {formatf(percent,'6.2')}% ... " \
                           f"{formatf(dif,'6.2')}%\n"
-            logger.debug(f"{nmlot}: Numerologias Resultantes da EVOLUTIVA: {output}")
+            logger.debug(f"{nmlot}: Raiz-Medias Resultantes da EVOLUTIVA: {output}")
 
             # inclui o concurso atual para ser avaliado na proxima iteracao:
             concursos_passados.append(concurso_atual)

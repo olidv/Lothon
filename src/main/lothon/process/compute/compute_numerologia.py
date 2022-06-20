@@ -145,7 +145,7 @@ class ComputeNumerologia(AbstractCompute):
         percent: float = self.numerologias_percentos[vl_numerologia]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 10:
+        if percent == 0:
             self.qtd_zerados += 1
             return 0
 
@@ -157,12 +157,11 @@ class ComputeNumerologia(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif vl_numerologia == self.vl_numerologia_ultimo_concurso == \
                 self.vl_numerologia_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao da ultima numerologia:
         percent_repetida: float = self.ultimas_numerologias_percentos[vl_numerologia]
-        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+        if percent_repetida == 0:  # baixa probabilidade pode ser descartada
             self.qtd_zerados += 1
             return 0
         else:  # reduz a probabilidade porque esse jogo vai repetir a numerologia:

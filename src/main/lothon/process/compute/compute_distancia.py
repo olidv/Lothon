@@ -128,7 +128,7 @@ class ComputeDistancia(AbstractCompute):
         percent: float = self.distancias_percentos[vl_distancia]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 2:
+        if percent == 0:
             self.qtd_zerados += 1
             return 0
 
@@ -140,12 +140,11 @@ class ComputeDistancia(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif vl_distancia == self.vl_distancia_ultimo_concurso == \
                 self.vl_distancia_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao da ultima distancia:
         percent_repetida: float = self.ultimas_distancias_percentos[vl_distancia]
-        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+        if percent_repetida == 0:  # baixa probabilidade pode ser descartada
             self.qtd_zerados += 1
             return 0
         else:  # reduz a probabilidade porque esse jogo vai repetir a distancia:

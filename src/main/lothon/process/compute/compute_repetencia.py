@@ -144,7 +144,7 @@ class ComputeRepetencia(AbstractCompute):
         percent: float = self.repetencias_percentos[qt_repeticoes]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 10:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
 
@@ -156,8 +156,7 @@ class ComputeRepetencia(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif qt_repeticoes == self.qtd_repetencias_ultimo_concurso == \
                 self.qtd_repetencias_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao da ultima repetencia:
         percent_repetida: float = self.ultimas_repetencias_percentos[qt_repeticoes]

@@ -159,7 +159,7 @@ class ComputeFrequencia(AbstractCompute):
         percent: float = self.topos_percentos[qtd_topos]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 2:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
 
@@ -170,8 +170,7 @@ class ComputeFrequencia(AbstractCompute):
         if qtd_topos != self.qtd_topos_ultimo_concurso:
             return fator_percent  # nao repetiu, ja pode pular fora
         elif qtd_topos == self.qtd_topos_ultimo_concurso == self.qtd_topos_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao do ultimo numero de topos:
         percent_repetido: float = self.ultimos_topos_percentos[qtd_topos]

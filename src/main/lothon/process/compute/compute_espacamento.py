@@ -142,7 +142,7 @@ class ComputeEspacamento(AbstractCompute):
         percent: float = self.espacamentos_percentos[vl_espacamento]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
 
@@ -154,8 +154,7 @@ class ComputeEspacamento(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif vl_espacamento == self.qtd_espacamentos_ultimo_concurso == \
                 self.qtd_espacamentos_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao do ultimo espacamento:
         percent_repetido: float = self.ultimos_espacamentos_percentos[vl_espacamento]

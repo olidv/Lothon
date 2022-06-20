@@ -155,7 +155,7 @@ class ComputeMatricial(AbstractCompute):
         percent_lin: float = self.linhas_percentos[vl_max_lin]
 
         # ignora valores muito baixos de probabilidade:
-        if percent_col < 9 or percent_lin < 5:
+        if percent_col == 0 or percent_lin == 0:
             self.qtd_zerados += 1
             return 0
 
@@ -168,8 +168,7 @@ class ComputeMatricial(AbstractCompute):
         if str_matriz != self.str_matriz_ultimo_concurso:
             return fator_percent  # nao repetiu, ja pode pular fora
         elif str_matriz == self.str_matriz_ultimo_concurso == self.str_matriz_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao da ultima matriz de coluna e linha:
         percent_repetida: float = self.ultimas_matrizes_percentos.get(str_matriz, 0.0)

@@ -133,10 +133,10 @@ class AnaliseFinalista(AbstractAnalyze):
             cproc.execute(concursos)
 
         # o primeiro item corresponde a buscar ordinais de jogos combinados, sem EVALUATE:
-        compute_chain.insert(0, None)
-        output: str = f"\n\n COMPUTE                 INCLUIDOS       ZERADOS     EXCLUIDOS" \
-                      f"        MENOR        MAIOR        FAIXA        MEDIA       DESVIO" \
-                      f"      #ULTIMO\n"
+        # compute_chain.insert(0, None)
+        output: str = f"\n\n COMPUTE                INCLUIDOS      ZERADOS    EXCLUIDOS" \
+                      f"       MENOR        MAIOR        FAIXA        MEDIA      DESVIO" \
+                      f"      #ULTIMO    FATOR\n"
         for cproc in compute_chain:
             nmproc: str = "Nenhum" if cproc is None else type(cproc).__name__
             logger.debug(f"{nmproc}: Executando analise EVALUATE dos  "
@@ -170,27 +170,39 @@ class AnaliseFinalista(AbstractAnalyze):
             qtd_incluidos: int = len(jogos_computados) - qtd_excluidos
 
             # elimina os zerados para nao afetar os calculos estatisticos de media e desvio:
+            min_ordinal: float = 0
+            max_ordinal: float = 0
+            faixa_ordinal: float = 0
+            mean_ordinal: float = 0
+            stdev_ordinal: float = 0
             ordinais_concursos = sorted([n for n in ordinais_concursos if n > 0])
-            min_ordinal = min(ordinais_concursos)
-            max_ordinal = max(ordinais_concursos)
-            faixa_ordinal = abs(max_ordinal - min_ordinal)
-            mean_ordinal = stts.fmean(ordinais_concursos)
-            stdev_ordinal = stts.pstdev(ordinais_concursos)
+            if len(ordinais_concursos) > 0:
+                min_ordinal = min(ordinais_concursos)
+                max_ordinal = max(ordinais_concursos)
+                faixa_ordinal = abs(max_ordinal - min_ordinal)
+                mean_ordinal = stts.fmean(ordinais_concursos)
+                stdev_ordinal = stts.pstdev(ordinais_concursos)
 
             # procura na lista de jogos computados o ordinal correspondente do ultimo sorteio:
             ultimo_ordinal: int = self.get_ordinal_concurso(ultimo_concurso.bolas, jogos_computados)
 
+            # tambem processa o ultimo sorteio para saber seu fator (metrica):
+            ultimo_fator: float = 0 if cproc is None \
+                else cproc.evaluate(ultimo_ordinal, ultimo_concurso.bolas)
+            print("***** ULTIMO CONCURSO:", ultimo_concurso)
+
             # printa quantos jogos foram descartado, quantos serao considerados, etc...
-            output += f" {nmproc:<20}   " \
-                      f"{formatd(qtd_incluidos,10)}     " \
-                      f"{formatd(qtd_zerados,9)}        " \
-                      f"{formatd(qtd_excluidos,6)}   " \
+            output += f" {nmproc:<20}  " \
+                      f"{formatd(qtd_incluidos,10)}    " \
+                      f"{formatd(qtd_zerados,9)}       " \
+                      f"{formatd(qtd_excluidos,6)}  " \
                       f"{formatd(min_ordinal,10)}   " \
                       f"{formatd(max_ordinal,10)}   " \
                       f"{formatd(faixa_ordinal,10)}   " \
-                      f"{formatd(mean_ordinal,10)}      " \
+                      f"{formatd(mean_ordinal,10)}     " \
                       f"{formatd(stdev_ordinal,7)}   " \
-                      f"{formatd(ultimo_ordinal,10)}" \
+                      f"{formatd(ultimo_ordinal,10)}   " \
+                      f"{formatf(ultimo_fator,'6.3')}" \
                       f"\n"
 
         logger.debug(f"{nmlot}: Finalizou o EVALUATE dos jogos: {output}")

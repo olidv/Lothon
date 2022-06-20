@@ -135,7 +135,7 @@ class ComputeOrdinal(AbstractCompute):
         percent: float = self.ordinais_percentos[faixa_percent_abaixo]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
         else:

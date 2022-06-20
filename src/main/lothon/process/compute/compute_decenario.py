@@ -158,8 +158,7 @@ class ComputeDecenario(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif str_decenarios == self.str_decenarios_ultimo_concurso == \
                 self.str_decenarios_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao dos ultimos decenarios:
         if self.ultimos_decenarios_percentos < 1:  # baixa probabilidade pode ser descartada

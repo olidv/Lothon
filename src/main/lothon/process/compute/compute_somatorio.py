@@ -126,7 +126,7 @@ class ComputeSomatorio(AbstractCompute):
         percent: float = self.somatorios_percentos[vl_somatorio]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 0.1:
+        if percent == 0:
             self.qtd_zerados += 1
             return 0
 
@@ -138,12 +138,11 @@ class ComputeSomatorio(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif vl_somatorio == self.vl_somatorio_ultimo_concurso == \
                 self.vl_somatorio_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao do ultimo somatorio:
         percent_repetido: float = self.ultimos_somatorios_percentos[vl_somatorio]
-        if percent_repetido < 1:  # baixa probabilidade pode ser descartada
+        if percent_repetido == 0:  # baixa probabilidade pode ser descartada
             self.qtd_zerados += 1
             return 0
         else:  # reduz a probabilidade porque esse jogo vai repetir o somatorio:

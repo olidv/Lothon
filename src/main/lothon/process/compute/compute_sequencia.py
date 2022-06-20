@@ -141,7 +141,7 @@ class ComputeSequencia(AbstractCompute):
         percent: float = self.sequencias_percentos[qt_sequencias]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 9:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
 
@@ -153,8 +153,7 @@ class ComputeSequencia(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif qt_sequencias == self.qtd_sequencias_ultimo_concurso == \
                 self.qtd_sequencias_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao do ultimo numero de sequencias:
         percent_repetida: float = self.ultimas_sequencias_percentos[qt_sequencias]

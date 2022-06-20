@@ -178,7 +178,7 @@ class ComputeDispersao(AbstractCompute):
         percent: float = self.dispersoes_percentos[faixa_dispersao]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 2:
+        if percent < 1:
             self.qtd_zerados += 1
             return 0
 
@@ -190,8 +190,7 @@ class ComputeDispersao(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif faixa_dispersao == self.vl_dispersao_ultimo_concurso == \
                 self.vl_dispersao_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao da ultima dispersao:
         percent_repetida: float = self.ultimas_dispersoes_percentos[faixa_dispersao]

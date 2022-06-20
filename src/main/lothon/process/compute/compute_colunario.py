@@ -138,7 +138,7 @@ class ComputeColunario(AbstractCompute):
             serie.last_sorteio(ultimo_concurso.id_concurso)
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f" para executar {self.id_process.upper()}: {_stopWatch}")
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
@@ -161,8 +161,7 @@ class ComputeColunario(AbstractCompute):
             return fator_percent  # nao repetiu, ja pode pular fora
         elif str_colunarios == self.str_colunarios_ultimo_concurso == \
                 self.str_colunarios_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao dos ultimos colunarios:
         if self.ultimos_colunarios_percentos < 1:  # baixa probabilidade pode ser descartada

@@ -116,6 +116,23 @@ def numerology(numeros: tuple[int, ...]) -> int:
     return numerology(digitos)
 
 
+def sqrt_mean(numeros: Collection) -> float:
+    # valida a relacao dos numeros:
+    if numeros is None or len(numeros) == 0:
+        return 0.0
+
+    # calcula a soma das raizes dos numeros:
+    soma: float = 0.0
+    for num in numeros:
+        soma += math.sqrt(num)
+
+    return soma / len(numeros)
+
+
+def root_mean(numeros: Collection) -> int:
+    return round(sqrt_mean(numeros))
+
+
 def is_par(val: int | float) -> bool:
     if val is None:
         return False

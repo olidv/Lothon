@@ -197,8 +197,7 @@ class ComputeCiclo(AbstractCompute):
         if size_ciclo != self.vl_ciclo_ultimo_concurso:
             return fator_percent  # nao repetiu, ja pode pular fora
         elif size_ciclo == self.vl_ciclo_ultimo_concurso == self.vl_ciclo_penultimo_concurso:
-            self.qtd_zerados += 1
-            return 0  # pouco provavel de repetir mais de 2 ou 3 vezes
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
 
         # se repetiu, obtem a probabilidade de repeticao do ultimo ciclo:
         percent_repetido: float = self.ultimos_ciclos_percentos[size_ciclo]
