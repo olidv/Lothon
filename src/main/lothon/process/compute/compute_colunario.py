@@ -69,6 +69,21 @@ class ComputeColunario(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
+        # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = 9
+        self.colunarios_jogos = cb.new_list_int(qtd_items)
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
+            # contabiliza os colunarios de cada combinacao de jogo:
+            cb.count_colunarios(jogo, self.colunarios_jogos)
+
+        # contabiliza o percentual dos colunarios:
+        self.colunarios_percentos = cb.new_list_float(qtd_items)
+        total: int = self.qtd_bolas_sorteio * self.qtd_jogos
+        for key, value in enumerate(self.colunarios_jogos):
+            percent: float = round((value / total) * 10000) / 100
+            self.colunarios_percentos[key] = percent
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, concursos: list[Concurso]) -> int:
@@ -81,23 +96,6 @@ class ComputeColunario(AbstractCompute):
         # identifica informacoes da loteria:
         qtd_concursos: int = len(concursos)
         qtd_items: int = 9
-
-        # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada colunario:
-        self.colunarios_jogos = cb.new_list_int(qtd_items)
-
-        # contabiliza pares (e impares) de cada combinacao de jogo:
-        range_jogos: range = range(1, self.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
-            cb.count_colunarios(jogo, self.colunarios_jogos)
-
-        # contabiliza o percentual dos colunarios:
-        self.colunarios_percentos = cb.new_list_float(qtd_items)
-        total: int = self.qtd_bolas_sorteio * self.qtd_jogos
-        for key, value in enumerate(self.colunarios_jogos):
-            percent: float = round((value / total) * 10000) / 100
-            self.colunarios_percentos[key] = percent
 
         # contabiliza colunarios de cada sorteio ja realizado:
         self.colunarios_concursos = cb.new_list_int(qtd_items)

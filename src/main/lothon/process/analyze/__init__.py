@@ -62,7 +62,7 @@ def get_process_chain() -> list[AbstractAnalyze]:
         # _process_chain.append(AnaliseEspacamento())  # 0:01:03
         # _process_chain.append(AnaliseFrequencia())   # 0:00:00
         # _process_chain.append(AnaliseMatricial())    # 0:00:32
-        _process_chain.append(AnaliseMediania())    # 0:00:32
+        # _process_chain.append(AnaliseMediania())    # 0:00:32
         # _process_chain.append(AnaliseNumerologia())  # 0:00:08
         # _process_chain.append(AnaliseOrdinal())      # 0:00:32
         # _process_chain.append(AnaliseParidade())     # 0:00:32

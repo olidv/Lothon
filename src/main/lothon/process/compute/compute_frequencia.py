@@ -89,10 +89,8 @@ class ComputeFrequencia(AbstractCompute):
         qtd_concursos: int = len(concursos)
         qtd_items: int = self.qtd_bolas
 
-        # zera os contadores de frequencias e atrasos:
-        self.frequencias_dezenas = cb.new_list_series(qtd_items)
-
         # contabiliza as frequencias e atrasos das dezenas em todos os sorteios ja realizados:
+        self.frequencias_dezenas = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # registra o concurso para cada dezena sorteada:
             for bola in concurso.bolas:

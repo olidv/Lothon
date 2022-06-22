@@ -69,20 +69,8 @@ class ComputeMatricial(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
-    # --- PROCESSAMENTO ------------------------------------------------------
-
-    def execute(self, concursos: list[Concurso]) -> int:
-        # valida se possui concursos a serem analisados:
-        if concursos is None or len(concursos) == 0:
-            return -1
-        else:
-            _startWatch = startwatch()
-
-        # identifica informacoes da loteria:
-        qtd_concursos: int = len(concursos)
-        qtd_items: int = self.qtd_bolas_sorteio
-
         # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = self.qtd_bolas_sorteio
         self.colunas_jogos = cb.new_list_int(qtd_items)
         self.linhas_jogos = cb.new_list_int(qtd_items)
 
@@ -108,6 +96,19 @@ class ComputeMatricial(AbstractCompute):
         for key, value in enumerate(self.linhas_jogos):
             percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.linhas_percentos[key] = percent
+
+    # --- PROCESSAMENTO ------------------------------------------------------
+
+    def execute(self, concursos: list[Concurso]) -> int:
+        # valida se possui concursos a serem analisados:
+        if concursos is None or len(concursos) == 0:
+            return -1
+        else:
+            _startWatch = startwatch()
+
+        # identifica informacoes da loteria:
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = self.qtd_bolas_sorteio
 
         # identifica o numero maximo de colunas e linhas de cada sorteio ja realizado:
         self.colunas_concursos = cb.new_list_int(qtd_items)

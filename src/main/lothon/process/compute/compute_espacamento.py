@@ -67,20 +67,8 @@ class ComputeEspacamento(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
-    # --- PROCESSAMENTO ------------------------------------------------------
-
-    def execute(self, concursos: list[Concurso]) -> int:
-        # valida se possui concursos a serem analisados:
-        if concursos is None or len(concursos) == 0:
-            return -1
-        else:
-            _startWatch = startwatch()
-
-        # identifica informacoes da loteria:
-        qtd_concursos: int = len(concursos)
-        qtd_items: int = self.qtd_bolas // (self.qtd_bolas_sorteio - 1)
-
         # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = self.qtd_bolas // (self.qtd_bolas_sorteio - 1)
         self.espacamentos_jogos = cb.new_list_int(qtd_items)
         range_jogos: range = range(1, self.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
@@ -93,6 +81,19 @@ class ComputeEspacamento(AbstractCompute):
         for key, value in enumerate(self.espacamentos_jogos):
             percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.espacamentos_percentos[key] = percent
+
+    # --- PROCESSAMENTO ------------------------------------------------------
+
+    def execute(self, concursos: list[Concurso]) -> int:
+        # valida se possui concursos a serem analisados:
+        if concursos is None or len(concursos) == 0:
+            return -1
+        else:
+            _startWatch = startwatch()
+
+        # identifica informacoes da loteria:
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = self.qtd_bolas // (self.qtd_bolas_sorteio - 1)
 
         # calcula o espacamento de cada sorteio dos concursos:
         self.espacamentos_concursos = cb.new_list_int(qtd_items)
@@ -115,10 +116,8 @@ class ComputeEspacamento(AbstractCompute):
             percent: float = round((value / qtd_concursos) * 10000) / 100
             self.ultimos_espacamentos_percentos[key] = percent
 
-        # zera os contadores de frequencias e atrasos dos espacamentos:
-        self.frequencias_espacamentos = cb.new_list_series(qtd_items)
-
         # contabiliza as frequencias e atrasos dos espacamentos em todos os sorteios ja realizados:
+        self.frequencias_espacamentos = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # contabiliza a frequencia dos espacamentos do concurso:
             vl_espacamento: int = cb.calc_espacada(concurso.bolas)

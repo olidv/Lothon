@@ -67,20 +67,8 @@ class ComputeNumerologia(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
-    # --- PROCESSAMENTO ------------------------------------------------------
-
-    def execute(self, concursos: list[Concurso]) -> int:
-        # valida se possui concursos a serem analisados:
-        if concursos is None or len(concursos) == 0:
-            return -1
-        else:
-            _startWatch = startwatch()
-
-        # identifica informacoes da loteria:
-        qtd_concursos: int = len(concursos)
-        qtd_items: int = 9  # numero de zero a nove
-
         # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = 9  # numero de zero a nove
         self.numerologias_jogos = cb.new_list_int(qtd_items)
         range_jogos: range = range(1, self.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
@@ -96,6 +84,19 @@ class ComputeNumerologia(AbstractCompute):
 
             percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.numerologias_percentos[key] = percent
+
+    # --- PROCESSAMENTO ------------------------------------------------------
+
+    def execute(self, concursos: list[Concurso]) -> int:
+        # valida se possui concursos a serem analisados:
+        if concursos is None or len(concursos) == 0:
+            return -1
+        else:
+            _startWatch = startwatch()
+
+        # identifica informacoes da loteria:
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = 9  # numero de zero a nove
 
         # calcula a numerologia de cada sorteio dos concursos:
         self.numerologias_concursos = cb.new_list_int(qtd_items)
@@ -118,10 +119,8 @@ class ComputeNumerologia(AbstractCompute):
             percent: float = round((value / qtd_concursos) * 10000) / 100
             self.ultimas_numerologias_percentos[key] = percent
 
-        # zera os contadores de frequencias e atrasos das numerologias:
-        self.frequencias_numerologias = cb.new_list_series(qtd_items)
-
         # contabiliza as frequencias e atrasos das numerologias em todos os sorteios ja realizados:
+        self.frequencias_numerologias = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # contabiliza a numerologia do concurso:
             vl_numerologia = cb.calc_numerology(concurso.bolas)

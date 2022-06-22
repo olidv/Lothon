@@ -60,10 +60,10 @@ def get_process_chain() -> list[AbstractCompute]:
         # _process_chain.append(ComputeEspacamento())  # 0:00:-03s
         # _process_chain.append(ComputeFrequencia())   # 0:00:
         # _process_chain.append(ComputeMatricial())    # 0:00:-22s
-        _process_chain.append(ComputeMediania())    # 0:00:-22s
+        # _process_chain.append(ComputeMediania())     # 0:00:-22s
         # _process_chain.append(ComputeNumerologia())  # 0:00:
         # _process_chain.append(ComputeOrdinal())      # 0:00:-31s
-        # _process_chain.append(ComputeParidade())     # 0:00:-01s
+        _process_chain.append(ComputeParidade())     # 0:00:-01s
         # _process_chain.append(ComputeRepetencia())   # 0:00:-04s
         # _process_chain.append(ComputeSequencia())    # 0:00:-23s
         # _process_chain.append(ComputeSomatorio())    # 0:00:+06s

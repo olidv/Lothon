@@ -65,6 +65,21 @@ class ComputeDistancia(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
+        # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = self.qtd_bolas
+        self.distancias_jogos = cb.new_list_int(qtd_items)
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
+            # calcula a distancia de cada combinacao de jogo:
+            vl_distancia = cb.calc_distancia(jogo)
+            self.distancias_jogos[vl_distancia] += 1
+
+        # contabiliza o percentual das distancias:
+        self.distancias_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.distancias_jogos):
+            percent: float = round((value / self.qtd_jogos) * 10000) / 100
+            self.distancias_percentos[key] = percent
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, concursos: list[Concurso]) -> int:
@@ -77,23 +92,6 @@ class ComputeDistancia(AbstractCompute):
         # identifica informacoes da loteria:
         qtd_concursos: int = len(concursos)
         qtd_items: int = self.qtd_bolas
-
-        # efetua analise de todas as combinacoes de jogos da loteria:
-
-        # zera os contadores de cada distancia:
-        self.distancias_jogos = cb.new_list_int(qtd_items)
-
-        # calcula a distancia de cada combinacao de jogo:
-        range_jogos: range = range(1, self.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
-            vl_distancia = cb.calc_distancia(jogo)
-            self.distancias_jogos[vl_distancia] += 1
-
-        # contabiliza o percentual das distancias:
-        self.distancias_percentos = cb.new_list_float(qtd_items)
-        for key, value in enumerate(self.distancias_jogos):
-            percent: float = round((value / self.qtd_jogos) * 10000) / 100
-            self.distancias_percentos[key] = percent
 
         # calcula a distancia de cada sorteio dos concursos:
         self.distancias_concursos = cb.new_list_int(qtd_items)

@@ -67,6 +67,21 @@ class ComputeParidade(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
+        # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = self.qtd_bolas_sorteio
+        self.paridades_jogos = cb.new_list_int(qtd_items)
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
+            # contabiliza pares (e impares) de cada combinacao de jogo:
+            qtd_pares: int = cb.count_pares(jogo)
+            self.paridades_jogos[qtd_pares] += 1
+
+        # contabiliza o percentual das paridades:
+        self.paridades_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.paridades_jogos):
+            percent: float = round((value / self.qtd_jogos) * 10000) / 100
+            self.paridades_percentos[key] = percent
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, concursos: list[Concurso]) -> int:
@@ -79,21 +94,6 @@ class ComputeParidade(AbstractCompute):
         # identifica informacoes da loteria:
         qtd_concursos: int = len(concursos)
         qtd_items: int = self.qtd_bolas_sorteio
-
-        # efetua analise de todas as combinacoes de jogos da loteria:
-        self.paridades_jogos = cb.new_list_int(qtd_items)
-
-        # contabiliza pares (e impares) de cada combinacao de jogo:
-        range_jogos: range = range(1, self.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
-            qtd_pares: int = cb.count_pares(jogo)
-            self.paridades_jogos[qtd_pares] += 1
-
-        # contabiliza o percentual das paridades:
-        self.paridades_percentos = cb.new_list_float(qtd_items)
-        for key, value in enumerate(self.paridades_jogos):
-            percent: float = round((value / self.qtd_jogos) * 10000) / 100
-            self.paridades_percentos[key] = percent
 
         # contabiliza os pares (e impares) de cada sorteio dos concursos:
         self.paridades_concursos = cb.new_list_int(qtd_items)

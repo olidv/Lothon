@@ -69,20 +69,8 @@ class ComputeDecenario(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
-    # --- PROCESSAMENTO ------------------------------------------------------
-
-    def execute(self, concursos: list[Concurso]) -> int:
-        # valida se possui concursos a serem analisados:
-        if concursos is None or len(concursos) == 0:
-            return -1
-        else:
-            _startWatch = startwatch()
-
-        # identifica informacoes da loteria:
-        qtd_concursos: int = len(concursos)
-        qtd_items: int = (self.qtd_bolas-1) // 10
-
         # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = (self.qtd_bolas-1) // 10
         self.decenarios_jogos = cb.new_list_int(qtd_items)
         range_jogos: range = range(1, self.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
@@ -95,6 +83,19 @@ class ComputeDecenario(AbstractCompute):
         for key, value in enumerate(self.decenarios_jogos):
             percent: float = round((value / total) * 10000) / 100
             self.decenarios_percentos[key] = percent
+
+    # --- PROCESSAMENTO ------------------------------------------------------
+
+    def execute(self, concursos: list[Concurso]) -> int:
+        # valida se possui concursos a serem analisados:
+        if concursos is None or len(concursos) == 0:
+            return -1
+        else:
+            _startWatch = startwatch()
+
+        # identifica informacoes da loteria:
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = (self.qtd_bolas-1) // 10
 
         # contabiliza decenarios de cada sorteio ja realizado:
         self.decenarios_concursos = cb.new_list_int(qtd_items)

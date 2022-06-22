@@ -65,6 +65,22 @@ class ComputeSomatorio(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
+        # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = sum(range(self.qtd_bolas - self.qtd_bolas_sorteio + 1,
+                                   self.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
+        self.somatorios_jogos = cb.new_list_int(qtd_items)
+        range_jogos: range = range(1, self.qtd_bolas + 1)
+        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
+            # contabiliza a somatorio de cada combinacao de jogo:
+            soma_dezenas = cb.soma_dezenas(jogo)
+            self.somatorios_jogos[soma_dezenas] += 1
+
+        # contabiliza o percentual dos somatorios:
+        self.somatorios_percentos = cb.new_list_float(qtd_items)
+        for key, value in enumerate(self.somatorios_jogos):
+            percent: float = round((value / self.qtd_jogos) * 100000) / 1000
+            self.somatorios_percentos[key] = percent
+
     # --- PROCESSAMENTO ------------------------------------------------------
 
     def execute(self, concursos: list[Concurso]) -> int:
@@ -78,20 +94,6 @@ class ComputeSomatorio(AbstractCompute):
         qtd_concursos: int = len(concursos)
         qtd_items: int = sum(range(self.qtd_bolas - self.qtd_bolas_sorteio + 1,
                                    self.qtd_bolas + 1)) + 1  # soma 1 para nao usar zero-index.
-
-        # efetua analise de todas as combinacoes de jogos da loteria:
-        self.somatorios_jogos = cb.new_list_int(qtd_items)
-        range_jogos: range = range(1, self.qtd_bolas + 1)
-        for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
-            # contabiliza a somatorio de cada combinacao de jogo:
-            soma_dezenas = cb.soma_dezenas(jogo)
-            self.somatorios_jogos[soma_dezenas] += 1
-
-        # contabiliza o percentual dos somatorios:
-        self.somatorios_percentos = cb.new_list_float(qtd_items)
-        for key, value in enumerate(self.somatorios_jogos):
-            percent: float = round((value / self.qtd_jogos) * 100000) / 1000
-            self.somatorios_percentos[key] = percent
 
         # contabiliza a somatorio de cada sorteio dos concursos:
         self.somatorios_concursos = cb.new_list_int(qtd_items)

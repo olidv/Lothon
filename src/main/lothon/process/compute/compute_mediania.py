@@ -68,20 +68,8 @@ class ComputeMediania(AbstractCompute):
         # absorve os parametros fornecidos:
         super().setup(parms)
 
-    # --- PROCESSAMENTO ------------------------------------------------------
-
-    def execute(self, concursos: list[Concurso]) -> int:
-        # valida se possui concursos a serem analisados:
-        if concursos is None or len(concursos) == 0:
-            return -1
-        else:
-            _startWatch = startwatch()
-
-        # identifica informacoes da loteria:
-        qtd_concursos: int = len(concursos)
-        qtd_items: int = round(math.sqrt(self.qtd_bolas))  # vai depender do valor da ultima bola
-
         # efetua analise de todas as combinacoes de jogos da loteria:
+        qtd_items: int = round(math.sqrt(self.qtd_bolas))  # vai depender do valor da ultima bola
         self.medias_jogos = cb.new_list_int(qtd_items)
         range_jogos: range = range(1, self.qtd_bolas + 1)
         for jogo in itt.combinations(range_jogos, self.qtd_bolas_sorteio):
@@ -96,6 +84,19 @@ class ComputeMediania(AbstractCompute):
             #     continue
             percent: float = round((value / self.qtd_jogos) * 10000) / 100
             self.medias_percentos[key] = percent
+
+    # --- PROCESSAMENTO ------------------------------------------------------
+
+    def execute(self, concursos: list[Concurso]) -> int:
+        # valida se possui concursos a serem analisados:
+        if concursos is None or len(concursos) == 0:
+            return -1
+        else:
+            _startWatch = startwatch()
+
+        # identifica informacoes da loteria:
+        qtd_concursos: int = len(concursos)
+        qtd_items: int = round(math.sqrt(self.qtd_bolas))  # vai depender do valor da ultima bola
 
         # calcula a raiz-media de cada sorteio dos concursos:
         self.medias_concursos = cb.new_list_int(qtd_items)
@@ -118,10 +119,8 @@ class ComputeMediania(AbstractCompute):
             percent: float = round((value / qtd_concursos) * 10000) / 100
             self.ultimas_medias_percentos[key] = percent
 
-        # zera os contadores de frequencias e atrasos das raiz-medias:
-        self.frequencias_medias = cb.new_list_series(qtd_items)
-
         # contabiliza as frequencias e atrasos das raiz-medias em todos os sorteios ja realizados:
+        self.frequencias_medias = cb.new_list_series(qtd_items)
         for concurso in concursos:
             # contabiliza a raiz-media do concurso:
             vl_media = cb.root_mean(concurso.bolas)

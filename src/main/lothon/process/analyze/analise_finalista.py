@@ -110,7 +110,7 @@ class AnaliseFinalista(AbstractAnalyze):
             self.sorteios_literal[bolas_str] = concurso.id_concurso
 
         # inicializa a cadeia de processos para computacao de jogos:
-        compute_chain: list[AbstractCompute | None] = compute.get_process_chain()
+        compute_chain: list[AbstractCompute] = compute.get_process_chain()
 
         # define os parametros para configurar o processamento de 'evaluate()' dos processos:
         parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
@@ -133,11 +133,12 @@ class AnaliseFinalista(AbstractAnalyze):
             cproc.execute(concursos)
 
         # o primeiro item corresponde a buscar ordinais de jogos combinados, sem EVALUATE:
-        # compute_chain.insert(0, None)
+        ncompute_chain: list[AbstractCompute | None] = [cp for cp in compute_chain]
+        ncompute_chain.insert(0, None)
         output: str = f"\n\n COMPUTE                INCLUIDOS      ZERADOS    EXCLUIDOS" \
                       f"       MENOR        MAIOR        FAIXA        MEDIA      DESVIO" \
                       f"      #ULTIMO    FATOR\n"
-        for cproc in compute_chain:
+        for cproc in ncompute_chain:
             nmproc: str = "Nenhum" if cproc is None else type(cproc).__name__
             logger.debug(f"{nmproc}: Executando analise EVALUATE dos  "
                          f"{formatd(loteria.qtd_jogos)}  jogos da loteria...")
@@ -206,6 +207,52 @@ class AnaliseFinalista(AbstractAnalyze):
                       f"\n"
 
         logger.debug(f"{nmlot}: Finalizou o EVALUATE dos jogos: {output}")
+
+        # efetua simulacao dos ultimos 100 concursos:
+        concursos_passados: list[Concurso] = loteria.concursos[:-100]
+        proximos_concursos: list[Concurso] = loteria.concursos[-100:]
+        output: str = f"\n\t CONCURSO     #ORDINAL-JOGO\n"
+        for concurso in proximos_concursos:
+            qtd_passados: int = len(concursos_passados)
+            # executa cada processo de analise em sequencia (chain) para coleta de dados:
+            logger.debug(f"Executando computacao dos  #{formatd(qtd_passados)}  concursos "
+                         f"passados...")
+            for cproc in compute_chain:
+                # executa a analise para cada loteria:
+                cproc.execute(concursos)
+
+            # gera todas as combinacoes de jogos para avaliacao:
+            jogos_computados: list[Jogo] = []
+            vl_ordinal: int = 0
+            for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
+                vl_ordinal += 1  # primeiro jogo ira comecar do #1
+
+                # executa a avaliacao do jogo, para verificar se sera considerado ou descartado:
+                vl_fator: float = 1.0
+                for cproc in compute_chain:
+                    vl_fator *= cproc.evaluate(vl_ordinal, jogo)
+                    # ignora o resto das analises se a metrica zerou:
+                    if vl_fator == 0:
+                        break  # pula para o proximo jogo, acelerando o processamento
+
+                # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
+                if vl_fator > 0:
+                    jogos_computados.append(Jogo(vl_ordinal, vl_fator, jogo))
+
+            # ordena os jogos processados pelo fator, do maior (maiores chances) para o menor:
+            jogos_computados.sort(key=lambda n: n.fator, reverse=True)
+
+            # procura na lista de jogos computados o ordinal correspondente do ultimo sorteio:
+            ultimo_ordinal: int = self.get_ordinal_concurso(concurso.bolas, jogos_computados)
+
+            # printa o resultado da simulacao:
+            output += f"\t   {formatd(concurso.id_concurso,6)}  ....  " \
+                      f"{formatd(ultimo_ordinal,10)}\n"
+
+            # na proxima iteracao considera tambem agora o concurso recem simulado:
+            concursos_passados.append(concurso)
+
+        logger.debug(f"{nmlot}: Simulacao dos ultimos 100 concursos: {output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
