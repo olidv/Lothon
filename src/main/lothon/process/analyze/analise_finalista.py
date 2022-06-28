@@ -190,7 +190,6 @@ class AnaliseFinalista(AbstractAnalyze):
             # tambem processa o ultimo sorteio para saber seu fator (metrica):
             ultimo_fator: float = 0 if cproc is None \
                 else cproc.evaluate(ultimo_ordinal, ultimo_concurso.bolas)
-            print("***** ULTIMO CONCURSO:", ultimo_concurso)
 
             # printa quantos jogos foram descartado, quantos serao considerados, etc...
             output += f" {nmproc:<20}  " \
@@ -248,6 +247,30 @@ class AnaliseFinalista(AbstractAnalyze):
             # printa o resultado da simulacao:
             output += f"\t   {formatd(concurso.id_concurso,6)}  ....  " \
                       f"{formatd(ultimo_ordinal,10)}\n"
+
+            # identifica a frequencia das dezenas nos jogos com maior probabilidade/fator:
+            vl_dez = 1
+            for dez in range(1, 7):
+                vl_dez *= 10
+
+                # contabiliza a frequencia das dezenas em parte dos jogos (vl_dez):
+                contador_dezenas: list[int] = cb.new_list_int(loteria.qtd_bolas)
+                for jogo in jogos_computados[0:vl_dez]:  # 10, 100, 1000, 10000, 100000, 1000000
+                    # registra a frequencia geral de todas as bolas dos concursos anteriores:
+                    cb.count_dezenas(jogo.dezenas, contador_dezenas)
+
+                # identifica as frequencias das dezenas em ordem reversa da frequencia nos sorteios:
+                frequencias_dezenas: dict = cb.to_dict(contador_dezenas, reverse_value=True)
+
+                # extrai o topo do ranking com as dezenas com maior frequencia e retorna:
+                topos_dezenas: list[int] = cb.take_keys(frequencias_dezenas)
+
+                # identifica a ordem de frequencia das dezenas sorteadas:
+                ordens_sorteio: tuple[int, ...] = ()
+                for dezena in concurso.bolas:
+                    ordens_sorteio += (topos_dezenas.index(dezena),)
+
+                print(f"***** ORDENS DAS DEZENAS DO SORTEIO: ", ordens_sorteio)
 
             # na proxima iteracao considera tambem agora o concurso recem simulado:
             concursos_passados.append(concurso)
