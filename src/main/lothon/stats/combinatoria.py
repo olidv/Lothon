@@ -228,8 +228,13 @@ def sort_dict(dicio: dict, order_key: bool = False, order_value: bool = False,
         return dicio
 
 
-def take_keys(dicio: dict, qtd_keys: int) -> list:
-    list_keys: list = [k for k in list(dicio.keys())[0:qtd_keys]]
+def take_keys(dicio: dict, qtd_keys: int = None) -> list:
+    list_keys: list
+    if qtd_keys is None:
+        list_keys = [k for k in dicio.keys()]
+    else:
+        list_keys = [k for k in list(dicio.keys())[0:qtd_keys]]
+
     return list_keys
 
 
