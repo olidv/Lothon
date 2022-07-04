@@ -122,6 +122,38 @@ class ComputeSomatorio(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_somatorio: int = cb.soma_dezenas(jogo)
+        return vl_somatorio
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do somatorio das dezenas do jogo:
+        vl_somatorio: int = cb.soma_dezenas(jogo)
+        percent: float = self.somatorios_percentos[vl_somatorio]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu o somatorio do ultimo e penultimo concursos:
+        if vl_somatorio != self.vl_somatorio_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_somatorio == self.vl_somatorio_ultimo_concurso == \
+                self.vl_somatorio_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo somatorio:
+        percent_repetido: float = self.ultimos_somatorios_percentos[vl_somatorio]
+        if percent_repetido == 0:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o somatorio:
+            return fator_percent * to_redutor(percent_repetido)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do somatorio das dezenas do jogo:
         vl_somatorio: int = cb.soma_dezenas(jogo)

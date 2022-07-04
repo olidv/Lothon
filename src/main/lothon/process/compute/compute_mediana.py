@@ -1,11 +1,11 @@
 """
    Package lothon.process.compute
-   Module  compute_mediania.py
+   Module  compute_mediana.py
 
 """
 
 __all__ = [
-    'ComputeMediania'
+    'ComputeMediana'
 ]
 
 # ----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class ComputeMediania(AbstractCompute):
+class ComputeMediana(AbstractCompute):
     """
     Implementacao de classe para .
     """
@@ -137,6 +137,38 @@ class ComputeMediania(AbstractCompute):
         return 0
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
+
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_media: int = cb.root_mean(jogo)
+        return vl_media
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende da raiz-media do jogo:
+        vl_media: int = cb.root_mean(jogo)
+        percent: float = self.medias_percentos[vl_media]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a raiz-media do ultimo e penultimo concursos:
+        if vl_media != self.vl_media_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_media == self.vl_media_ultimo_concurso == \
+                self.vl_media_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima raiz-media:
+        percent_repetida: float = self.ultimas_medias_percentos[vl_media]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a raiz-media:
+            return fator_percent * to_redutor(percent_repetida)
 
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende da raiz-media do jogo:

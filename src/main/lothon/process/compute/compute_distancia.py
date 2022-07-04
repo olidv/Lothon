@@ -120,6 +120,38 @@ class ComputeDistancia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_distancia: int = cb.calc_distancia(jogo)
+        return vl_distancia
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende da distancia entre as dezenas:
+        vl_distancia: int = cb.calc_distancia(jogo)
+        percent: float = self.distancias_percentos[vl_distancia]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a distancia do ultimo e penultimo concursos:
+        if vl_distancia != self.vl_distancia_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_distancia == self.vl_distancia_ultimo_concurso == \
+                self.vl_distancia_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima distancia:
+        percent_repetida: float = self.ultimas_distancias_percentos[vl_distancia]
+        if percent_repetida == 0:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a distancia:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende da distancia entre as dezenas:
         vl_distancia: int = cb.calc_distancia(jogo)

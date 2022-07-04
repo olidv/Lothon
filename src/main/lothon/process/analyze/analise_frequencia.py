@@ -138,22 +138,6 @@ class AnaliseFrequencia(AbstractAnalyze):
         # apos percorrer todos os concursos, printa as frequencias medias:
         logger.debug(f"{nmlot}: Frequencias Medias das Dezenas Sorteadas: {output}")
 
-        # printa os topos de cada sorteio dos concursos:
-        output: str = f"\n\t  ? TOPOS     PERC%       #TOTAL\n"
-        for key, value in enumerate(cp.topos_frequentes):
-            percent: float = cp.topos_percentos[key]
-            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
-                      f"#{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Topos de Frequencia Resultantes: {output}")
-
-        # printa quais os topos de frequencias que repetiram no ultimo sorteio dos concursos:
-        output: str = f"\n\t  ? TOPOS     PERC%       #REPETIDOS\n"
-        for key, value in enumerate(cp.ultimos_topos_repetidos):
-            percent: float = cp.ultimos_topos_percentos[key]
-            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
-                      f"#{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo topo: {output}")
-
         # efetua analise de atrasos medios das dezenas em todos os concursos:
         logger.debug(f"{nmlot}: Executando analise media de atrasos das dezenas sorteadas "
                      f"em TODOS os  {formatd(qtd_concursos)}  concursos da loteria.")
@@ -255,6 +239,22 @@ class AnaliseFrequencia(AbstractAnalyze):
             # inclui o concurso atual como anterior para a proxima iteracao:
             concursos_anteriores.append(concurso_atual)
         logger.debug(f"{nmlot}: Ranking de Frequencias da EVOLUTIVA: {output}")
+
+        # printa os topos de cada sorteio dos concursos:
+        output: str = f"\n\t  ? TOPOS     PERC%       #TOTAL\n"
+        for key, value in enumerate(cp.topos_frequentes):
+            percent: float = cp.topos_percentos[key]
+            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Topos de Frequencia Resultantes: {output}")
+
+        # printa quais os topos de frequencias que repetiram no ultimo sorteio dos concursos:
+        output: str = f"\n\t  ? TOPOS     PERC%       #REPETIDOS\n"
+        for key, value in enumerate(cp.ultimos_topos_repetidos):
+            percent: float = cp.ultimos_topos_percentos[key]
+            output += f"\t {formatd(key,2)} topos:  {formatf(percent,'6.2')}%  ...  " \
+                      f"#{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Concursos que repetiram o ultimo topo: {output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

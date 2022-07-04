@@ -147,6 +147,43 @@ class ComputeMatricial(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_max_col: int = cb.max_colunas(jogo)
+        vl_max_lin: int = cb.max_linhas(jogo)
+        return vl_max_col + vl_max_lin
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero maximo de colunas e linhas do jogo:
+        vl_max_col: int = cb.max_colunas(jogo)
+        percent_col: float = self.colunas_percentos[vl_max_col]
+
+        vl_max_lin: int = cb.max_linhas(jogo)
+        percent_lin: float = self.linhas_percentos[vl_max_lin]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent_col < 5 or percent_lin < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent_col) * to_redutor(percent_lin)
+        tupla_matriz: tuple[int, ...] = (vl_max_col, vl_max_lin)
+        str_matriz: str = cb.to_string(tupla_matriz)
+
+        # verifica se esse jogo repetiu a matriz da maxima coluna e/ou linha dos ultimos concursos:
+        if str_matriz != self.str_matriz_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif str_matriz == self.str_matriz_ultimo_concurso == self.str_matriz_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima matriz de coluna e linha:
+        percent_repetida: float = self.ultimas_matrizes_percentos.get(str_matriz, 0.0)
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a matriz de coluna e linha:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero maximo de colunas e linhas do jogo:
         vl_max_col: int = cb.max_colunas(jogo)

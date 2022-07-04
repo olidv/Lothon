@@ -135,6 +135,37 @@ class ComputeParidade(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        qt_pares: int = cb.count_pares(jogo)
+        return qt_pares
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de pares no jogo:
+        qt_pares: int = cb.count_pares(jogo)
+        percent: float = self.paridades_percentos[qt_pares]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a paridade do ultimo e penultimo concursos:
+        if qt_pares != self.qtd_pares_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif qt_pares == self.qtd_pares_ultimo_concurso == self.qtd_pares_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima paridade:
+        percent_repetida: float = self.ultimas_paridades_percentos[qt_pares]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a paridade:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de pares no jogo:
         qt_pares: int = cb.count_pares(jogo)

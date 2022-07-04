@@ -1,11 +1,11 @@
 """
    Package lothon.process.analyze
-   Module  analise_mediania.py
+   Module  analise_mediana.py
 
 """
 
 __all__ = [
-    'AnaliseMediania'
+    'AnaliseMediana'
 ]
 
 # ----------------------------------------------------------------------------
@@ -23,7 +23,7 @@ from lothon.util.eve import *
 from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
-from lothon.process.compute.compute_mediania import ComputeMediania
+from lothon.process.compute.compute_mediana import ComputeMediana
 
 
 # ----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class AnaliseMediania(AbstractAnalyze):
+class AnaliseMediana(AbstractAnalyze):
     """
     Implementacao de classe para .
     """
@@ -72,7 +72,7 @@ class AnaliseMediania(AbstractAnalyze):
         qtd_items: int = round(math.sqrt(loteria.qtd_bolas))  # vai depender do valor da ultima bola
 
         # inicializa componente para computacao dos sorteios da loteria:
-        cp = ComputeMediania()
+        cp = ComputeMediana()
         cp.setup({
             'qtd_bolas': loteria.qtd_bolas,
             'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,

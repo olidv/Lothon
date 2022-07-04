@@ -138,6 +138,38 @@ class ComputeNumerologia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_numerologia: int = cb.calc_numerology(jogo)
+        return vl_numerologia
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende da numerologia do jogo:
+        vl_numerologia: int = cb.calc_numerology(jogo)
+        percent: float = self.numerologias_percentos[vl_numerologia]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a numerologia do ultimo e penultimo concursos:
+        if vl_numerologia != self.vl_numerologia_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_numerologia == self.vl_numerologia_ultimo_concurso == \
+                self.vl_numerologia_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima numerologia:
+        percent_repetida: float = self.ultimas_numerologias_percentos[vl_numerologia]
+        if percent_repetida == 0:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a numerologia:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende da numerologia do jogo:
         vl_numerologia: int = cb.calc_numerology(jogo)

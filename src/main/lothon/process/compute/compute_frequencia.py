@@ -151,6 +151,37 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        qtd_topos: int = self.count_topos_frequencia(jogo)
+        return qtd_topos
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de topos no jogo:
+        qtd_topos: int = self.count_topos_frequencia(jogo)
+        percent: float = self.topos_percentos[qtd_topos]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu o numero de topos do ultimo e penultimo concursos:
+        if qtd_topos != self.qtd_topos_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif qtd_topos == self.qtd_topos_ultimo_concurso == self.qtd_topos_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo numero de topos:
+        percent_repetido: float = self.ultimos_topos_percentos[qtd_topos]
+        if percent_repetido < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o numero de topos:
+            return fator_percent * to_redutor(percent_repetido)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de topos no jogo:
         qtd_topos: int = self.count_topos_frequencia(jogo)

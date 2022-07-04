@@ -141,6 +141,36 @@ class ComputeColunario(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        return 1
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de cada colunario no jogo:
+        colunarios: list[int] = cb.new_list_int(9)
+        cb.count_colunarios(jogo, colunarios)
+        fator_percent: float = 0
+        for key, value in enumerate(colunarios):
+            if value > 0:
+                # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+                fator_percent += to_redutor(self.colunarios_percentos[key]) ** value
+
+        # gera a representacao string do colunario para comparacao:
+        str_colunarios: str = cb.to_string(colunarios)
+
+        # verifica se esse jogo repetiu os colunarios do ultimo e penultimo concursos:
+        if str_colunarios != self.str_colunarios_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif str_colunarios == self.str_colunarios_ultimo_concurso == \
+                self.str_colunarios_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao dos ultimos colunarios:
+        if self.ultimos_colunarios_percentos < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir os colunarios:
+            return fator_percent * to_redutor(self.ultimos_colunarios_percentos)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de cada colunario no jogo:
         colunarios: list[int] = cb.new_list_int(9)

@@ -138,6 +138,38 @@ class ComputeRepetencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        qt_repeticoes: int = cb.count_dezenas_repetidas(jogo, self.ultimo_sorteio)
+        return qt_repeticoes
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de repeticoes no jogo:
+        qt_repeticoes: int = cb.count_dezenas_repetidas(jogo, self.ultimo_sorteio)
+        percent: float = self.repetencias_percentos[qt_repeticoes]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a repetencia do ultimo e penultimo concursos:
+        if qt_repeticoes != self.qtd_repetencias_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif qt_repeticoes == self.qtd_repetencias_ultimo_concurso == \
+                self.qtd_repetencias_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima repetencia:
+        percent_repetida: float = self.ultimas_repetencias_percentos[qt_repeticoes]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a repetencia:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de repeticoes no jogo:
         qt_repeticoes: int = cb.count_dezenas_repetidas(jogo, self.ultimo_sorteio)

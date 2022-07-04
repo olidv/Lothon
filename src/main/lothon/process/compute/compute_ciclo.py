@@ -180,6 +180,37 @@ class ComputeCiclo(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        size_ciclo: int = self.count_concursos_ciclo(jogo)
+        return size_ciclo
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de concursos para fechar um ciclo com o jogo:
+        size_ciclo: int = self.count_concursos_ciclo(jogo)
+        percent: float = self.ciclos_percentos[size_ciclo]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu ultimo e penultimo ciclos:
+        if size_ciclo != self.vl_ciclo_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif size_ciclo == self.vl_ciclo_ultimo_concurso == self.vl_ciclo_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo ciclo:
+        percent_repetido: float = self.ultimos_ciclos_percentos[size_ciclo]
+        if percent_repetido < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o ciclo:
+            return fator_percent * to_redutor(percent_repetido)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de concursos para fechar um ciclo com o jogo:
         size_ciclo: int = self.count_concursos_ciclo(jogo)

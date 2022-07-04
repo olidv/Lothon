@@ -18,7 +18,7 @@ __all__ = [
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 from lothon.process.analyze.analise_ordinal import AnaliseOrdinal
 from lothon.process.analyze.analise_matricial import AnaliseMatricial
-from lothon.process.analyze.analise_mediania import AnaliseMediania
+from lothon.process.analyze.analise_mediana import AnaliseMediana
 from lothon.process.analyze.analise_paridade import AnaliseParidade
 from lothon.process.analyze.analise_repetencia import AnaliseRepetencia
 from lothon.process.analyze.analise_recorrencia import AnaliseRecorrencia
@@ -34,6 +34,7 @@ from lothon.process.analyze.analise_distancia import AnaliseDistancia
 from lothon.process.analyze.analise_espacamento import AnaliseEspacamento
 from lothon.process.analyze.analise_dispersao import AnaliseDispersao
 from lothon.process.analyze.analise_semanal import AnaliseSemanal
+from lothon.process.analyze.analise_seletiva import AnaliseSeletiva
 from lothon.process.analyze.analise_finalista import AnaliseFinalista
 
 
@@ -62,7 +63,7 @@ def get_process_chain() -> list[AbstractAnalyze]:
         # _process_chain.append(AnaliseEspacamento())  # 0:01:03
         # _process_chain.append(AnaliseFrequencia())   # 0:00:00
         # _process_chain.append(AnaliseMatricial())    # 0:00:32
-        # _process_chain.append(AnaliseMediania())    # 0:00:32
+        # _process_chain.append(AnaliseMediana())      # 0:00:32
         # _process_chain.append(AnaliseNumerologia())  # 0:00:08
         # _process_chain.append(AnaliseOrdinal())      # 0:00:32
         # _process_chain.append(AnaliseParidade())     # 0:00:32
@@ -75,7 +76,8 @@ def get_process_chain() -> list[AbstractAnalyze]:
 
         # NAO: componentes sem COMPUTE/EVALUATE implementado...
         # _process_chain.append(AnaliseSemanal())      # 0:00:00
-        _process_chain.append(AnaliseFinalista())      # 0:00:00
+        _process_chain.append(AnaliseSeletiva())     # 0:00:00
+        # _process_chain.append(AnaliseFinalista())    # 0:00:00
 
     return _process_chain
 

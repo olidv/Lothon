@@ -141,6 +141,36 @@ class ComputeDecenario(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        return 1
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de cada decenario no jogo:
+        decenarios: list[int] = cb.new_list_int(9)
+        cb.count_decenarios(jogo, decenarios)
+        fator_percent: float = 0
+        for key, value in enumerate(decenarios):
+            if value > 0:
+                # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+                fator_percent += to_redutor(self.decenarios_percentos[key]) ** value
+
+        # gera a representacao string do decenario para comparacao:
+        str_decenarios: str = cb.to_string(decenarios)
+
+        # verifica se esse jogo repetiu os decenarios do ultimo e penultimo concursos:
+        if str_decenarios != self.str_decenarios_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif str_decenarios == self.str_decenarios_ultimo_concurso == \
+                self.str_decenarios_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao dos ultimos decenarios:
+        if self.ultimos_decenarios_percentos < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir os decenarios:
+            return fator_percent * to_redutor(self.ultimos_decenarios_percentos)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de cada decenario no jogo:
         decenarios: list[int] = cb.new_list_int(9)

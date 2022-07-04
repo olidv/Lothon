@@ -96,6 +96,24 @@ class ComputeRecorrencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        qt_max_repeticoes: int = cb.max_recorrencias(jogo, self.concursos_passados)
+        return qt_max_repeticoes
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero maximo de repeticoes nos concursos anteriores:
+        qt_max_repeticoes: int = cb.max_recorrencias(jogo, self.concursos_passados)
+        percent: float = self.recorrencias_percentos[qt_max_repeticoes]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica):
+        fator_percent: float = to_redutor(percent)
+        return fator_percent
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero maximo de repeticoes nos concursos anteriores:
         qt_max_repeticoes: int = cb.max_recorrencias(jogo, self.concursos_passados)
@@ -105,7 +123,9 @@ class ComputeRecorrencia(AbstractCompute):
         if percent < 10:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica):
+        fator_percent: float = to_fator(percent)
+        return fator_percent
 
 # ----------------------------------------------------------------------------

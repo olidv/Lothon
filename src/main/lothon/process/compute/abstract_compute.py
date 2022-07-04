@@ -62,6 +62,14 @@ class AbstractCompute(AbstractProcess, ABC):
         pass
 
     @abstractmethod
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        pass
+
+    @abstractmethod
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        pass
+
+    @abstractmethod
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         pass
 

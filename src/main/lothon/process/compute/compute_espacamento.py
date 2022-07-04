@@ -135,6 +135,38 @@ class ComputeEspacamento(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        vl_espacamento = cb.calc_espacada(jogo)
+        return vl_espacamento
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do numero de espacamentos no jogo:
+        vl_espacamento = cb.calc_espacada(jogo)
+        percent: float = self.espacamentos_percentos[vl_espacamento]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu o espacamento do ultimo e penultimo concursos:
+        if vl_espacamento != self.qtd_espacamentos_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif vl_espacamento == self.qtd_espacamentos_ultimo_concurso == \
+                self.qtd_espacamentos_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao do ultimo espacamento:
+        percent_repetido: float = self.ultimos_espacamentos_percentos[vl_espacamento]
+        if percent_repetido < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir o espacamento:
+            return fator_percent * to_redutor(percent_repetido)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do numero de espacamentos no jogo:
         vl_espacamento = cb.calc_espacada(jogo)

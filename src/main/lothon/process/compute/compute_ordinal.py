@@ -129,6 +129,25 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        dif_ordinal_anterior: int = abs(ordinal - self.vl_ordinal_ultimo_concurso)
+        faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10
+        return faixa_percent_abaixo
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        dif_ordinal_anterior: int = abs(ordinal - self.vl_ordinal_ultimo_concurso)
+        faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10
+        percent: float = self.ordinais_percentos[faixa_percent_abaixo]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica):
+        fator_percent: float = to_redutor(percent)
+        return fator_percent
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         dif_ordinal_anterior: int = abs(ordinal - self.vl_ordinal_ultimo_concurso)
         faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10
@@ -138,7 +157,9 @@ class ComputeOrdinal(AbstractCompute):
         if percent < 1:
             self.qtd_zerados += 1
             return 0
-        else:
-            return to_fator(percent)
+
+        # calcula o fator de percentual (metrica):
+        fator_percent: float = to_fator(percent)
+        return fator_percent
 
 # ----------------------------------------------------------------------------

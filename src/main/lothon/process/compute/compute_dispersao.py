@@ -172,6 +172,38 @@ class ComputeDispersao(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def rate(self, ordinal: int, jogo: tuple) -> int:
+        faixa_dispersao: int = self.calc_dispersao(jogo)
+        return faixa_dispersao
+
+    def eval(self, ordinal: int, jogo: tuple) -> float:
+        # probabilidade de acerto depende do fator de dispersao do jogo:
+        faixa_dispersao: int = self.calc_dispersao(jogo)
+        percent: float = self.dispersoes_percentos[faixa_dispersao]
+
+        # ignora valores muito baixos de probabilidade:
+        if percent < 5:
+            self.qtd_zerados += 1
+            return 0
+
+        # calcula o fator de percentual (metrica), para facilitar o calculo seguinte:
+        fator_percent: float = to_redutor(percent)
+
+        # verifica se esse jogo repetiu a dispersao do ultimo e penultimo concursos:
+        if faixa_dispersao != self.vl_dispersao_ultimo_concurso:
+            return fator_percent  # nao repetiu, ja pode pular fora
+        elif faixa_dispersao == self.vl_dispersao_ultimo_concurso == \
+                self.vl_dispersao_penultimo_concurso:
+            return fator_percent * .1  # pouco provavel de repetir mais de 2 ou 3 vezes
+
+        # se repetiu, obtem a probabilidade de repeticao da ultima dispersao:
+        percent_repetida: float = self.ultimas_dispersoes_percentos[faixa_dispersao]
+        if percent_repetida < 1:  # baixa probabilidade pode ser descartada
+            self.qtd_zerados += 1
+            return 0
+        else:  # reduz a probabilidade porque esse jogo vai repetir a dispersao:
+            return fator_percent * to_redutor(percent_repetida)
+
     def evaluate(self, ordinal: int, jogo: tuple) -> float:
         # probabilidade de acerto depende do fator de dispersao do jogo:
         faixa_dispersao: int = self.calc_dispersao(jogo)
