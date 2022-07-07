@@ -26,7 +26,8 @@ __all__ = [
     'get_time_do_coracao',
     'load_concursos',
     'load_pares',
-    'export_sorteios'
+    'export_sorteios',
+    'export_boloes'
 ]
 
 # ----------------------------------------------------------------------------
@@ -102,6 +103,11 @@ def load_pares(id_loteria: str) -> list[tuple[int, ...]]:
 # Efetua exportacao dos arquivos CSV com dezenas dos sorteios de cada loteria:
 def export_sorteios(loteria: Loteria) -> int:
     return parser_resultados.export_sorteios_loteria(loteria)
+
+
+# Efetua exportacao dos boloes gerados em CSV com jogos de cada loteria:
+def export_boloes(nome_loteria: str, id_bolao: str, jogos: list[tuple[int, ...]]) -> int:
+    return parser_resultados.export_boloes_loteria(nome_loteria, id_bolao, jogos)
 
 
 # ----------------------------------------------------------------------------

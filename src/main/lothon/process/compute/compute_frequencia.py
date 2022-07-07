@@ -52,8 +52,8 @@ class ComputeFrequencia(AbstractCompute):
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self):
-        super().__init__("Computacao de Frequencia dos Concursos")
+    def __init__(self, threshold: int = 5):  # threshold minimo de 5% para filtro mais eficaz...
+        super().__init__("Computacao de Frequencia dos Concursos", threshold)
 
         # estrutura para a coleta de dados a partir do processamento de analise:
         self.frequencias_dezenas: Optional[list[SerieSorteio]] = None
@@ -161,7 +161,7 @@ class ComputeFrequencia(AbstractCompute):
         percent: float = self.topos_percentos[qtd_topos]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < self.min_threshold:
             self.qtd_zerados += 1
             return 0
 

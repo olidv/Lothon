@@ -52,13 +52,14 @@ def get_process_chain() -> list[AbstractCompute]:
     global _process_chain
     if len(_process_chain) == 0:
         # inicia pelas computacoes que podem ser feitas de forma mais simples e rapida:
-        _process_chain.append(ComputeParidade())
+        _process_chain.append(ComputeParidade())  # [0:]
         _process_chain.append(ComputeSequencia())
         _process_chain.append(ComputeMediana())
-        _process_chain.append(ComputeRepetencia())
         _process_chain.append(ComputeMatricial())
-        _process_chain.append(ComputeAusencia())
+
+        _process_chain.append(ComputeAusencia())  # [4:]
         _process_chain.append(ComputeFrequencia())
+        _process_chain.append(ComputeRepetencia())
         _process_chain.append(ComputeRecorrencia())
 
     return _process_chain
@@ -144,7 +145,7 @@ class AnaliseSeletiva(AbstractAnalyze):
             'qtd_bolas_sorteio': loteria.qtd_bolas_sorteio,
             'qtd_jogos': loteria.qtd_jogos
         }
-        # configura cada um dos processos de calculo-evaluate, apos computarem os sorteios:
+        # configura cada um dos processos de calculo-evaluate, para computarem os sorteios:
         logger.debug("Configurando a cadeia de processos para computacao de jogos.")
         for cproc in compute_chain:
             # configuracao de parametros para os processamentos em cada classe de analise:
@@ -158,8 +159,56 @@ class AnaliseSeletiva(AbstractAnalyze):
             logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
             cproc.execute(concursos)
 
+        # efetua o processamento partir do concurso #100 para exibir os rates dos computes:
+        concursos_passados: list[Concurso] = loteria.concursos[:100]
+        proximos_concursos: list[Concurso] = loteria.concursos[100:]
+        output: str = f"\n\t CONCURSO        PARIDADE   SEQUENCIA   MEDIANA   MATRICIAL   " \
+                      f"AUSENCIA   FREQUENCIA   REPETENCIA   RECORRENCIA\n"
+        for concurso in proximos_concursos:
+            qtd_passados: int = len(concursos_passados)
+            # executa cada processo de analise em sequencia (chain) para coleta de dados:
+            logger.debug(f"Executando computacao dos  #{formatd(qtd_passados)}  concursos "
+                         f"passados...")
+            for cproc in compute_chain[4:]:  # apenas processa aquelas que precisam se atualizar
+                # executa a computacao dos concursos passados ate o concurso corrente:
+                cproc.execute(concursos_passados)
+
+            # com as classes de computacao atualizadas, calcula o rate do concurso corrente:
+            vl_paridade: float = compute_chain[0].rate(0, concurso.bolas)
+            vl_sequencia: float = compute_chain[1].rate(0, concurso.bolas)
+            vl_mediana: float = compute_chain[2].rate(0, concurso.bolas)
+            vl_matricial: float = compute_chain[3].rate(0, concurso.bolas)
+            vl_ausencia: float = compute_chain[4].rate(0, concurso.bolas)
+            vl_frequencia: float = compute_chain[5].rate(0, concurso.bolas)
+            vl_repetencia: float = compute_chain[6].rate(0, concurso.bolas)
+            vl_recorrencia: float = compute_chain[7].rate(0, concurso.bolas)
+
+            # printa o resultado da computacao:
+            output += f"\t   {formatd(concurso.id_concurso,6)}  ....       " \
+                      f"{formatd(vl_paridade,3)}         " \
+                      f"{formatd(vl_sequencia,3)}       " \
+                      f"{formatd(vl_mediana,3)}         " \
+                      f"{formatd(vl_matricial,3)}        " \
+                      f"{formatd(vl_ausencia,3)}          " \
+                      f"{formatd(vl_frequencia,3)}          " \
+                      f"{formatd(vl_repetencia,3)}           " \
+                      f"{formatd(vl_recorrencia,3)}\n"
+
+            # na proxima iteracao considera tambem agora o concurso recem simulado:
+            concursos_passados.append(concurso)
+
+        logger.debug(f"{nmlot}: Calculo de Rates dos Concursos: {output}")
+
+        # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
+        logger.debug("Executando o processamento das loterias para computacao de jogos.")
+        for cproc in compute_chain:
+            # executa a analise para cada loteria:
+            logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
+            cproc.execute(concursos)
+
+        # o ultimo compute de recorrencia nao se aplica neste processamento:
+        ncompute_chain: list[AbstractCompute | None] = [cp for cp in compute_chain[:-1]]
         # o primeiro item corresponde a buscar ordinais de jogos combinados, sem EVALUATE:
-        ncompute_chain: list[AbstractCompute | None] = [cp for cp in compute_chain]
         ncompute_chain.insert(0, None)
         output: str = f"\n\n COMPUTE                INCLUIDOS      ZERADOS    EXCLUIDOS" \
                       f"       MENOR        MAIOR        FAIXA        MEDIA      DESVIO" \
@@ -179,7 +228,7 @@ class AnaliseSeletiva(AbstractAnalyze):
                 vl_ordinal += 1  # primeiro jogo ira comecar do #1
 
                 # executa o processamento de avaliacao do jogo, para verificar se sera descartado:
-                vl_fator: float = 1.0 if cproc is None else cproc.evaluate(vl_ordinal, jogo)
+                vl_fator: float = 1.0 if cproc is None else cproc.eval(vl_ordinal, jogo)
                 # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
                 if vl_fator > 0:
                     jogos_computados.append(Jogo(vl_ordinal, vl_fator, jogo))
@@ -193,8 +242,8 @@ class AnaliseSeletiva(AbstractAnalyze):
             ordinais_concursos: list[int] = self.get_ordinais_concursos(jogos_computados)
 
             # verifica se algum sorteio nao foi localizado / considerado nos jogos:
+            qtd_incluidos: int = len(jogos_computados)
             qtd_excluidos: int = ordinais_concursos.count(0)
-            qtd_incluidos: int = len(jogos_computados) - qtd_excluidos
 
             # elimina os zerados para nao afetar os calculos estatisticos de media e desvio:
             min_ordinal: float = 0
@@ -215,7 +264,7 @@ class AnaliseSeletiva(AbstractAnalyze):
 
             # tambem processa o ultimo sorteio para saber seu fator (metrica):
             ultimo_fator: float = 0 if cproc is None \
-                else cproc.evaluate(ultimo_ordinal, ultimo_concurso.bolas)
+                else cproc.eval(ultimo_ordinal, ultimo_concurso.bolas)
 
             # printa quantos jogos foram descartado, quantos serao considerados, etc...
             output += f" {nmproc:<20}  " \
@@ -232,76 +281,6 @@ class AnaliseSeletiva(AbstractAnalyze):
                       f"\n"
 
         logger.debug(f"{nmlot}: Finalizou o EVALUATE dos jogos: {output}")
-
-        # efetua simulacao dos ultimos 100 concursos:
-        concursos_passados: list[Concurso] = loteria.concursos[:-100]
-        proximos_concursos: list[Concurso] = loteria.concursos[-100:]
-        output: str = f"\n\t CONCURSO     #ORDINAL-JOGO\n"
-        for concurso in proximos_concursos:
-            qtd_passados: int = len(concursos_passados)
-            # executa cada processo de analise em sequencia (chain) para coleta de dados:
-            logger.debug(f"Executando computacao dos  #{formatd(qtd_passados)}  concursos "
-                         f"passados...")
-            for cproc in compute_chain:
-                # executa a analise para cada loteria:
-                cproc.execute(concursos)
-
-            # gera todas as combinacoes de jogos para avaliacao:
-            jogos_computados: list[Jogo] = []
-            vl_ordinal: int = 0
-            for jogo in itt.combinations(range_jogos, loteria.qtd_bolas_sorteio):
-                vl_ordinal += 1  # primeiro jogo ira comecar do #1
-
-                # executa a avaliacao do jogo, para verificar se sera considerado ou descartado:
-                vl_fator: float = 1.0
-                for cproc in compute_chain:
-                    vl_fator *= cproc.evaluate(vl_ordinal, jogo)
-                    # ignora o resto das analises se a metrica zerou:
-                    if vl_fator == 0:
-                        break  # pula para o proximo jogo, acelerando o processamento
-
-                # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
-                if vl_fator > 0:
-                    jogos_computados.append(Jogo(vl_ordinal, vl_fator, jogo))
-
-            # ordena os jogos processados pelo fator, do maior (maiores chances) para o menor:
-            jogos_computados.sort(key=lambda n: n.fator, reverse=True)
-
-            # procura na lista de jogos computados o ordinal correspondente do ultimo sorteio:
-            ultimo_ordinal: int = self.get_ordinal_concurso(concurso.bolas, jogos_computados)
-
-            # printa o resultado da simulacao:
-            output += f"\t   {formatd(concurso.id_concurso,6)}  ....  " \
-                      f"{formatd(ultimo_ordinal,10)}\n"
-
-            # identifica a frequencia das dezenas nos jogos com maior probabilidade/fator:
-            vl_dez = 1
-            for dez in range(1, 7):
-                vl_dez *= 10
-
-                # contabiliza a frequencia das dezenas em parte dos jogos (vl_dez):
-                contador_dezenas: list[int] = cb.new_list_int(loteria.qtd_bolas)
-                for jogo in jogos_computados[0:vl_dez]:  # 10, 100, 1000, 10000, 100000, 1000000
-                    # registra a frequencia geral de todas as bolas dos concursos anteriores:
-                    cb.count_dezenas(jogo.dezenas, contador_dezenas)
-
-                # identifica as frequencias das dezenas em ordem reversa da frequencia nos sorteios:
-                frequencias_dezenas: dict = cb.to_dict(contador_dezenas, reverse_value=True)
-
-                # extrai o topo do ranking com as dezenas com maior frequencia e retorna:
-                topos_dezenas: list[int] = cb.take_keys(frequencias_dezenas)
-
-                # identifica a ordem de frequencia das dezenas sorteadas:
-                ordens_sorteio: tuple[int, ...] = ()
-                for dezena in concurso.bolas:
-                    ordens_sorteio += (topos_dezenas.index(dezena),)
-
-                print(f"***** ORDENS DAS DEZENAS DO SORTEIO: ", ordens_sorteio)
-
-            # na proxima iteracao considera tambem agora o concurso recem simulado:
-            concursos_passados.append(concurso)
-
-        logger.debug(f"{nmlot}: Simulacao dos ultimos 100 concursos: {output}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

@@ -92,7 +92,13 @@ class AnaliseMatricial(AbstractAnalyze):
         for key, value in enumerate(cp.linhas_jogos):
             percent: float = cp.linhas_percentos[key]
             outputl += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Maximo de Colunas e Linhas dos jogos: {outputc}{outputl}")
+
+        # printa o numero maximo de matrizes de cada combinacao de jogo:
+        outputm: str = f"\n\t  MATRIZ     PERC%     #TOTAL\n"
+        for key, value in enumerate(cp.matrizes_jogos):
+            percent: float = cp.matrizes_percentos[key]
+            outputm += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Maximo de Colunas e Linhas dos jogos: {outputc}{outputl}{outputm}")
 
         # efetua analise diferencial dos concursos com todas as combinacoes de jogos da loteria:
         logger.debug(f"{nmlot}: Executando analise matricial TOTAL dos  "
@@ -113,13 +119,22 @@ class AnaliseMatricial(AbstractAnalyze):
             dif: float = percent - cp.linhas_percentos[key]
             outputl += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}% " \
                        f"    #{formatd(value)}\n"
-        logger.debug(f"{nmlot}: Maximo de Colunas e Linhas dos concursos: {outputc}{outputl}")
+
+        # printa o numero maximo de matrizes de cada sorteio ja realizado:
+        outputm: str = f"\n\t  MATRIZ     PERC%       %DIF%     #TOTAL\n"
+        for key, value in enumerate(cp.matrizes_concursos):
+            percent: float = round((value / qtd_concursos) * 10000) / 100
+            dif: float = percent - cp.matrizes_percentos[key]
+            outputm += f"\t      {key:0>2}   {formatf(percent,'6.2')}% ... {formatf(dif,'6.2')}% " \
+                       f"    #{formatd(value)}\n"
+        logger.debug(f"{nmlot}: Maximo de Colunas e Linhas dos concursos: "
+                     f"{outputc}{outputl}{outputm}")
 
         # printa quais matrizes de colunas e linhas repetiram no ultimo sorteio dos concursos:
         output: str = f"\n\t  MATRIZ     PERC%       #REPETIDAS\n"
-        for key, value in cp.ultimas_matrizes_repetidas.items():
+        for key, value in enumerate(cp.ultimas_matrizes_repetidas):
             percent: float = cp.ultimas_matrizes_percentos[key]
-            output += f"\t    {key}   {formatf(percent,'6.2')}%  ...  " \
+            output += f"\t      {key:0>2}   {formatf(percent,'6.2')}%  ...  " \
                       f"#{formatd(value)}\n"
         logger.debug(f"{nmlot}: Concursos que repetiram a matriz da maxima coluna e linha: "
                      f"{output}")

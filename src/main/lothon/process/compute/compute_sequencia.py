@@ -50,8 +50,8 @@ class ComputeSequencia(AbstractCompute):
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self):
-        super().__init__("Computacao de Sequencia nos Concursos")
+    def __init__(self, threshold: int = 5):  # threshold minimo de 5% para filtro mais eficaz...
+        super().__init__("Computacao de Sequencia nos Concursos", threshold)
 
         # estruturas para a coleta de dados a partir do processamento de analise:
         self.sequencias_jogos: Optional[list[int]] = None
@@ -145,7 +145,7 @@ class ComputeSequencia(AbstractCompute):
         percent: float = self.sequencias_percentos[qt_sequencias]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < self.min_threshold:
             self.qtd_zerados += 1
             return 0
 

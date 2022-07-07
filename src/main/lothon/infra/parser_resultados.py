@@ -7,7 +7,8 @@
 __all__ = [
     'parse_concursos_loteria',
     'read_pares_loteria',
-    'export_sorteios_loteria'
+    'export_sorteios_loteria',
+    'export_boloes_loteria'
 ]
 
 # ----------------------------------------------------------------------------
@@ -15,6 +16,7 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
+from datetime import date
 import logging
 import os
 import csv
@@ -71,7 +73,7 @@ def carregar_resultados(nome_loteria: str):
                      f"'{app_config.DS_caixa_path}' para leitura.")
         return
 
-    # carrega todo o conteudo HTML do arquivo:
+    # carrega completamente o conteudo HTML do arquivo:
     content_htm = ler_arquivo_htm(loteria_htm_path)
 
     return content_htm
@@ -182,6 +184,34 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
             qt_rows += 1
 
     # informa quantas linhas de sorteios foram gravadas:
+    return qt_rows
+
+
+def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple[int, ...]]) -> int:
+    # valida se possui jogos a serem exportados:
+    if jogos is None or len(jogos) == 0:
+        return -1
+
+    # cria arquivo fisico para conter apenas as dezenas dos jogos:
+    loteria_boloes_file: str = app_config.BA_bolao_csv_name.format(id_bolao, nome_loteria)
+    # aplica a mascara na data fornecida, configurada no INI:
+    hoje = date.today()
+    loteria_boloes_file = hoje.strftime(loteria_boloes_file)
+    loteria_boloes_path: str = os.path.join(app_config.DS_bolao_path, loteria_boloes_file)
+
+    # abre arquivo para escrita e salva todos os jogos:
+    qt_rows: int = 0
+    with open(loteria_boloes_path, 'w', newline='', encoding='utf-8') as file_csv:
+        # o conteudo do arquivo sera formatado como CSV padrao:
+        csv_writer = csv.writer(file_csv)
+
+        # percorre lista de jogos e exporta as dezenas:
+        for jogo in jogos:
+            # salva as dezenas separadas por virgula:
+            csv_writer.writerow(jogo)
+            qt_rows += 1
+
+    # informa quantas linhas de jogos foram gravadas:
     return qt_rows
 
 # ----------------------------------------------------------------------------

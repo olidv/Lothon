@@ -51,8 +51,8 @@ class ComputeDecenario(AbstractCompute):
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self):
-        super().__init__("Computacao de Decenario nos Concursos")
+    def __init__(self, threshold: int = 5):  # threshold minimo de 5% para filtro mais eficaz...
+        super().__init__("Computacao de Decenario nos Concursos", threshold)
 
         # estruturas para a coleta de dados a partir do processamento de analise:
         self.decenarios_jogos: Optional[list[int]] = None

@@ -31,9 +31,6 @@ from lothon.domain import Loteria
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# relacao de instancias das loterias da caixa:
-loterias_caixa: dict[str: Loteria] = None
-
 
 # ----------------------------------------------------------------------------
 # FUNCOES HELPERS
@@ -46,7 +43,6 @@ loterias_caixa: dict[str: Loteria] = None
 
 # entry-point de execucao para tarefas diarias:
 def run():
-    global loterias_caixa
     _startWatch = startwatch()
     logger.info("Iniciando a exportacao de arquivos CSV com dezenas sorteadas dos concursos...")
 
@@ -57,10 +53,12 @@ def run():
 
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    loterias_caixa = {
-        "diadesorte": domain.get_dia_de_sorte(),
-        # "lotofacil": domain.get_lotofacil(),
-        # "megasena": domain.get_mega_sena()
+    loterias_caixa: dict[str: Loteria] = {
+        "diadesorte": domain.get_dia_de_sorte(),  #
+        # "lotofacil": domain.get_lotofacil(),      #
+        # "duplasena": domain.get_dupla_sena(),     #
+        # "quina": domain.get_quina(),              #
+        # "megasena": domain.get_mega_sena()        #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

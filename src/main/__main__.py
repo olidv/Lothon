@@ -26,7 +26,7 @@ from lothon.process import analisar_sorteios, simular_jogos, gerar_boloes, \
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "asbrotc:"
+CMD_LINE_ARGS = "c:asbrot"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -59,13 +59,13 @@ def print_usage():
           '  python lothon.zip [opcoes]\n'
           '\n'
           'Opcoes Gerais:\n'
+          '  -c <path>   Informa o path para os arquivos de configuracao\n'
           '  -a          Efetua analise dos dados de sorteios das loterias\n'
           '  -s          Simula varios jogos para validar estrategias\n'
           '  -b          Gera boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
           '  -o          Exporta arquivos CSV com dezenas sorteadas dos concursos\n'
-          '  -t <proc>   Executa teste de funcionamento de algum processo\n'
-          '  -c <path>   Informa o path para os arquivos de configuracao\n')
+          '  -t <proc>   Executa teste de funcionamento de algum processo\n')
 
 
 # faz o parsing das opcoes e argumentos da linha de comando:
@@ -88,6 +88,7 @@ if (opts is None) or (len(opts) == 0):
     sys.exit(EXIT_ERROR_NO_ARGS)  # nao ha porque prosseguir...
 
 # comandos e opcoes de execucao:
+opt_cfpath = ''      # path para os arquivos de configuracao
 opt_anlise = False   # Flag para analise de dados dos sorteios
 opt_simula = False   # Flag para simulacao de jogos estrategicos
 opt_boloes = False   # Flag para geracao de boloes de apostas
@@ -95,12 +96,16 @@ opt_result = False   # Flag para conferencia das apostas
 opt_output = False   # Flag para exportacao de arquivos CSV (output)
 opt_testef = False   # Flag para teste de funcionamento
 opt_tstprc = ''      # id do processo a ser executado para testes
-opt_cfpath = ''      # path para os arquivos de configuracao
 opt_valido = False   # Flag para identificar se argumentos estao ok
 
 # identifica o comando/tarefa/job do Lothon a ser executado:
 for opt, val in opts:
-    if opt == '-a':
+    if opt == '-c':
+        opt_cfpath = val
+        # valida o path para os arquivos de configuracao:
+        if len(opt_cfpath) == 0:
+            opt_cfpath = '.'  # utiliza o proprio diretorio do executavel.
+    elif opt == '-a':
         opt_anlise = True
         opt_valido = True
     elif opt == '-s':
@@ -119,11 +124,6 @@ for opt, val in opts:
         opt_testef = True
         opt_tstprc = val
         opt_valido = True
-    elif opt == '-c':
-        opt_cfpath = val
-        # valida o path para os arquivos de configuracao:
-        if len(opt_cfpath) == 0:
-            opt_cfpath = '.'  # utiliza o proprio diretorio do executavel.
 
 # se nenhuma opcao de execucao fornecida na linha de comando foi reconhecida:
 if not opt_valido:

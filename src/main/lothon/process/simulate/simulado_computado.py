@@ -37,7 +37,7 @@ from lothon.process.simulate.abstract_simulate import AbstractSimulate
 logger = logging.getLogger(__name__)
 
 # medidas otimas de equilibrio de paridades para boloes:
-pares: dict[int: int] = {11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
+pares: dict[int: int] = {15: 7, 14: 7, 13: 6, 12: 6, 11: 5, 10: 5, 9: 4, 8: 4, 7: 3}
 
 
 # ----------------------------------------------------------------------------

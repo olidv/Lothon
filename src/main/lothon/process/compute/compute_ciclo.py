@@ -55,8 +55,8 @@ class ComputeCiclo(AbstractCompute):
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self):
-        super().__init__("Computacao de Ciclo Fechado dos Concursos")
+    def __init__(self, threshold: int = 5):  # threshold minimo de 5% para filtro mais eficaz...
+        super().__init__("Computacao de Ciclo Fechado dos Concursos", threshold)
 
         # estrutura para a coleta de dados a partir do processamento de analise:
         self.frequencias_ciclos: Optional[SerieSorteio] = None
@@ -190,7 +190,7 @@ class ComputeCiclo(AbstractCompute):
         percent: float = self.ciclos_percentos[size_ciclo]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < self.min_threshold:
             self.qtd_zerados += 1
             return 0
 

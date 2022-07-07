@@ -47,6 +47,7 @@ class AppConfig:
 
     # Parametrizacao dos arquivos de dados para leitura e exportacao:
     DS_caixa_path: str = ''
+    DS_bolao_path: str = ''
     DS_input_path: str = ''
     DS_output_path: str = ''
     DS_pares_csv_name: str = ''
@@ -80,6 +81,7 @@ class AppConfig:
 
         # Parametrizacao dos arquivos de dados para leitura e exportacao:
         self.DS_caixa_path = parser.get("DADOS", "caixa_path")
+        self.DS_bolao_path = parser.get("DADOS", "bolao_path")
         self.DS_input_path = parser.get("DADOS", "input_path")
         self.DS_output_path = parser.get("DADOS", "output_path")
         self.DS_pares_csv_name = parser.get("DADOS", "pares_csv_name")

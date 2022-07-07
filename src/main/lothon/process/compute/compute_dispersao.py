@@ -51,8 +51,8 @@ class ComputeDispersao(AbstractCompute):
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self):
-        super().__init__("Computacao de Dispersao das Dezenas")
+    def __init__(self, threshold: int = 5):  # threshold minimo de 5% para filtro mais eficaz...
+        super().__init__("Computacao de Dispersao das Dezenas", threshold)
 
         # estrutura para a coleta de dados a partir do processamento de analise:
         self.frequencias_dezenas: Optional[list[int]] = None
@@ -182,7 +182,7 @@ class ComputeDispersao(AbstractCompute):
         percent: float = self.dispersoes_percentos[faixa_dispersao]
 
         # ignora valores muito baixos de probabilidade:
-        if percent < 5:
+        if percent < self.min_threshold:
             self.qtd_zerados += 1
             return 0
 

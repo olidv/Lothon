@@ -15,7 +15,7 @@ __all__ = [
 
 # Built-in/Generic modules
 import logging
-from typing import Optional, Any
+from typing import Any
 
 # Libs/Frameworks modules
 # from memory_profiler import profile
@@ -36,15 +36,6 @@ from lothon.process.analyze.abstract_analyze import AbstractAnalyze
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# relacao de instancias das loterias da caixa:
-loterias_caixa: dict[str: Loteria] = None
-
-# relacao de processos de analise, a serem executados sequencialmente:
-analise_chain: Optional[list[AbstractAnalyze]] = None
-
-# parametros para configuracao dos processos de analise:
-options: dict[str: Any] = {}
-
 
 # ----------------------------------------------------------------------------
 # FUNCOES HELPERS
@@ -57,27 +48,26 @@ options: dict[str: Any] = {}
 # entry-point de execucao para tarefas de analise:
 # @profile
 def run():
-    global loterias_caixa, analise_chain
     _startWatch = startwatch()
     logger.info("Iniciando a analise dos dados de sorteios das loterias...")
 
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    loterias_caixa = {
-        "diadesorte": domain.get_dia_de_sorte(),  # 1 min, 17 seg, 826 ms
-        # "lotofacil": domain.get_lotofacil(),      # 1 hor, 7 min, 41 seg, 548 ms
-        # "megasena": domain.get_mega_sena(),        # 20 min, 33 seg, 370 ms
-        # "quina": domain.get_quina(),
-        # "duplasena": domain.get_dupla_sena(),
+    loterias_caixa: dict[str: Loteria] = {
+        "diadesorte": domain.get_dia_de_sorte(),  #
+        # "lotofacil": domain.get_lotofacil(),      #
+        # "duplasena": domain.get_dupla_sena(),     #
+        # "quina": domain.get_quina(),              #
+        # "megasena": domain.get_mega_sena()        #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
 
     logger.debug("Inicializando a cadeia de processos para analise dos sorteios...")
-    analise_chain = analyze.get_process_chain()
+    analise_chain: list[AbstractAnalyze] = analyze.get_process_chain()
 
     # configura cada um dos processos antes, mas apenas uma unica vez:
-    # options[""] = 0  # ...
+    options: dict[str: Any] = {}
     for aproc in analise_chain:
         # configuracao de parametros para os processamentos:
         logger.debug(f"processo '{aproc.id_process}': inicializando configuracao.")
