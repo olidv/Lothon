@@ -60,8 +60,10 @@ class AppConfig:
 
     # Parametrizacao para geracao de boloes de apostas:
     BA_bolao_csv_name: str = ''
+    BA_resultado_csv_name: str = ''
+    BA_bolao_csv_mask: str = ''
 
-    # .
+    # efetua a carga das propriedades a partir do arquivo INI.
     def load_properties(self, parser: ConfigParser):
         # nao faz nada se nao forneceu o parser...
         if parser is None:
@@ -96,6 +98,8 @@ class AppConfig:
 
         # Parametrizacao para geracao de boloes de apostas:
         self.BA_bolao_csv_name = parser.get("BOLAO_APOSTA", "bolao_csv_name")
+        self.BA_resultado_csv_name = parser.get("BOLAO_APOSTA", "resultado_csv_name")
+        self.BA_bolao_csv_mask = parser.get("BOLAO_APOSTA", "bolao_csv_mask")
 
     # --- CONSTANTES ---------------------------------------------------------
 

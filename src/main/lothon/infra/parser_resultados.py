@@ -5,6 +5,8 @@
 """
 
 __all__ = [
+    'get_dir_contents',
+    'read_dezenas_csv',
     'parse_concursos_loteria',
     'read_pares_loteria',
     'export_sorteios_loteria',
@@ -17,9 +19,10 @@ __all__ = [
 
 # Built-in/Generic modules
 from datetime import date
-import logging
 import os
+import glob
 import csv
+import logging
 
 # Libs/Frameworks modules
 from bs4 import BeautifulSoup
@@ -41,6 +44,54 @@ logger = logging.getLogger(__name__)
 # ----------------------------------------------------------------------------
 # FUNCOES HELPERS
 # ----------------------------------------------------------------------------
+
+# relaciona todos os arquivos em um diretorio:
+def get_dir_contents(path_dir: str, mask_files: str) -> (list[str], int):
+    try:
+        # utiliza mascara generica para abranger todos os arquivos no diretorio:
+        source_path_files = os.path.join(path_dir, mask_files)
+
+        dir_contents = glob.glob(source_path_files)
+        len_dir_contents = len(dir_contents)
+        if len_dir_contents > 0:
+            logger.debug("Encontrado(s) %d arquivo(s) em '%s'.", len_dir_contents, path_dir)
+        else:
+            logger.debug("Nenhum arquivo encontrado em '%s'.", path_dir)
+
+        return dir_contents, len_dir_contents
+
+    # qualquer erro significa que ainda nao pode acessar a rede interna...
+    except OSError as err:
+        logger.error("Nao foi possivel ler o diretorio '%s'. ERRO: %s", path_dir, repr(err))
+    except Exception as ex:
+        logger.error("Nao foi possivel ler o diretorio '%s'. ERRO: %s", path_dir, repr(ex))
+
+    # se nao conseguiu ler o diretorio, retorna 'vazio'...
+    return [], 0
+
+
+def read_dezenas_csv(file_path: str) -> list[tuple[int, ...]] | None:
+    lista_dezenas: list[tuple[int, ...]] = []
+
+    # abre arquivo para leitura e carrega todas as dezenas em cada linha (tupla):
+    try:
+        with open(file_path, 'r') as file_csv:
+            csv_reader = csv.reader(file_csv)
+            # cada linha do arquivo eh carregada em uma lista de tuplas:
+            for row in csv_reader:
+                # converte a linha para tupla de numeros, com menor consumo de recursos:
+                tupla_dezenas: tuple[int, ...] = ()
+                for dezena in row:
+                    tupla_dezenas += (int(dezena),)
+                lista_dezenas.append(tupla_dezenas)
+
+        return lista_dezenas
+
+    # captura as excecoes relativas a manipulacao de arquivos:
+    except FileNotFoundError as ex:
+        logger.error(f"Arquivo CSV '{file_path}' nao encontrado.\n{ex}")
+        return None
+
 
 # le arquivo de resultados e retorna conteudo HTML:
 def ler_arquivo_htm(path_arquivo: str) -> str:
@@ -132,30 +183,13 @@ def parse_concursos_loteria(loteria: Loteria) -> int:
 
 
 def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]] | None:
-    sorteios: list[tuple[int, ...]] = []
-
     # identifica o arquivo com os conjuntos de pares da loteria:
     loteria_pares_file: str = app_config.DS_pares_csv_name.format(id_loteria)
     loteria_pares_path: str = os.path.join(app_config.DS_input_path, loteria_pares_file)
 
     # abre arquivo para leitura e carrega todas as dezenas dos conjuntos de pares:
-    try:
-        with open(loteria_pares_path, 'r') as file_csv:
-            csv_reader = csv.reader(file_csv)
-            # cada linha do arquivo eh carregada em um list[]
-            for row in csv_reader:
-                # converte a linha para tupla de numeros, com menor consumo de recursos:
-                sorteio: tuple[int, ...] = ()
-                for dezena in row:
-                    sorteio += (int(dezena),)
-                sorteios.append(sorteio)
-
-        return sorteios
-
-    # captura as excecoes relativas a manipulacao de arquivos:
-    except FileNotFoundError as ex:
-        logger.error(f"Arquivo CSV de pares '{loteria_pares_path}' nao encontrado.\n{ex}")
-        return None
+    sorteios: list[tuple[int, ...]] = read_dezenas_csv(loteria_pares_path)
+    return sorteios
 
 
 # ----------------------------------------------------------------------------

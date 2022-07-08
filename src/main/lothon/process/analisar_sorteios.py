@@ -14,8 +14,8 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-import logging
 from typing import Any
+import logging
 
 # Libs/Frameworks modules
 # from memory_profiler import profile
