@@ -15,16 +15,25 @@ __all__ = [
 # Built-in/Generic modules
 from datetime import date
 from dataclasses import dataclass
+import logging
 
 # Libs/Frameworks modules
 from bs4.element import ResultSet
 
 # Own/Project modules
 from lothon.domain.modalidade.loteria import Loteria
-from lothon.domain.sorteio.concurso_duplo import ConcursoDuplo
+from lothon.domain.sorteio.concurso import Concurso
 from lothon.domain.sorteio.premio import Premio
 from lothon.domain.bilhete.faixa import Faixa
 from lothon.util.eve import *
+
+
+# ----------------------------------------------------------------------------
+# VARIAVEIS GLOBAIS
+# ----------------------------------------------------------------------------
+
+# obtem uma instancia do logger para o modulo corrente:
+logger = logging.getLogger(__name__)
 
 
 # ----------------------------------------------------------------------------
@@ -43,7 +52,26 @@ class DuplaSena(Loteria):
 
     # --- METODOS ------------------------------------------------------------
 
-    def parse_concurso(self, td: ResultSet) -> ConcursoDuplo:
+    # override do metodo para parser dos concursos duplos da Dupla Sena:
+    def set_resultados(self, table_body: ResultSet) -> int:
+        # dentro do TBODY tem uma unica TR contendo os dados relacionados em elementos TD:
+        list_concursos: list[Concurso] = []
+        for tbody in table_body:
+            tr = tbody.find("tr", recursive=False)
+            # logger.debug(f"tr = {type(tr)} {len(tr)}")
+            td = tr.find_all("td", recursive=False)
+            # logger.debug(f"td = {type(td)} {len(td)}")
+            # logger.debug(f"td[0] = {type(td[0])} {len(td[0])} {td[0].text}")
+
+            concursos: list[Concurso] = self.parse_concurso(td)
+            logger.debug(f"concursos = {concursos}")
+            list_concursos.extend(concursos)
+
+        self.concursos = list_concursos
+        return len(list_concursos)
+
+    # nova assinatura com retorno de list de concursos:
+    def parse_concurso(self, td: ResultSet) -> list[Concurso]:
         id_concurso: int = int(td[0].text)
         data_sorteio: date = parse_dmy(td[1].text)
 
@@ -68,9 +96,10 @@ class DuplaSena(Loteria):
                                        4: Premio(4, int(td[30].text), parse_money(td[31].text)),
                                        3: Premio(3, int(td[32].text), parse_money(td[33].text))}
 
-        return ConcursoDuplo(id_concurso, data_sorteio,
-                             bolas=bolas1, premios=premios1,
-                             bolas2=bolas2, premios2=premios2)
+        return [
+            Concurso(id_concurso, data_sorteio, bolas=bolas1, premios=premios1),
+            Concurso(id_concurso, data_sorteio, bolas=bolas2, premios=premios2)
+        ]
 
     # --- METODOS STATIC -----------------------------------------------------
 

@@ -83,7 +83,7 @@ class Loteria(ABC):
             # logger.debug(f"td = {type(td)} {len(td)}")
             # logger.debug(f"td[0] = {type(td[0])} {len(td[0])} {td[0].text}")
 
-            concurso = self.parse_concurso(td)
+            concurso: Concurso = self.parse_concurso(td)
             # logger.debug(f"concurso = {concurso}")
             list_concursos.append(concurso)
 
