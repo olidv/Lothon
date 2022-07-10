@@ -63,6 +63,10 @@ class AbstractCompute(AbstractProcess, ABC):
         pass
 
     @abstractmethod
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        pass
+
+    @abstractmethod
     def rate(self, ordinal: int, jogo: tuple) -> int:
         pass
 

@@ -172,6 +172,10 @@ class ComputeDispersao(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        # eh preciso processar novamente a computacao para novos calculos de rate e eval.
+        self.execute(concursos)
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         faixa_dispersao: int = self.calc_dispersao(jogo)
         return faixa_dispersao

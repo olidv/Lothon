@@ -160,18 +160,16 @@ class AnaliseSeletiva(AbstractAnalyze):
             cproc.execute(concursos)
 
         # efetua o processamento partir do concurso #100 para exibir os rates dos computes:
+        logger.debug(f"Executando computacao dos  #{formatd(self.qtd_concursos)}  concursos...")
         concursos_passados: list[Concurso] = loteria.concursos[:100]
         proximos_concursos: list[Concurso] = loteria.concursos[100:]
         output: str = f"\n\t CONCURSO        PARIDADE   SEQUENCIA   MEDIANA   MATRICIAL   " \
                       f"AUSENCIA   FREQUENCIA   REPETENCIA   RECORRENCIA\n"
         for concurso in proximos_concursos:
-            qtd_passados: int = len(concursos_passados)
             # executa cada processo de analise em sequencia (chain) para coleta de dados:
-            logger.debug(f"Executando computacao dos  #{formatd(qtd_passados)}  concursos "
-                         f"passados...")
             for cproc in compute_chain[4:]:  # apenas processa aquelas que precisam se atualizar
-                # executa a computacao dos concursos passados ate o concurso corrente:
-                cproc.execute(concursos_passados)
+                # processa a computacao (resumida) dos concursos passados ate o concurso corrente:
+                cproc.set_concursos_passados(concursos_passados)
 
             # com as classes de computacao atualizadas, calcula o rate do concurso corrente:
             vl_paridade: float = compute_chain[0].rate(0, concurso.bolas)
@@ -196,7 +194,6 @@ class AnaliseSeletiva(AbstractAnalyze):
 
             # na proxima iteracao considera tambem agora o concurso recem simulado:
             concursos_passados.append(concurso)
-
         logger.debug(f"{nmlot}: Calculo de Rates dos Concursos: {output}")
 
         # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:

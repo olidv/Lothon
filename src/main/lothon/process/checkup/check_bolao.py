@@ -203,7 +203,6 @@ class CheckBolao(AbstractCheckup):
         # identifica informacoes da loteria:
         nmlot: str = loteria.nome_loteria
         concursos: list[Concurso] = loteria.concursos
-        # qtd_concursos: int = len(concursos)
         acertos_premios: list[int] = acertos_premiacoes[loteria.id_loteria]
 
         # verifica a presenca de arquivos CSV com jogos de boloes:

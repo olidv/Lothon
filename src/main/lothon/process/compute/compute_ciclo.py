@@ -180,6 +180,9 @@ class ComputeCiclo(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        self.concursos_passados = concursos
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         size_ciclo: int = self.count_concursos_ciclo(jogo)
         return size_ciclo

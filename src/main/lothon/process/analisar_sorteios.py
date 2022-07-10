@@ -54,9 +54,10 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
-        # "diadesorte": domain.get_dia_de_sorte(),  #
+        "diadesorte": domain.get_dia_de_sorte(),  #
+        # "mesdasorte": domain.get_mes_da_sorte(),  #
         # "lotofacil": domain.get_lotofacil(),      #
-        "duplasena": domain.get_dupla_sena(),     #
+        # "duplasena": domain.get_dupla_sena(),     #
         # "quina": domain.get_quina(),              #
         # "megasena": domain.get_mega_sena()        #
     }

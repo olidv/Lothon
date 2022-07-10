@@ -135,6 +135,9 @@ class ComputeSequencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        return  # nada a fazer aqui...
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         qt_sequencias: int = cb.count_sequencias(jogo)
         return qt_sequencias

@@ -136,6 +136,10 @@ class ComputeAusencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        # extrai os topos do ranking com as dezenas com maior ausencia em todos os concursos:
+        self.topos_dezenas = cb.calc_topos_ausencia(concursos, self.qtd_bolas, QTD_TOPOS_RANKING)
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         qtd_topos: int = self.count_topos_ausencia(jogo)
         return qtd_topos

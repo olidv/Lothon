@@ -138,6 +138,9 @@ class ComputeRepetencia(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        self.ultimo_sorteio = concursos[-1].bolas
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         qt_repeticoes: int = cb.count_dezenas_repetidas(jogo, self.ultimo_sorteio)
         return qt_repeticoes

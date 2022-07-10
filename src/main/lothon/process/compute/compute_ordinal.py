@@ -129,6 +129,10 @@ class ComputeOrdinal(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        # eh preciso processar novamente a computacao para novos calculos de rate e eval.
+        self.execute(concursos)
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         dif_ordinal_anterior: int = abs(ordinal - self.vl_ordinal_ultimo_concurso)
         faixa_percent_abaixo: int = round((dif_ordinal_anterior / self.qtd_jogos) * 100) // 10

@@ -164,6 +164,9 @@ class ComputeMatricial(AbstractCompute):
 
     # --- ANALISE E AVALIACAO DE JOGOS ---------------------------------------
 
+    def set_concursos_passados(self, concursos: list[Concurso]):
+        return  # nada a fazer aqui...
+
     def rate(self, ordinal: int, jogo: tuple) -> int:
         vl_max_col: int = cb.max_colunas(jogo)
         vl_max_lin: int = cb.max_linhas(jogo)
