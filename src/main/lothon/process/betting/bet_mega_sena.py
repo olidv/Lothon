@@ -1,11 +1,11 @@
 """
    Package lothon.process.compute
-   Module  bet_dia_de_sorte.py
+   Module  bet_mega_sena.py
 
 """
 
 __all__ = [
-    'BetDiaDeSorte'
+    'BetMegaSena'
 ]
 
 # ----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ def gerar_bolao_aleatorio(qtd_bolas: int, qtd_dezenas: int,
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class BetDiaDeSorte(AbstractBetting):
+class BetMegaSena(AbstractBetting):
     """
     Implementacao de classe para .
     """
@@ -109,7 +109,7 @@ class BetDiaDeSorte(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Geracao de Jogos para 'Dia de Sorte'", loteria)
+        super().__init__("Geracao de Jogos para 'Mega-Sena'", loteria)
 
         # estruturas para a coleta de dados a partir do processamento de analise:
 
@@ -271,17 +271,17 @@ class BetDiaDeSorte(AbstractBetting):
 
         # TODO efetuar geracao dos jogos...
         # jogos_bolao: list[tuple[int, ...]] = [jogo.dezenas for jogo in self.jogos[:200]]
-        jogos_bolao: list[tuple[int, ...]] = self.sortear_jogos(1000, 4)
-        print(f"*** MAX-RECORRENCIAS = {4} ... #JOGOS = {formatd(len(jogos_bolao))}")
+        # jogos_bolao: list[tuple[int, ...]] = self.sortear_jogos(100, 7)
+        # print(f"*** MAX-RECORRENCIAS = {7} ... #JOGOS = {formatd(len(jogos_bolao))}")
 
-        # jogos_bolao: list[tuple[int, ...]] = []
-        # output: str = f"\n\t RECORRE    #JOGOS\n"
-        # for qtd_recorrencias in range(0, 5):
-        #     jogos_bolao = self.relacionar_jogos(qtd_recorrencias)
-        #     qtd_jogos: int = len(jogos_bolao)
-        #     print(f"*** MAX-RECORRENCIAS = {qtd_recorrencias} ... #JOGOS = {formatd(qtd_jogos)}")
-        #     output += f"\t       {qtd_recorrencias}    {formatd(qtd_jogos)}\n"
-        # logger.debug(f"Jogos por Quantidade de Recorrencias: {output}")
+        jogos_bolao: list[tuple[int, ...]] = []
+        output: str = f"\n\t RECORRE    #JOGOS\n"
+        for qtd_recorrencias in range(0, 6):
+            jogos_bolao = self.relacionar_jogos(qtd_recorrencias)
+            qtd_jogos: int = len(jogos_bolao)
+            print(f"*** MAX-RECORRENCIAS = {qtd_recorrencias} ... #JOGOS = {formatd(qtd_jogos)}")
+            output += f"\t      {formatd(qtd_recorrencias, 2)}    {formatd(qtd_jogos)}\n"
+        logger.debug(f"Jogos por Quantidade de Recorrencias: {output}")
 
         # ...
 

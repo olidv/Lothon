@@ -21,8 +21,8 @@ import logging
 # from lothon.conf import app_config
 from lothon.util.eve import *
 from lothon import domain
-from lothon.process.betting.abstract_betting import AbstractBetting
-from lothon.process.betting.bet_dia_de_sorte import BetDiaDeSorte
+from lothon.process.betting import AbstractBetting, BetDiaDeSorte, BetLotofacil, BetDuplaSena, \
+                                   BetQuina, BetMegaSena
 
 
 # ----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ boloes_diadesorte: dict[str: dict[int: int]] = {
     # "B03": {7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
 }
 boloes_lotofacil: dict[str: dict[int: int]] = {
-    "B01": {15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0},
+    "B01": {15: 10, 16: 8, 17: 6, 18: 4, 19: 2, 20: 1},
     # "B02": {15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0},
     # "B03": {15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0}
 }
@@ -77,9 +77,9 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
-        "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
+        # "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
         # "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
-        # "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
+        "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
         # "quina": BetQuina(domain.get_quina()),                   #
         # "megasena": BetMegaSena(domain.get_mega_sena())          #
     }

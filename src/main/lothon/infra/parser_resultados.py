@@ -202,7 +202,7 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
         return -1
 
     # cria arquivo fisico para conter apenas as dezenas sorteadas:
-    loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.id_loteria)
+    loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.nome_loteria)
     loteria_sorteios_path: str = os.path.join(app_config.DS_output_path, loteria_sorteios_file)
 
     # abre arquivo para escrita e salva todas as dezenas sorteadas:
@@ -237,7 +237,7 @@ def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple[in
     qt_rows: int = 0
     with open(loteria_boloes_path, 'w', newline='', encoding='utf-8') as file_csv:
         # o conteudo do arquivo sera formatado como CSV padrao:
-        csv_writer = csv.writer(file_csv)
+        csv_writer = csv.writer(file_csv, delimiter=' ')
 
         # percorre lista de jogos e exporta as dezenas:
         for jogo in jogos:

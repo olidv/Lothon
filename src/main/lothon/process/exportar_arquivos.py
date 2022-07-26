@@ -18,7 +18,6 @@ import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
-# from lothon.conf import app_config
 from lothon.util.eve import *
 from lothon import domain
 from lothon.domain import Loteria
@@ -46,19 +45,17 @@ def run():
     _startWatch = startwatch()
     logger.info("Iniciando a exportacao de arquivos CSV com dezenas sorteadas dos concursos...")
 
-    # sorteios: list[tuple[int, ...]] = domain.load_pares("lotofacil")
-    # print(f"sorteios = #{len(sorteios)}")
-    # if True is not None:
-    #     return
-
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
-        "diadesorte": domain.get_dia_de_sorte(),  #
-        # "lotofacil": domain.get_lotofacil(),      #
-        # "duplasena": domain.get_dupla_sena(),     #
-        # "quina": domain.get_quina(),              #
-        # "megasena": domain.get_mega_sena()        #
+        "diadesorte": domain.get_dia_de_sorte(),
+        "lotofacil": domain.get_lotofacil(),
+        "duplasena": domain.get_dupla_sena(),
+        "quina": domain.get_quina(),
+        "megasena": domain.get_mega_sena(),
+        "supersete": domain.get_super_sete(),
+        "lotomania": domain.get_lotomania(),
+        "timemania": domain.get_timemania()
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

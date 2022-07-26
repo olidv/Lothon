@@ -5,7 +5,12 @@
 """
 
 __all__ = [
-    ''
+    'AbstractBetting',
+    'BetDiaDeSorte',
+    'BetLotofacil',
+    'BetDuplaSena',
+    'BetQuina',
+    'BetMegaSena'
 ]
 
 # ----------------------------------------------------------------------------
@@ -15,6 +20,12 @@ __all__ = [
 # Built-in/Generic modules
 # Libs/Frameworks modules
 # Own/Project modules
+from lothon.process.betting.abstract_betting import AbstractBetting
+from lothon.process.betting.bet_dia_de_sorte import BetDiaDeSorte
+from lothon.process.betting.bet_lotofacil import BetLotofacil
+from lothon.process.betting.bet_dupla_sena import BetDuplaSena
+from lothon.process.betting.bet_quina import BetQuina
+from lothon.process.betting.bet_mega_sena import BetMegaSena
 
 
 # ----------------------------------------------------------------------------

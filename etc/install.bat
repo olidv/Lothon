@@ -25,6 +25,10 @@ echo Verificando a versao atual do pip no sistema
 pip --version
 echo.
 
+echo Instalando ambiente virtual no projeto
+python -m venv Infinite\venv
+echo.
+
 echo Ativando o ambiente virtual do projeto
 call venv\Scripts\activate.bat
 echo.
@@ -43,8 +47,8 @@ echo.
 
 echo Instalando as dependencias do projeto no ambiente
 @echo on
-pip install -U setuptools
 pip install -U wheel
+pip install -U setuptools
 pip install -U PyYAML
 pip install -U beautifulsoup4
 pip install -U numpy
@@ -58,9 +62,8 @@ pip install -U seaborn
 pip install -U scikit-learn
 pip install -U pingouin
 pip install -U jupyterlab
-pip install -U memory_profiler
 pip install -U plotext
-
+pip install -U memory_profiler
 @echo off
 echo.
 

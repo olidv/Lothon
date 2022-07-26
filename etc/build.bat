@@ -35,8 +35,6 @@ mkdir dist\data\input  1>nul  2>&1
 mkdir dist\data\output  1>nul  2>&1
 mkdir dist\lib  1>nul  2>&1
 mkdir dist\logs  1>nul  2>&1
-mkdir dist\tmp  1>nul  2>&1
-mkdir dist\www  1>nul  2>&1
 echo.
 
 echo Atualizando a lista de dependencias do projeto [ requirements ]
@@ -69,7 +67,7 @@ echo.
 
 echo Executando o programa para testar se tudo ok [ -t  testing ]
 cd dist\bin
-python lothon.zip -t -c ..\conf
+python lothon.zip -c ..\conf -t
 echo.
 
 rem Pausa final...

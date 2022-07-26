@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 
 # Libs/Frameworks modules
 # Own/Project modules
-from lothon.domain import Loteria, Concurso
+from lothon.domain import Loteria, Concurso, Jogo
 from lothon.process.abstract_process import AbstractProcess
 
 
@@ -32,7 +32,7 @@ class AbstractBetting(AbstractProcess, ABC):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('loteria', 'concursos')
+    __slots__ = ('loteria', 'concursos', 'jogos')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
@@ -42,6 +42,7 @@ class AbstractBetting(AbstractProcess, ABC):
         # auxiliares para avaliacao de jogos combinados e concursos da loteria:
         self.loteria: Loteria = loteria
         self.concursos: list[Concurso] = loteria.concursos
+        self.jogos: list[Jogo] = []
 
     def setup(self, parms: dict):
         # absorve os parametros fornecidos:

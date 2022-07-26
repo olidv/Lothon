@@ -64,7 +64,7 @@ class DuplaSena(Loteria):
             # logger.debug(f"td[0] = {type(td[0])} {len(td[0])} {td[0].text}")
 
             concursos: list[Concurso] = self.parse_concurso(td)
-            logger.debug(f"concursos = {concursos}")
+            # logger.debug(f"concursos = {concursos}")
             list_concursos.extend(concursos)
 
         self.concursos = list_concursos
