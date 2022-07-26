@@ -46,10 +46,9 @@ class AppConfig:
     RT_files_all_mask: str = ''
 
     # Parametrizacao dos arquivos de dados para leitura e exportacao:
-    DS_caixa_path: str = ''
     DS_bolao_path: str = ''
-    DS_input_path: str = ''
-    DS_output_path: str = ''
+    DS_cache_path: str = ''
+    DS_caixa_path: str = ''
     DS_pares_csv_name: str = ''
     DS_sorteios_csv_name: str = ''
 
@@ -82,10 +81,9 @@ class AppConfig:
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
 
         # Parametrizacao dos arquivos de dados para leitura e exportacao:
-        self.DS_caixa_path = parser.get("DADOS", "caixa_path")
         self.DS_bolao_path = parser.get("DADOS", "bolao_path")
-        self.DS_input_path = parser.get("DADOS", "input_path")
-        self.DS_output_path = parser.get("DADOS", "output_path")
+        self.DS_cache_path = parser.get("DADOS", "cache_path")
+        self.DS_caixa_path = parser.get("DADOS", "caixa_path")
         self.DS_pares_csv_name = parser.get("DADOS", "pares_csv_name")
         self.DS_sorteios_csv_name = parser.get("DADOS", "sorteios_csv_name")
 

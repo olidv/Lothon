@@ -26,15 +26,15 @@ rmdir /s /q dist  1>nul  2>&1
 echo.
 
 echo Criando nova estrutura para distribuir o pacote do executavel
-mkdir dist  1>nul  2>&1
-mkdir dist\bin  1>nul  2>&1
-mkdir dist\conf  1>nul  2>&1
-mkdir dist\data  1>nul  2>&1
+mkdir dist             1>nul  2>&1
+mkdir dist\bin         1>nul  2>&1
+mkdir dist\conf        1>nul  2>&1
+mkdir dist\data        1>nul  2>&1
+mkdir dist\data\bolao  1>nul  2>&1
+mkdir dist\data\cache  1>nul  2>&1
 mkdir dist\data\caixa  1>nul  2>&1
-mkdir dist\data\input  1>nul  2>&1
-mkdir dist\data\output  1>nul  2>&1
-mkdir dist\lib  1>nul  2>&1
-mkdir dist\logs  1>nul  2>&1
+mkdir dist\lib         1>nul  2>&1
+mkdir dist\logs        1>nul  2>&1
 echo.
 
 echo Atualizando a lista de dependencias do projeto [ requirements ]

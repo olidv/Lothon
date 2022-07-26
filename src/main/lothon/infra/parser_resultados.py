@@ -185,7 +185,7 @@ def parse_concursos_loteria(loteria: Loteria) -> int:
 def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]] | None:
     # identifica o arquivo com os conjuntos de pares da loteria:
     loteria_pares_file: str = app_config.DS_pares_csv_name.format(id_loteria)
-    loteria_pares_path: str = os.path.join(app_config.DS_input_path, loteria_pares_file)
+    loteria_pares_path: str = os.path.join(app_config.DS_cache_path, loteria_pares_file)
 
     # abre arquivo para leitura e carrega todas as dezenas dos conjuntos de pares:
     sorteios: list[tuple[int, ...]] = read_dezenas_csv(loteria_pares_path)
@@ -203,7 +203,7 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
 
     # cria arquivo fisico para conter apenas as dezenas sorteadas:
     loteria_sorteios_file: str = app_config.DS_sorteios_csv_name.format(loteria.nome_loteria)
-    loteria_sorteios_path: str = os.path.join(app_config.DS_output_path, loteria_sorteios_file)
+    loteria_sorteios_path: str = os.path.join(app_config.DS_cache_path, loteria_sorteios_file)
 
     # abre arquivo para escrita e salva todas as dezenas sorteadas:
     qt_rows: int = 0
