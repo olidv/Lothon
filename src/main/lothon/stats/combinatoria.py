@@ -303,11 +303,11 @@ def count_sequencias(bolas: tuple[int, ...]) -> int:
     bolas: tuple[int, ...] = tuple(sorted(bolas))
 
     qtd_sequencias: int = 0
-    seq_anterior: int = -1
+    seq_posterior: int = -1
     for num in bolas:
-        if num == seq_anterior:
+        if num == seq_posterior:
             qtd_sequencias += 1
-        seq_anterior = num + 1
+        seq_posterior = num + 1
 
     return qtd_sequencias
 
