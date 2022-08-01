@@ -92,7 +92,7 @@ class ComputeRepetencia(AbstractCompute):
         self.frequencias_repetencias = cb.new_list_series(self.qtd_bolas)
         self.ultimas_repetencias_repetidas = cb.new_list_int(qtd_items)
 
-        # contabiliza repetencias de cada sorteio com todos o sorteio anterior:
+        # contabiliza repetencias de cada sorteio com todos os sorteios anteriores:
         concurso_anterior: Concurso = concursos[0]
         self.qtd_repetencias_ultimo_concurso = -1
         self.qtd_repetencias_penultimo_concurso = -1

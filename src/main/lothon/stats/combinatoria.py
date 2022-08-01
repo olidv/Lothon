@@ -351,7 +351,7 @@ def max_recorrencias(bolas: tuple[int, ...], concursos: list[Concurso],
     if bolas is None or len(bolas) == 0 or concursos is None or len(concursos) == 0:
         return 0
 
-    # ja percorre todos os concursos e retorna o numero maximo de recorrencias de [bolas]:
+    # percorre todos os concursos e retorna o numero maximo de recorrencias de [bolas]:
     qt_max_recorrencias: int = 0
     for concurso in concursos:
         # nao deixa comparar com o mesmo concurso:
