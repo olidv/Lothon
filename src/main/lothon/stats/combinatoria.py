@@ -365,6 +365,25 @@ def max_recorrencias(bolas: tuple[int, ...], concursos: list[Concurso],
     return qt_max_recorrencias
 
 
+def check_max_recorrencias(bolas: tuple[int, ...], jogos: list[tuple[int, ...]],
+                           limite_recorrencias: int = 0) -> bool:
+    # valida os parametros:
+    if bolas is None or len(bolas) == 0 or jogos is None:
+        return False
+
+    # percorre todos os concursos e verifica se ultrapassou o limite de recorrencias de [jogo]:
+    qtd_max_recorrencias: int = 0
+    for jogo in jogos:
+        qtd_recorrencias: int = count_recorrencias(bolas, jogo)
+        if qtd_recorrencias > qtd_max_recorrencias:
+            qtd_max_recorrencias = qtd_recorrencias
+            # ja testa para verificar se pode parar de testar toda a lista de jogos:
+            if qtd_max_recorrencias > limite_recorrencias:
+                break
+
+    return qtd_max_recorrencias <= limite_recorrencias
+
+
 def calc_topos_frequencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: int) -> list[int]:
     # extrai as frequencias de todas as bolas ate o concurso atual:
     frequencias_concursos: list[int] = new_list_int(qtd_bolas)
@@ -511,6 +530,48 @@ def list_espacos(bolas: tuple[int, ...]) -> list[int]:
         aux = dezena
 
     return espacos
+
+
+def mergeListasDezenas(list1: list[int], list2: list[int], list3: list[int]) -> list[int]:
+    list_merge: list[int] = []
+
+    has_dezena: bool = True
+    len_ausencias: int = len(list1)
+    idx_ausencias: int = 0
+    len_frequencias: int = len(list2)
+    idx_frequencias: int = 0
+    len_jogos: int = len(list3)
+    idx_jogos: int = 0
+    while has_dezena:
+        while idx_ausencias < len_ausencias:
+            dezena: int = list1[idx_ausencias]
+            if dezena not in list_merge:
+                list_merge.append(dezena)
+                break
+            else:
+                idx_ausencias += 1
+
+        while idx_frequencias < len_frequencias:
+            dezena: int = list2[idx_frequencias]
+            if dezena not in list_merge:
+                list_merge.append(dezena)
+                break
+            else:
+                idx_frequencias += 1
+
+        while idx_jogos < len_jogos:
+            dezena: int = list3[idx_jogos]
+            if dezena not in list_merge:
+                list_merge.append(dezena)
+                break
+            else:
+                idx_jogos += 1
+        # verifica se ainda tem dezenas para adicionar:
+        has_dezena = idx_ausencias < len_ausencias or \
+            idx_frequencias < len_frequencias or \
+            idx_jogos < len_jogos
+
+    return list_merge
 
 
 # ----------------------------------------------------------------------------

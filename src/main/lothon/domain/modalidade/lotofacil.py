@@ -75,6 +75,7 @@ class Lotofacil(Loteria):
 
         _lotofacil = Lotofacil(id_loteria=value[0],
                                nome_loteria=value[1],
+                               tag_loteria='l',
                                tem_bolas=to_bool(value[2]),
                                qtd_bolas=int(value[3]),
                                qtd_bolas_sorteio=int(value[4]),

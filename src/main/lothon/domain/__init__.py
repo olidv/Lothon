@@ -13,6 +13,7 @@ __all__ = [
     'Premio',
     'Bola',
     'Jogo',
+    'Mes',
     'SerieSorteio',
     'get_dia_de_sorte',
     'get_dupla_sena',
@@ -43,6 +44,7 @@ from lothon.conf import app_config
 from lothon.infra import parser_resultados
 from .basico.dezena import Dezena
 from .basico.jogo import Jogo
+from .basico.mes import Mes
 from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
 from .sorteio.serie_sorteio import SerieSorteio
@@ -106,7 +108,7 @@ def export_sorteios(loteria: Loteria) -> int:
 
 
 # Efetua exportacao dos boloes gerados em CSV com jogos de cada loteria:
-def export_boloes(nome_loteria: str, id_bolao: str, jogos: list[tuple[int, ...]]) -> int:
+def export_boloes(nome_loteria: str, id_bolao: str, jogos: list[tuple]) -> int:
     return parser_resultados.export_boloes_loteria(nome_loteria, id_bolao, jogos)
 
 

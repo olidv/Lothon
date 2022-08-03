@@ -49,6 +49,7 @@ class Loteria(ABC):
     # --- PROPRIEDADES -------------------------------------------------------
     id_loteria: str
     nome_loteria: str
+    tag_loteria: str
     tem_bolas: bool
     qtd_bolas: int
     qtd_bolas_sorteio: int

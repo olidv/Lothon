@@ -76,6 +76,7 @@ class TimeDoCoracao(Loteria):
 
         _time_do_coracao = TimeDoCoracao(id_loteria=value[0],
                                          nome_loteria=value[1],
+                                         tag_loteria='i',
                                          tem_bolas=to_bool(value[2]),
                                          qtd_bolas=int(value[3]),
                                          qtd_bolas_sorteio=int(value[4]),

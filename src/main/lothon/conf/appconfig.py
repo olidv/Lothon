@@ -122,6 +122,8 @@ class AppConfig:
                  '11': 11, 'novembro': 11,
                  '12': 12, 'dezembro': 12}
 
+    TAG_MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
     MAP_TIMES = {'abc/rn': 1, 'abc': 1, 'a b c/rn': 1, 'abcentusjoaoa': 1,
                  'america/rn': 2, 'america': 2, 'americase': 2,
                  'america/mg': 3,

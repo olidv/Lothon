@@ -56,4 +56,11 @@ class Mes(Enum):
         else:
             raise ValueError(f"Valor invalido para criar instancia de Mes: {value}.")
 
+    @staticmethod
+    def tag(value: int) -> str:
+        if value == 0 or value is None:
+            value = 1
+
+        return app_config.TAG_MESES[(value - 1) % 12]
+
     # ----------------------------------------------------------------------------

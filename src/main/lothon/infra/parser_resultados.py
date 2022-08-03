@@ -9,6 +9,7 @@ __all__ = [
     'read_dezenas_csv',
     'read_jogos_csv',
     'parse_concursos_loteria',
+    'exist_jogos_loteria',
     'read_jogos_loteria',
     'read_pares_loteria',
     'export_sorteios_loteria',
@@ -158,6 +159,15 @@ def carregar_resultados(nome_loteria: str):
     return content_htm
 
 
+def exist_jogos_loteria(nome_loteria: str) -> bool:
+    # identifica o arquivo com os jogos computados da loteria:
+    loteria_jogos_file: str = app_config.DS_jogos_csv_name.format(nome_loteria)
+    loteria_jogos_path: str = os.path.join(app_config.DS_cache_path, loteria_jogos_file)
+
+    # verifica se o arquivo existe, usando o path completo:
+    return os.path.exists(loteria_jogos_path)
+
+
 # ----------------------------------------------------------------------------
 # LEITURA DE DADOS E PARSING DOS RESULTADOS
 # ----------------------------------------------------------------------------
@@ -262,7 +272,7 @@ def export_sorteios_loteria(loteria: Loteria) -> int:
     return qt_rows
 
 
-def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple[int, ...]]) -> int:
+def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple]) -> int:
     # valida se possui jogos a serem exportados:
     if jogos is None or len(jogos) == 0:
         return -1
