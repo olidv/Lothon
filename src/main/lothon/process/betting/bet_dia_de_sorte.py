@@ -13,16 +13,16 @@ __all__ = [
 # ----------------------------------------------------------------------------
 
 # Built-in/Generic modules
-from typing import Optional, Any
-# import math
+from typing import Optional
 import random
-import itertools as itt
 import logging
 
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.infra import console, parser_resultados
 from lothon.stats import combinatoria as cb
+from lothon import domain
 from lothon.domain import Loteria, Concurso, Jogo
 from lothon.process.betting.abstract_betting import AbstractBetting
 from lothon.process.compute.abstract_compute import AbstractCompute
@@ -119,6 +119,11 @@ class BetDiaDeSorte(AbstractBetting):
 
     # --- METODOS ------------------------------------------------------------
 
+    def exportar_sorteios(self):
+        # o local de gravacao dos arquivos ja foi padronizado na configuracao INI
+        qtd_export: int = domain.export_sorteios(self.loteria)
+        return qtd_export
+
     def get_jogo_concurso(self, bolas: tuple[int, ...]) -> Optional[Jogo]:
         # procura na lista de jogos para identificar o jogo correspondente ao concurso (bolas):
         for jogo in self.jogos:
@@ -145,7 +150,7 @@ class BetDiaDeSorte(AbstractBetting):
             idx: int = -1
             while idx < 0:
                 idx = random.randint(0, qtd_jogos-1)
-                print("idx = ", idx)
+                # print("idx = ", idx)
                 jogo: Jogo = self.jogos[idx]
                 qt_max_recorrencias: int = 0
                 for sorteado in jogos_sorteados:
@@ -188,70 +193,20 @@ class BetDiaDeSorte(AbstractBetting):
                 return []
         _startWatch = startwatch()
 
-        # identifica informacoes da loteria:
-        concursos_passados: list[Concurso] = self.concursos[:-1]
-        qtd_bolas: int = self.loteria.qtd_bolas
-        qtd_bolas_sorteio: int = self.loteria.qtd_bolas_sorteio
-        qtd_jogos: int = self.loteria.qtd_jogos
+        # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
+        qtd_export: int = self.exportar_sorteios()
+        logger.debug(f"Foram exportados #{formatd(qtd_export)} sorteios da loteria "
+                     f"{self.loteria.nome_loteria}' em arquivo CSV.")
 
-        # inicializa a cadeia de processos para computacao de jogos:
-        compute_chain: list[AbstractCompute] = get_process_chain()
+        # executa rotina Java para processamento e geracao dos jogos computados:
+        exit_code: int = console.execute_jlothon('d')
+        logger.debug(f"Retornou do programa jLothon o exit-code: {exit_code}")
 
-        # define os parametros para configurar o processamento de 'evaluate()' dos processos:
-        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
-            'qtd_bolas': qtd_bolas,
-            'qtd_bolas_sorteio': qtd_bolas_sorteio,
-            'qtd_jogos': qtd_jogos
-        }
-        # configura cada um dos processos de calculo-evaluate, para computarem os sorteios:
-        logger.debug("Configurando a cadeia de processos para computacao de jogos.")
-        for cproc in compute_chain:
-            # configuracao de parametros para os processamentos em cada classe de analise:
-            logger.debug(f"Processo '{cproc.id_process}': configurando parametros de SETUP...")
-            cproc.setup(parms)
-
-        # Efetua a execucao de cada processo de analise em sequencia (chain) para coleta de dados:
-        logger.debug("Executando o processamento das loterias para computacao de jogos.")
-        for cproc in compute_chain:
-            # executa a analise para cada loteria:
-            logger.debug(f"Processo '{cproc.id_process}': executando computacao dos sorteios...")
-            cproc.execute(concursos_passados)
-
-        # efetua analise geral (evaluate) de todas as combinacoes de jogos da loteria:
-        self.jogos = []
-        qtd_zerados: int = 0
-
-        # gera as combinacoes de jogos da loteria:
-        range_jogos: range = range(1, qtd_bolas + 1)
-        vl_ordinal: int = 0
-        for jogo in itt.combinations(range_jogos, qtd_bolas_sorteio):
-            vl_ordinal += 1  # primeiro jogo ira comecar do #1
-
-            # executa a avaliacao do jogo, para verificar se sera considerado ou descartado:
-            vl_fator: float = 0
-            for cproc in compute_chain:
-                vl_eval: float = cproc.eval(vl_ordinal, jogo)
-
-                # ignora o resto das analises se a metrica zerou:
-                if vl_eval > 0:
-                    vl_fator += vl_eval  # probabilidade da uniao de dois eventos
-                else:
-                    vl_fator = 0  # zera o fator para que o jogo nao seja considerado
-                    break  # ignora e pula para o proximo jogo, acelerando o processamento
-
-            # se a metrica atingir o ponto de corte, entao mantem o jogo para apostar:
-            if vl_fator > 0:
-                self.jogos.append(Jogo(vl_ordinal, vl_fator, jogo))
-            else:
-                qtd_zerados += 1
-
-        qtd_inclusos: int = len(self.jogos)
-        logger.info(f"Finalizado o processamento das  {formatd(qtd_jogos)}  combinacoes de jogos. "
-                    f" Eliminados (zerados)  {formatd(qtd_zerados)}  jogos entre os  "
-                    f"{formatd(qtd_inclusos)}  jogos considerados.")
+        # importa os jogos computados para prosseguir com o processamento:
+        self.jogos = parser_resultados.read_jogos_loteria(self.loteria.nome_loteria)
 
         # contabiliza as frequencias das dezenas em todos os jogos considerados:
-        frequencias_bolas: list[int] = cb.new_list_int(qtd_bolas)
+        frequencias_bolas: list[int] = cb.new_list_int(self.loteria.qtd_bolas)
         for jogo in self.jogos:
             # registra a frequencia para cada dezena dos jogos:
             for dezena in jogo.dezenas:
@@ -266,24 +221,8 @@ class BetDiaDeSorte(AbstractBetting):
             output += f"\t     {formatd(key,2)}    {formatd(val)}\n"
         logger.debug(f"Frequencia das Dezenas Computadas: {output}")
 
-        # ordena os jogos processados pelo fator, do maior (maiores chances) para o menor:
-        self.jogos.sort(key=lambda n: n.fator, reverse=True)
-
         # TODO efetuar geracao dos jogos...
-        # jogos_bolao: list[tuple[int, ...]] = [jogo.dezenas for jogo in self.jogos[:200]]
-        jogos_bolao: list[tuple[int, ...]] = self.sortear_jogos(1000, 4)
-        print(f"*** MAX-RECORRENCIAS = {4} ... #JOGOS = {formatd(len(jogos_bolao))}")
-
-        # jogos_bolao: list[tuple[int, ...]] = []
-        # output: str = f"\n\t RECORRE    #JOGOS\n"
-        # for qtd_recorrencias in range(0, 5):
-        #     jogos_bolao = self.relacionar_jogos(qtd_recorrencias)
-        #     qtd_jogos: int = len(jogos_bolao)
-        #     print(f"*** MAX-RECORRENCIAS = {qtd_recorrencias} ... #JOGOS = {formatd(qtd_jogos)}")
-        #     output += f"\t       {qtd_recorrencias}    {formatd(qtd_jogos)}\n"
-        # logger.debug(f"Jogos por Quantidade de Recorrencias: {output}")
-
-        # ...
+        jogos_bolao: list[tuple[int, ...]] = self.sortear_jogos(16, 3)
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

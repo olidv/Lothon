@@ -37,6 +37,7 @@ class AppConfig:
     RT_app_home: str = ''
     RT_bet_path: str = ''
     RT_dat_path: str = ''
+    RT_lib_path: str = ''
     RT_log_path: str = ''
     RT_tmp_path: str = ''
 
@@ -45,10 +46,13 @@ class AppConfig:
     RT_files_log_mask: str = ''
     RT_files_all_mask: str = ''
 
+    RT_jlothon_batch: str = ''
+
     # Parametrizacao dos arquivos de dados para leitura e exportacao:
     DS_bolao_path: str = ''
     DS_cache_path: str = ''
     DS_caixa_path: str = ''
+    DS_jogos_csv_name: str = ''
     DS_pares_csv_name: str = ''
     DS_sorteios_csv_name: str = ''
 
@@ -72,6 +76,7 @@ class AppConfig:
         self.RT_app_home = parser.get("ROOT", "app_home")
         self.RT_bet_path = parser.get("ROOT", "bet_path")
         self.RT_dat_path = parser.get("ROOT", "dat_path")
+        self.RT_lib_path = parser.get("ROOT", "lib_path")
         self.RT_log_path = parser.get("ROOT", "log_path")
         self.RT_tmp_path = parser.get("ROOT", "tmp_path")
 
@@ -80,10 +85,13 @@ class AppConfig:
         self.RT_files_log_mask = parser.get("ROOT", "files_log_mask")
         self.RT_files_all_mask = parser.get("ROOT", "files_all_mask")
 
+        self.RT_jlothon_batch = parser.get("ROOT", "jlothon_batch")
+
         # Parametrizacao dos arquivos de dados para leitura e exportacao:
         self.DS_bolao_path = parser.get("DADOS", "bolao_path")
         self.DS_cache_path = parser.get("DADOS", "cache_path")
         self.DS_caixa_path = parser.get("DADOS", "caixa_path")
+        self.DS_jogos_csv_name = parser.get("DADOS", "jogos_csv_name")
         self.DS_pares_csv_name = parser.get("DADOS", "pares_csv_name")
         self.DS_sorteios_csv_name = parser.get("DADOS", "sorteios_csv_name")
 

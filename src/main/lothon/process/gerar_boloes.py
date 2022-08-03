@@ -78,8 +78,8 @@ def run():
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
         # "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
-        # "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
-        "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
+        "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
+        # "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
         # "quina": BetQuina(domain.get_quina()),                   #
         # "megasena": BetMegaSena(domain.get_mega_sena())          #
     }

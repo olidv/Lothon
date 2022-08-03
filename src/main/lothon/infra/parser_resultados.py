@@ -7,7 +7,9 @@
 __all__ = [
     'get_dir_contents',
     'read_dezenas_csv',
+    'read_jogos_csv',
     'parse_concursos_loteria',
+    'read_jogos_loteria',
     'read_pares_loteria',
     'export_sorteios_loteria',
     'export_boloes_loteria'
@@ -30,6 +32,7 @@ from bs4 import BeautifulSoup
 # Own/Project modules
 from lothon.conf import app_config
 from lothon.domain.modalidade.loteria import Loteria
+from lothon.domain.basico.jogo import Jogo
 from lothon.util.eve import *
 
 
@@ -86,6 +89,31 @@ def read_dezenas_csv(file_path: str) -> list[tuple[int, ...]] | None:
                 lista_dezenas.append(tupla_dezenas)
 
         return lista_dezenas
+
+    # captura as excecoes relativas a manipulacao de arquivos:
+    except FileNotFoundError as ex:
+        logger.error(f"Arquivo CSV '{file_path}' nao encontrado.\n{ex}")
+        return None
+
+
+def read_jogos_csv(file_path: str) -> list[Jogo] | None:
+    lista_jogos: list[Jogo] = []
+
+    # abre arquivo para leitura e carrega todas as dezenas em cada linha (tupla):
+    try:
+        with open(file_path, 'r') as file_csv:
+            csv_reader = csv.reader(file_csv)
+            # cada linha do arquivo eh carregada em uma lista de tuplas:
+            ordinal: int = 0
+            for row in csv_reader:
+                # converte a linha para tupla de numeros, com menor consumo de recursos:
+                tupla_dezenas: tuple[int, ...] = ()
+                for dezena in row:
+                    tupla_dezenas += (int(dezena),)
+                ordinal += 1
+                lista_jogos.append(Jogo(ordinal, 1.0, tupla_dezenas))
+
+        return lista_jogos
 
     # captura as excecoes relativas a manipulacao de arquivos:
     except FileNotFoundError as ex:
@@ -190,6 +218,19 @@ def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]] | None:
     # abre arquivo para leitura e carrega todas as dezenas dos conjuntos de pares:
     sorteios: list[tuple[int, ...]] = read_dezenas_csv(loteria_pares_path)
     return sorteios
+
+
+def read_jogos_loteria(nome_loteria: str) -> list[Jogo] | None:
+    # identifica o arquivo com os jogos computados da loteria:
+    loteria_jogos_file: str = app_config.DS_jogos_csv_name.format(nome_loteria)
+    loteria_jogos_path: str = os.path.join(app_config.DS_cache_path, loteria_jogos_file)
+
+    # abre arquivo para leitura e carrega todas as dezenas dos jogos computados:
+    jogos_computados: list[Jogo] = read_jogos_csv(loteria_jogos_path)
+
+    # converte para o objeto Jogo:
+
+    return jogos_computados
 
 
 # ----------------------------------------------------------------------------
