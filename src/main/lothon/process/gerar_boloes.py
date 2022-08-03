@@ -45,17 +45,17 @@ boloes_lotofacil: dict[str: dict[int: int]] = {
     # "B03": {15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0}
 }
 boloes_duplasena: dict[str: dict[int: int]] = {
-    "B01": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
+    "B01": {6: 5, 7: 2, 8: 1, 9: 2, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B02": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B03": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
 }
 boloes_quina: dict[str: dict[int: int]] = {
-    "B01": {5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
+    "B01": {5: 4, 6: 3, 7: 2, 8: 1, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B02": {5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B03": {5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
 }
 boloes_megasena: dict[str: dict[int: int]] = {
-    "B01": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
+    "B01": {6: 2, 7: 1, 8: 3, 9: 1, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B02": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B03": {6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
 }
@@ -79,8 +79,8 @@ def run():
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
         # "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
-        "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
-        # "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
+        # "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
+        "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
         # "quina": BetQuina(domain.get_quina()),                   #
         # "megasena": BetMegaSena(domain.get_mega_sena())          #
     }
