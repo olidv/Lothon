@@ -246,7 +246,7 @@ class CheckBolao(AbstractCheckup):
                                                                        resultado_path,
                                                                        acertos_premios)
             logger.info(f"{nmlot}: Resultado da conferencia das apostas:\n"
-                        f"\n\t *** Bolao ID = {id_bolao}  .:.  DATA = {dt_bolao}\n"
+                        f"\n\t *** Bolao ID = {id_bolao}  .::.  DATA = {dt_bolao}\n"
                         f"\t\t ### Qtd de Jogos Premiados = {rol_acertos}\n"
                         f"\t\t $$$ Valor Total de Premios = {formatc(val_premios)}\n")
 
