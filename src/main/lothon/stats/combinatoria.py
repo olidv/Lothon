@@ -312,6 +312,34 @@ def count_sequencias(bolas: tuple[int, ...]) -> int:
     return qtd_sequencias
 
 
+def count_consecutivas(bolas: tuple[int, ...]) -> int:
+    # valida os parametros:
+    if bolas is None or len(bolas) == 0:
+        return 0
+
+    # eh preciso ordenar a tupla para verificar se ha dezenas consecutivas:
+    bolas: tuple[int, ...] = tuple(sorted(bolas))
+
+    qtd_consecutivas: int = 0
+    qtd_sequencias: int = 0
+    seq_posterior: int = -1
+    for num in bolas:
+        if num == seq_posterior:
+            qtd_sequencias += 1
+        else:
+            if qtd_sequencias > qtd_consecutivas:
+                qtd_consecutivas = qtd_sequencias
+            qtd_sequencias = 0
+
+        seq_posterior = num + 1
+
+    # ao final, precisa testar novamente:
+    if qtd_sequencias > qtd_consecutivas:
+        qtd_consecutivas = qtd_sequencias
+
+    return qtd_consecutivas
+
+
 def count_dezenas(bolas: tuple[int, ...], dezenas: list[int]):
     # valida os parametros:
     if bolas is None or len(bolas) == 0 or dezenas is None or len(dezenas) == 0:

@@ -23,6 +23,7 @@ from lothon.process.compute.compute_paridade import ComputeParidade
 from lothon.process.compute.compute_repetencia import ComputeRepetencia
 from lothon.process.compute.compute_recorrencia import ComputeRecorrencia
 from lothon.process.compute.compute_sequencia import ComputeSequencia
+from lothon.process.compute.compute_consecutiva import ComputeConsecutiva
 from lothon.process.compute.compute_decenario import ComputeDecenario
 from lothon.process.compute.compute_ciclo import ComputeCiclo
 from lothon.process.compute.compute_numerologia import ComputeNumerologia
@@ -66,6 +67,7 @@ def get_process_chain() -> list[AbstractCompute]:
         _process_chain.append(ComputeParidade())     # 0:00:-01s
         _process_chain.append(ComputeRepetencia())   # 0:00:-04s
         _process_chain.append(ComputeSequencia())    # 0:00:-23s
+        _process_chain.append(ComputeConsecutiva())  # 0:00:-23s
         _process_chain.append(ComputeSomatorio())    # 0:00:+06s
 
         # executado com cuidado, pois aumenta tempo de processamento:

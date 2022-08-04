@@ -56,10 +56,10 @@ def run():
     loterias_caixa: dict[str: Loteria] = {
         "diadesorte": domain.get_dia_de_sorte(),  #
         # "mesdasorte": domain.get_mes_da_sorte(),  #
-        # "lotofacil": domain.get_lotofacil(),      #
-        # "duplasena": domain.get_dupla_sena(),     #
-        # "quina": domain.get_quina(),              #
-        # "megasena": domain.get_mega_sena()        #
+        "lotofacil": domain.get_lotofacil(),      #
+        "duplasena": domain.get_dupla_sena(),     #
+        "quina": domain.get_quina(),              #
+        "megasena": domain.get_mega_sena()        #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
