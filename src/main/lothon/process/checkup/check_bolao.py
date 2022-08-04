@@ -245,10 +245,10 @@ class CheckBolao(AbstractCheckup):
                                                                        date_bolao, bolao_path,
                                                                        resultado_path,
                                                                        acertos_premios)
-            logger.info(f"{nmlot}: Resultado da conferencia das apostas do bolao ID = {id_bolao} "
-                        f"na DATA = {dt_bolao}:\n"
-                        f"\t\t Qtd de Jogos Premiados = {rol_acertos}\n"
-                        f"\t\t Valor Total de Premios = {formatc(val_premios)}")
+            logger.info(f"{nmlot}: Resultado da conferencia das apostas:\n"
+                        f"\n\t *** Bolao ID = {id_bolao}  .:.  DATA = {dt_bolao}\n"
+                        f"\t\t ### Qtd de Jogos Premiados = {rol_acertos}\n"
+                        f"\t\t $$$ Valor Total de Premios = {formatc(val_premios)}\n")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
