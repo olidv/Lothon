@@ -532,7 +532,7 @@ def list_espacos(bolas: tuple[int, ...]) -> list[int]:
     return espacos
 
 
-def mergeListasDezenas(list1: list[int], list2: list[int], list3: list[int]) -> list[int]:
+def merge_listas_dezenas(list1: list[int], list2: list[int], list3: list[int]) -> list[int]:
     list_merge: list[int] = []
 
     has_dezena: bool = True

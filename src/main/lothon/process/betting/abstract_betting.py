@@ -14,7 +14,6 @@ __all__ = [
 
 # Built-in/Generic modules
 from abc import ABC, abstractmethod
-from typing import Any
 import math
 import random
 
@@ -25,8 +24,6 @@ from lothon.stats import combinatoria as cb
 from lothon import domain
 from lothon.domain import Loteria, Concurso, Jogo
 from lothon.process.abstract_process import AbstractProcess
-from lothon.process.compute.compute_ausencia import ComputeAusencia
-from lothon.process.compute.compute_frequencia import ComputeFrequencia
 
 
 # ----------------------------------------------------------------------------
@@ -83,7 +80,17 @@ class AbstractBetting(AbstractProcess, ABC):
         jogos_csv: list[Jogo] = parser_resultados.read_jogos_loteria(self.loteria.nome_loteria)
         return jogos_csv
 
-    def get_topos_dezenas(self):
+    def get_topos_dezenas_jogos(self, qtd_topos: int):
+        # extrai os topos do ranking com as dezenas com maior ausencia em todos os concursos:
+        topos_ausencias_sorteios: list[int] = cb.calc_topos_ausencia(self.concursos,
+                                                                     self.loteria.qtd_bolas,
+                                                                     qtd_topos)
+
+        # extrai os topos do ranking com as dezenas com maior frequencia em todos os concursos:
+        topos_frequencias_sorteios: list[int] = cb.calc_topos_frequencia(self.concursos,
+                                                                         self.loteria.qtd_bolas,
+                                                                         qtd_topos)
+
         # contabiliza as frequencias das dezenas em todos os jogos considerados:
         frequencias_bolas: list[int] = cb.new_list_int(self.loteria.qtd_bolas)
         for jogo in self.jogos:
@@ -93,33 +100,18 @@ class AbstractBetting(AbstractProcess, ABC):
 
         # identifica a frequencia das dezenas em ordem reversa do numero de ocorrencias nos jogos:
         frequencias_dezenas: dict = cb.to_dict(frequencias_bolas, reverse_value=True)
-        top_dezenas_jogos: list[int] = cb.take_keys(frequencias_dezenas)  # aqui pega todas
-
-        # define os parametros para configurar o processamento de computacao de sorteios:
-        parms: dict[str: Any] = {  # aplica limites e/ou faixas de corte...
-            'qtd_bolas': self.loteria.qtd_bolas,
-            'qtd_bolas_sorteio': self.loteria.qtd_bolas_sorteio,
-            'qtd_jogos': self.loteria.qtd_jogos
-        }
-        # executa o processamento das dezenas mais ausentes:
-        cp_ausencia: ComputeAusencia = ComputeAusencia()
-        cp_ausencia.setup(parms)
-        cp_ausencia.execute(self.concursos)
-        # executa o processamento das dezenas mais frequentes:
-        cp_frequencia: ComputeFrequencia = ComputeFrequencia()
-        cp_frequencia.setup(parms)
-        cp_frequencia.execute(self.concursos)
+        topos_frequencias_jogos: list[int] = cb.take_keys(frequencias_dezenas)  # aqui pega todas
 
         # cria array complementar de dezenas a partir das 3 estatisticas distintas:
-        topos_dezenas: list[int] = cb.mergeListasDezenas(cp_ausencia.topos_dezenas,
-                                                         cp_frequencia.topos_dezenas,
-                                                         top_dezenas_jogos)
-        return topos_dezenas
+        topos_dezenas_jogos: list[int] = cb.merge_listas_dezenas(topos_ausencias_sorteios,
+                                                                 topos_frequencias_sorteios,
+                                                                 topos_frequencias_jogos)
+        return topos_dezenas_jogos
 
     def get_max_recorrencias(self,  bolao: dict[int: int], faixas: dict[int: int]) -> int:
         max_recorrencias: int = 0
 
-        # antes de gerar os jogos, calcula o maximo de recorrencias para o bolao a ser gerado:
+        # antes de gerar os jogos, identifica a faixa de recorrencias para o bolao a ser gerado:
         qtd_jogos_bolao: int = 0
         for qtd_dezenas, qtd_apostas in bolao.items():
             qtd_jogos_bolao += math.comb(qtd_dezenas, self.loteria.qtd_bolas_sorteio) * qtd_apostas
@@ -135,6 +127,15 @@ class AbstractBetting(AbstractProcess, ABC):
 
         return max_recorrencias
 
+    def check_concursos_passados(self, jogo: tuple[int, ...]) -> bool:
+        # percorre todos os concursos e verifica se o jogo nao repetiu algum sorteio:
+        for concurso in self.concursos:
+            if jogo == concurso.bolas:
+                return False
+
+        # se chegou ate o final, entao o jogo nao repetiu nenhum sorteio/concurso...
+        return True
+
     def sortear_jogo(self, max_recorrencias: int,
                      jogos_sorteados: list[tuple[int, ...]]) -> tuple[int, ...]:
         # os limites para geracao de numero aleatorio sao o minimo e maximo idx do array self.jogos:
@@ -146,12 +147,12 @@ class AbstractBetting(AbstractProcess, ABC):
         while True:
             # obtem um jogo qualquer, cujo indice eh gerado aleatoriamente:
             idx: int = random.randint(min_idx_jogos, max_idx_jogos)
-            print("random.randint : idx = ", idx)
 
-            # se o jogo sorteado repetir muitas dezenas de algum jogo sorteado, sorteia outro:
+            # se o jogo sorteado repetir muitas dezenas de algum jogo ja sorteado, sorteia outro:
             jogo_sorteado = self.jogos[idx]
-            # verifica se o jogo possui max-recorrencias com os outros jogos ja sorteados:
-            if cb.check_max_recorrencias(jogo_sorteado.dezenas, jogos_sorteados, max_recorrencias):
+            # o jogo não pode possuir recorrencias com os outros jogos ou concursos ja sorteados:
+            if cb.check_max_recorrencias(jogo_sorteado.dezenas, jogos_sorteados, max_recorrencias)\
+                    and self.check_concursos_passados(jogo_sorteado.dezenas):
                 break  # este jogo pode ser aproveitado
 
         return jogo_sorteado.dezenas

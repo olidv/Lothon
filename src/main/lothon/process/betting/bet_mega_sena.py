@@ -93,11 +93,13 @@ class BetMegaSena(AbstractBetting):
 
         # importa os jogos computados em jLothon para prosseguir com o processamento:
         self.jogos = self.importar_jogos()
+        qtd_jogos: int = len(self.jogos)
+        logger.debug(f"Foram importados  #{formatd(qtd_jogos)}  jogos computados da loteria "
+                     f"{self.loteria.nome_loteria}' de arquivo CSV.")
 
         # contabiliza as frequencias das dezenas em todos os jogos considerados:
-        logger.debug(
-            "Processando sorteios e jogos para computacao de frequencias e ausencias...")
-        topos_dezenas: list[int] = self.get_topos_dezenas()
+        logger.debug("Processando sorteios e jogos para computacao de frequencias e ausencias...")
+        topos_dezenas: list[int] = self.get_topos_dezenas_jogos(10)
 
         # antes de gerar os jogos, calcula o maximo de recorrencias para o bolao a ser gerado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
