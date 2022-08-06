@@ -80,7 +80,7 @@ class BetMegaSena(AbstractBetting):
             # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
             qtd_export: int = self.exportar_sorteios()
             logger.debug(f"Foram exportados #{formatd(qtd_export)} sorteios da loteria "
-                         f"{self.loteria.nome_loteria}' em arquivo CSV.")
+                         f"'{self.loteria.nome_loteria}' em arquivo CSV.")
 
             # executa rotina Java para processamento e geracao dos jogos computados:
             run_ok: bool = self.executar_jlothon()

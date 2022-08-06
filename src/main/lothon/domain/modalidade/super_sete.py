@@ -59,6 +59,7 @@ class SuperSete(Loteria):
         id_concurso: int = int(td[0].text)
         data_sorteio: date = parse_dmy(td[1].text)
 
+        # aqui nao pode ordenar as bolas:
         bolas: tuple[int, ...] = (int(td[2].text), int(td[3].text),
                                   int(td[4].text), int(td[5].text),
                                   int(td[6].text), int(td[7].text),

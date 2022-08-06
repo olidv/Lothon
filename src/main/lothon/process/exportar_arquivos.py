@@ -65,7 +65,7 @@ def run():
         # o local de gravacao dos arquivos ja foi padronizado na configuracao INI
         qtd_export: int = domain.export_sorteios(loteria)
         logger.debug(f"Foram exportados #{formatd(qtd_export)} sorteios da loteria "
-                     f"{loteria.nome_loteria}' em arquivo CSV.")
+                     f"'{loteria.nome_loteria}' em arquivo CSV.")
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)
