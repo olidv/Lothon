@@ -19,7 +19,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.domain import Loteria, Concurso, Mes
+from lothon.domain import Loteria, Concurso
 from lothon.process.betting.abstract_betting import AbstractBetting
 
 # ----------------------------------------------------------------------------
@@ -65,9 +65,10 @@ class BetDiaDeSorte(AbstractBetting):
 
         mes: int = 0
         for aposta in apostas:
-            mes += 1
-            mes_da_sorte: str = Mes.tag(mes)
-            aposta += (mes_da_sorte,)
+            mes = 1 if (mes == 0 or mes == 12) else (mes + 1)
+            # mes_da_sorte: str = Mes.tag(mes)
+            # aposta += (mes_da_sorte,)
+            aposta += (mes,)
             apostas_com_mes.append(aposta)
 
         return apostas_com_mes

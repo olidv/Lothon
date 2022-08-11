@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # combinacoes de boloes para todas as faixas vendidas pela caixa, para as loterias consideradas:
 boloes_diadesorte: dict[str: dict[int: int]] = {
-    "B01": {7: 2, 8: 2, 9: 1, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 1},
+    "B01": {7: 25, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B01": {7: 90, 8: 60, 9: 15, 10: 5, 11: 2, 12: 1, 13: 1, 14: 1, 15: 1},
     # "B02": {7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0},
     # "B03": {7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0, 14: 0, 15: 0}
@@ -79,10 +79,10 @@ def run():
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
         "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
-        "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
-        "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
-        "quina": BetQuina(domain.get_quina()),                   #
-        "megasena": BetMegaSena(domain.get_mega_sena())          #
+        # "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
+        # "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
+        # "quina": BetQuina(domain.get_quina()),                   #
+        # "megasena": BetMegaSena(domain.get_mega_sena())          #
     }
     loterias_boloes: dict[str: dict] = {
         "diadesorte": boloes_diadesorte,
