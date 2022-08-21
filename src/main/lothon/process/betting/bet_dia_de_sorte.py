@@ -19,6 +19,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso
 from lothon.process.betting.abstract_betting import AbstractBetting
 
@@ -50,25 +51,41 @@ class BetDiaDeSorte(AbstractBetting):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ()
+    __slots__ = ('loteria_mes', 'concursos_mes', 'meses')
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, loteria: Loteria):
-        super().__init__("Geracao de Jogos para 'Dia de Sorte'", loteria)
+    def __init__(self, loteria1: Loteria, loteria2: Loteria):
+        super().__init__("Geracao de Jogos para 'Dia de Sorte'", loteria1)
+
+        # mantem as informacoes da loteria secundaria mes da sorte:
+        self.loteria_mes: Loteria = loteria2
+        self.concursos_mes: list[Concurso] = loteria2.concursos
+        self.meses: list[int] = []
 
     # --- METODOS HELPERS ----------------------------------------------------
 
-    @classmethod
-    def add_mes_da_sorte(cls, apostas: list[tuple[int, ...]]) -> list[tuple]:
+    def compute_meses_sorteados(self) -> list[int]:
+        # extrai o ranking dos meses a partir dos topos de frequencias e ausencias nos concursos:
+        meses_frequentes: list[int] = cb.calc_topos_frequencia(self.concursos_mes,
+                                                               self.loteria_mes.qtd_bolas,
+                                                               self.loteria_mes.qtd_bolas)
+        meses_ausentes: list[int] = cb.calc_topos_ausencia(self.concursos_mes,
+                                                           self.loteria_mes.qtd_bolas,
+                                                           self.loteria_mes.qtd_bolas)
+
+        meses_computados: list[int] = cb.merge_topos(meses_frequentes, meses_ausentes)
+        return meses_computados
+
+    def add_mes_da_sorte(self, apostas: list[tuple[int, ...]]) -> list[tuple]:
         apostas_com_mes: list[tuple] = []
 
-        mes: int = 0
+        last_idx: int = len(self.meses) - 1  # idx_mes vai circular entre 0 ... 11
+        idx_mes: int = last_idx
         for aposta in apostas:
-            mes = 1 if (mes == 0 or mes == 12) else (mes + 1)
-            # mes_da_sorte: str = Mes.tag(mes)
-            # aposta += (mes_da_sorte,)
-            aposta += (mes,)
+            idx_mes = 0 if (idx_mes == last_idx) else (idx_mes + 1)
+            mes_da_sorte: int = self.meses[idx_mes]
+            aposta += (mes_da_sorte,)  # mes no formato numerico (1 ... 12)
             apostas_com_mes.append(aposta)
 
         return apostas_com_mes
@@ -86,9 +103,10 @@ class BetDiaDeSorte(AbstractBetting):
                 return []
         _startWatch = startwatch()
 
-        # se ainda nao existe o arquivo com os jogos computados, entao inicia o processo externo:
+        # verifica se os concursos ja foram computados e gerou arquivo com jogos computados:
         if self.existe_jogos_computados():
             logger.debug("Arquivo com jogos computados ja existe. Processo externo ignorado.")
+        # se ainda nao existe o arquivo com os jogos computados, entao inicia o processo externo:
         else:
             logger.debug("Arquivo com jogos computados nao encontrado. Iniciando processo externo.")
             # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
@@ -119,7 +137,14 @@ class BetDiaDeSorte(AbstractBetting):
         max_recorrencias: int = self.get_max_recorrencias(bolao, FAIXAS_RECORRENCIAS)
         logger.info(f"Vai utilizar como maximo de recorrencias a faixa  {max_recorrencias}.")
 
+        # com as dezenas sorteadas ja computadas e organizadas, agora processa os meses da sorte:
+        logger.debug("Executando computacao dos sorteios do Mes da Sorte...")
+        self.meses = self.compute_meses_sorteados()
+        logger.debug(f"Ranking dos meses da sorte conforme frequencias e ausencias:\n"
+                     f"\t{self.meses}")
+
         # inicia a geracao do bolao, sorteando jogos para as apostas:
+        logger.debug(f"Iniciando a geracao do bolao para loteria DIA-DE-SORTE...")
         apostas_sorteadas: list[tuple[int, ...]] = []  # aqui estao as apostas
         jogos_bolao: list[tuple[int, ...]] = []  # aqui estao todas as combinacoes das apostas
         # utiliza os topos acumulados (merge) para complementar os jogos com mais dezenas:

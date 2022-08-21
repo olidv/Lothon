@@ -27,6 +27,7 @@ from lothon import domain
 from lothon.domain import Loteria
 from lothon.process import analyze
 from lothon.process.analyze.abstract_analyze import AbstractAnalyze
+from lothon.process.analyze.analise_unitario import AnaliseUnitario
 
 
 # ----------------------------------------------------------------------------
@@ -55,11 +56,10 @@ def run():
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
         "diadesorte": domain.get_dia_de_sorte(),  #
-        # "mesdasorte": domain.get_mes_da_sorte(),  #
-        "lotofacil": domain.get_lotofacil(),      #
-        "duplasena": domain.get_dupla_sena(),     #
-        "quina": domain.get_quina(),              #
-        "megasena": domain.get_mega_sena()        #
+        # "lotofacil": domain.get_lotofacil(),      #
+        # "duplasena": domain.get_dupla_sena(),     #
+        # "quina": domain.get_quina(),              #
+        # "megasena": domain.get_mega_sena()        #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
@@ -81,6 +81,16 @@ def run():
             #  executa a analise para cada loteria:
             logger.debug(f"Processo '{proc.id_process}': executando analise da loteria '{key}'.")
             proc.execute(loteria)
+
+    # analise executada apenas para os sorteios secundarios: Mes da Sorte e Time do Coracao.
+    mesdasorte: Loteria = domain.get_mes_da_sorte()
+    analise_unitaria: AbstractAnalyze = AnaliseUnitario()
+    # configuracao de parametros para os processamentos:
+    logger.debug(f"processo '{analise_unitaria.id_process}': inicializando configuracao.")
+    analise_unitaria.setup(options)
+    logger.debug(f"Processo '{analise_unitaria.id_process}': executando analise da "
+                 f"loteria 'mesdasorte'.")
+    analise_unitaria.execute(mesdasorte)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)

@@ -412,7 +412,8 @@ def check_max_recorrencias(bolas: tuple[int, ...], jogos: list[tuple[int, ...]],
     return qtd_max_recorrencias <= limite_recorrencias
 
 
-def calc_topos_frequencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: int) -> list[int]:
+def calc_topos_frequencia(concursos: list[Concurso], qtd_bolas: int,
+                          qtd_topos: int = None) -> list[int]:
     # extrai as frequencias de todas as bolas ate o concurso atual:
     frequencias_concursos: list[int] = new_list_int(qtd_bolas)
     for concurso in concursos:
@@ -428,7 +429,8 @@ def calc_topos_frequencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: 
     return list_topos
 
 
-def calc_topos_ausencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: int) -> list[int]:
+def calc_topos_ausencia(concursos: list[Concurso], qtd_bolas: int,
+                        qtd_topos: int = None) -> list[int]:
     # contabiliza o numero de concursos em que cada dezena ficou ausente ate ser sorteada:
     ausencias_concursos: list[int] = new_list_int(qtd_bolas, -1)
     qtd_concursos: int = 0
@@ -449,6 +451,52 @@ def calc_topos_ausencia(concursos: list[Concurso], qtd_bolas: int, qtd_topos: in
     # extrai o topo do ranking com as dezenas com maior ausencia e retorna:
     list_topos: list[int] = take_keys(ausencias_dezenas, qtd_topos)
     return list_topos
+
+
+def merge_topos(topos1: list[int], topos2: list[int]) -> list[int]:
+    # valida os parametros:
+    if topos1 is None or len(topos1) == 0 or topos2 is None or len(topos2) == 0:
+        return []
+
+    # cria nova lista com todos os elementos das listas fornecidas:
+    len1: int = len(topos1)
+    len2: int = len(topos2)
+    len_mix: int = len1 + len2
+
+    # agrega ambas listas em uma unica para processar o merge entre elas:
+    mix_topos: list[int | None] = []
+    idx1: int = 0
+    idx2: int = 0
+    for _ in range(0, len_mix):
+        if idx1 < len1:
+            mix_topos.append(topos1[idx1])
+            idx1 += 1
+
+        if idx2 < len2:
+            mix_topos.append(topos2[idx2])
+            idx2 += 1
+
+    # o numero final de elementos sera o tamanho da maior lista entre os topos:
+    len_merge: int = max(len1, len2)
+    merge: list[int] = []
+    for _ in range(0, len_merge):
+        for i, value in enumerate(mix_topos):
+            if value is None:
+                continue
+
+            idx: int = mix_topos.index(value)
+            if idx < i:
+                merge.append(value)
+                mix_topos[i] = None
+                mix_topos[idx] = None
+                continue
+
+    # se ficou algum numero sem duplicacao, entao adiciona ao final da lista merge:
+    for i, value in enumerate(mix_topos):
+        if value is not None:
+            merge.append(value)
+
+    return merge
 
 
 def count_pares(bolas: tuple[int, ...]) -> int:

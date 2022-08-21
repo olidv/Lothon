@@ -59,7 +59,7 @@ class MesDaSorte(Loteria):
             raise ValueError(f"*** ATENCAO: MES-DA-SORTE NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {mes} ***")
 
-        bolas: tuple[int, ...] = (app_config.MAP_MESES[mes])
+        bolas: tuple[int, ...] = (app_config.MAP_MESES[mes],)
 
         premios: dict[int, Premio] = {1: Premio(1, int(td[15].text), parse_money(td[20].text))}
 

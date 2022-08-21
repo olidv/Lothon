@@ -78,7 +78,7 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
-        "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),  #
+        "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte(), domain.get_mes_da_sorte()),  #
         # "lotofacil": BetLotofacil(domain.get_lotofacil()),       #
         # "duplasena": BetDuplaSena(domain.get_dupla_sena()),      #
         # "quina": BetQuina(domain.get_quina()),                   #
