@@ -1,7 +1,8 @@
 
+--- PENDENTE --------------------------------------------------------
 
---- OK --------------------------------------------------------------
-
+Implementar rotinas de geração de palpites e bolões para as loterias "computadas" em Java.
+    Criar jobs no Infinite para gerar os palpites todos os dias.
 
 Adotar "async def" nos métodos de jobs.
 
@@ -25,5 +26,8 @@ Apos a aplicação atingir maturidade, desligar o logging dos frameworks.
         level: ERROR
       urllib3:
         level: ERROR
+
+
+--- OK --------------------------------------------------------------
 
 ---------------------------------------------------------------------
