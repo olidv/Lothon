@@ -1,8 +1,10 @@
 
 --- PENDENTE --------------------------------------------------------
 
-Implementar rotinas de geração de palpites e bolões para as loterias "computadas" em Java.
-    Criar jobs no Infinite para gerar os palpites todos os dias.
+Implementar rotinas de geração de palpites e bolões para todas as loterias "computadas" em Java.
+    Gerar 100 palpites de jogos para todas as loterias em arquivo TXT formatado.
+    Adicionar rotina para efetuar upload dos arquivos para o Google Drive.
+    Implementar geração de imagem JPG com palpites para compatilhar nas redes sociais.
 
 Adotar "async def" nos métodos de jobs.
 
@@ -10,8 +12,6 @@ Adotar "async def" nos métodos de jobs.
 
 Buscar informações sobre os clubes de loterias/investidores nos USA
     Verificar se é empresa, como é feito, legalidade, se pode usar no Brasil.
-    Para efeito de marketing é bom falar que é clube de apostadores:
-        VENHA PARA O CLUBE! ENTRE PARA O CLUBE!
 
 Verificar se tem algum serviço ou API gratuito para geração de voz para gerar áudio com resultado das loterias e enviar nas redes sociais / chats.
     Resultado, dezenas, premiação, etc.
