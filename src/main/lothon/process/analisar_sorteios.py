@@ -61,14 +61,15 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
-        "diadesorte": domain.get_dia_de_sorte(),  #
-        "lotofacil": domain.get_lotofacil(),      #
-        "duplasena": domain.get_dupla_sena(),     #
-        "quina": domain.get_quina(),              #
-        "megasena": domain.get_mega_sena(),       #
-        "timemania": domain.get_timemania(),      #
-        "lotomania": domain.get_lotomania(),      #
-        "supersete": domain.get_super_sete()      #
+        "diadesorte": domain.get_dia_de_sorte(),         #
+        "duplasena": domain.get_dupla_sena(),            #
+        "lotofacil": domain.get_lotofacil(),             #
+        "lotomania": domain.get_lotomania(),             #
+        "quina": domain.get_quina(),                     #
+        "maismilionaria": domain.get_mais_milionaria(),  #
+        "megasena": domain.get_mega_sena(),              #
+        "supersete": domain.get_super_sete(),            #
+        "timemania": domain.get_timemania(),             #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
@@ -99,15 +100,24 @@ def run():
     # --- ANALISE DO SORTEIO SECUNDARIO --------------------------------------
 
     if EXEC_ANALISE_SORTEIO_SECUNDARIO:
-        # analise executada apenas para os sorteios secundarios: Mes da Sorte e Time do Coracao.
-        mesdasorte: Loteria = domain.get_mes_da_sorte()
+        # analise dos sorteios secundarios: Mes da Sorte, Time do Coracao, Trevo Duplo.
+        sorteios_secundarios: dict[str: Loteria] = {
+            "mesdasorte": domain.get_mes_da_sorte(),        #
+            "timedocoracao": domain.get_time_do_coracao(),  #
+            "trevoduplo": domain.get_trevo_duplo()          #
+        }
+
+        # configura o processo de analise antes, mas apenas uma unica vez para todas as loterias:
         analise_unitaria: AnaliseUnitario = AnaliseUnitario()
-        # configuracao de parametros para os processamentos:
         logger.debug(f"processo '{analise_unitaria.id_process}': inicializando configuracao.")
         analise_unitaria.setup(options)
-        logger.debug(f"Processo '{analise_unitaria.id_process}': executando analise da "
-                     f"loteria 'mesdasorte'.")
-        analise_unitaria.execute(mesdasorte)
+
+        logger.debug("Vai executar o processo de analise unica para os sorteios secundarios...")
+        for key, loteria in sorteios_secundarios.items():
+            #  executa a analise para cada loteria:
+            logger.debug(f"Processo '{analise_unitaria.id_process}': "
+                         f"executando analise unica do sorteio secundario '{key}'.")
+            analise_unitaria.execute(loteria)
 
     # --- ANALISE GERAL DAS LOTERIAS -----------------------------------------
 

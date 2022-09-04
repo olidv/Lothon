@@ -7,9 +7,10 @@
 __all__ = [
     'AbstractBetting',
     'BetDiaDeSorte',
-    'BetLotofacil',
     'BetDuplaSena',
+    'BetLotofacil',
     'BetQuina',
+    'BetMaisMilionaria',
     'BetMegaSena'
 ]
 
@@ -25,6 +26,7 @@ from lothon.process.betting.bet_dia_de_sorte import BetDiaDeSorte
 from lothon.process.betting.bet_lotofacil import BetLotofacil
 from lothon.process.betting.bet_dupla_sena import BetDuplaSena
 from lothon.process.betting.bet_quina import BetQuina
+from lothon.process.betting.bet_mais_milionaria import BetMaisMilionaria
 from lothon.process.betting.bet_mega_sena import BetMegaSena
 
 

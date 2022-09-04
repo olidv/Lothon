@@ -15,6 +15,7 @@ __all__ = [
     'Jogo',
     'Mes',
     'Clube',
+    'Trevo',
     'SerieSorteio',
     'get_dia_de_sorte',
     'get_dupla_sena',
@@ -47,6 +48,7 @@ from .basico.dezena import Dezena
 from .basico.jogo import Jogo
 from .basico.mes import Mes
 from .basico.clube import Clube
+from .basico.trevo import Trevo
 from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
 from .sorteio.serie_sorteio import SerieSorteio
@@ -57,12 +59,14 @@ from .modalidade.dia_de_sorte import DiaDeSorte
 from .modalidade.dupla_sena import DuplaSena
 from .modalidade.lotofacil import Lotofacil
 from .modalidade.lotomania import Lotomania
+from .modalidade.mais_milionaria import MaisMilionaria
 from .modalidade.mega_sena import MegaSena
 from .modalidade.mes_da_sorte import MesDaSorte
 from .modalidade.quina import Quina
 from .modalidade.super_sete import SuperSete
 from .modalidade.time_do_coracao import TimeDoCoracao
 from .modalidade.timemania import Timemania
+from .modalidade.trevo_duplo import TrevoDuplo
 from .bilhete.cota import Cota
 from .bilhete.volante import Volante
 from .bilhete.bolao import Bolao
@@ -119,15 +123,17 @@ def export_boloes(nome_loteria: str, id_bolao: str, jogos: list[tuple]) -> int:
 # ----------------------------------------------------------------------------
 
 _dia_de_sorte: Optional[DiaDeSorte] = None
-_lotofacil: Optional[Lotofacil] = None
 _dupla_sena: Optional[DuplaSena] = None
+_lotofacil: Optional[Lotofacil] = None
+_lotomania: Optional[Lotomania] = None
 _quina: Optional[Quina] = None
+_mais_milionaria: Optional[MaisMilionaria] = None
 _mega_sena: Optional[MegaSena] = None
 _super_sete: Optional[SuperSete] = None
-_lotomania: Optional[Lotomania] = None
 _timemania: Optional[Timemania] = None
 _mes_da_sorte: Optional[MesDaSorte] = None
 _time_do_coracao: Optional[TimeDoCoracao] = None
+_trevo_duplo: Optional[TrevoDuplo] = None
 
 
 def get_dia_de_sorte() -> DiaDeSorte:
@@ -142,18 +148,6 @@ def get_dia_de_sorte() -> DiaDeSorte:
     return _dia_de_sorte
 
 
-def get_lotofacil() -> Lotofacil:
-    global _lotofacil
-    # se ainda nao inicializou a variavel de instancia, entao procede:
-    if _lotofacil is None:
-        tupla_loteria = get_tuple_loteria("lotofacil")
-        _lotofacil = Lotofacil.from_tuple(tupla_loteria)
-        # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
-        parser_resultados.parse_concursos_loteria(_lotofacil)
-
-    return _lotofacil
-
-
 def get_dupla_sena() -> DuplaSena:
     global _dupla_sena
     # se ainda nao inicializou a variavel de instancia, entao procede:
@@ -166,6 +160,30 @@ def get_dupla_sena() -> DuplaSena:
     return _dupla_sena
 
 
+def get_lotofacil() -> Lotofacil:
+    global _lotofacil
+    # se ainda nao inicializou a variavel de instancia, entao procede:
+    if _lotofacil is None:
+        tupla_loteria = get_tuple_loteria("lotofacil")
+        _lotofacil = Lotofacil.from_tuple(tupla_loteria)
+        # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
+        parser_resultados.parse_concursos_loteria(_lotofacil)
+
+    return _lotofacil
+
+
+def get_lotomania() -> Lotomania:
+    global _lotomania
+    # se ainda nao inicializou a variavel de instancia, entao procede:
+    if _lotomania is None:
+        tupla_loteria = get_tuple_loteria("lotomania")
+        _lotomania = Lotomania.from_tuple(tupla_loteria)
+        # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
+        parser_resultados.parse_concursos_loteria(_lotomania)
+
+    return _lotomania
+
+
 def get_quina() -> Quina:
     global _quina
     # se ainda nao inicializou a variavel de instancia, entao procede:
@@ -176,6 +194,17 @@ def get_quina() -> Quina:
         parser_resultados.parse_concursos_loteria(_quina)
 
     return _quina
+
+
+def get_mais_milionaria() -> MaisMilionaria:
+    global _mais_milionaria
+    # se ainda nao inicializou a variavel de instancia, entao procede:
+    if _mais_milionaria is None:
+        tupla_loteria = get_tuple_loteria("maismilionaria")
+        # ja vai efetuar carga dos concursos de forma programatica (hard-coded):
+        _mais_milionaria = MaisMilionaria.from_tuple(tupla_loteria)
+
+    return _mais_milionaria
 
 
 def get_mega_sena() -> MegaSena:
@@ -200,18 +229,6 @@ def get_super_sete() -> SuperSete:
         parser_resultados.parse_concursos_loteria(_super_sete)
 
     return _super_sete
-
-
-def get_lotomania() -> Lotomania:
-    global _lotomania
-    # se ainda nao inicializou a variavel de instancia, entao procede:
-    if _lotomania is None:
-        tupla_loteria = get_tuple_loteria("lotomania")
-        _lotomania = Lotomania.from_tuple(tupla_loteria)
-        # ja efetua leitura dos arquivos HTML com resultados dos sorteios desta loteria:
-        parser_resultados.parse_concursos_loteria(_lotomania)
-
-    return _lotomania
 
 
 def get_timemania() -> Timemania:
@@ -248,5 +265,16 @@ def get_time_do_coracao() -> TimeDoCoracao:
         parser_resultados.parse_concursos_loteria(_time_do_coracao)
 
     return _time_do_coracao
+
+
+def get_trevo_duplo() -> TrevoDuplo:
+    global _trevo_duplo
+    # se ainda nao inicializou a variavel de instancia, entao procede:
+    if _trevo_duplo is None:
+        tupla_loteria = get_tuple_loteria("trevoduplo")
+        # ja vai efetuar carga dos concursos de forma programatica (hard-coded):
+        _trevo_duplo = TrevoDuplo.from_tuple(tupla_loteria)
+
+    return _trevo_duplo
 
 # ----------------------------------------------------------------------------
