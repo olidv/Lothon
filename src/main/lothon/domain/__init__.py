@@ -14,6 +14,7 @@ __all__ = [
     'Bola',
     'Jogo',
     'Mes',
+    'Clube',
     'SerieSorteio',
     'get_dia_de_sorte',
     'get_dupla_sena',
@@ -45,6 +46,7 @@ from lothon.infra import parser_resultados
 from .basico.dezena import Dezena
 from .basico.jogo import Jogo
 from .basico.mes import Mes
+from .basico.clube import Clube
 from .basico.estrutura import LoteriaStruct
 from .sorteio.bola import Bola
 from .sorteio.serie_sorteio import SerieSorteio

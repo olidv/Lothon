@@ -72,7 +72,7 @@ class ComputePremiacao(AbstractCompute):
         for concurso in concursos:
             # verifica se houve ganhador na premiacao principal:
             if concurso.get_ganhadores_premio(self.qtd_bolas_sorteio) > 0:
-                self.frequencia_premiacoes.add_sorteio(concurso.id_concurso)
+                self.frequencia_premiacoes.add_sorteio(concurso.id_concurso, True)
 
         # registra o ultimo concurso para contabilizar os atrasos ainda nao fechados:
         ultimo_concurso: Concurso = concursos[-1]

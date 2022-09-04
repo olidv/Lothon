@@ -44,6 +44,8 @@ class Concurso:
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __post_init__(self):
+        # as dezenas sorteadas sempre estarao ordenadas (ascendente):
+        object.__setattr__(self, 'bolas', tuple(sorted(self.bolas)))
         object.__setattr__(self, 'sort_index', self.id_concurso)
 
     # --- METODOS ------------------------------------------------------------

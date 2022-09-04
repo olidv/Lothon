@@ -15,6 +15,7 @@ __all__ = [
 
 # Built-in/Generic modules
 import logging
+import itertools as itt
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -73,6 +74,13 @@ boloes_megasena: dict[str: dict[int: int]] = {
 def run():
     _startWatch = startwatch()
     logger.info("Iniciando a geracao de boloes de apostas para as loterias...")
+
+    range_trevos: range = range(1, 6 + 1)
+    for jogo in itt.combinations(range_trevos, 2):
+        print(jogo)
+
+    if True is not None:
+        return
 
     # relacao de instancias das loterias da caixa e boloes para processamento
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")

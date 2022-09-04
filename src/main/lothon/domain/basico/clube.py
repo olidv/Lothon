@@ -1,11 +1,11 @@
 """
    Package lothon.domain.basico
-   Module  time.py
+   Module  clube.py
 
 """
 
 __all__ = [
-    'Time'
+    'Clube'
 ]
 
 # ----------------------------------------------------------------------------
@@ -24,7 +24,7 @@ from lothon.conf import app_config
 # CLASSE ENUMERACAO
 # ----------------------------------------------------------------------------
 
-class Time(Enum):
+class Clube(Enum):
     """
     Implementacao de classe para .
     """
@@ -118,10 +118,10 @@ class Time(Enum):
         if value is not None:
             value = value.strip().lower()
 
-        if value in app_config.MAP_TIMES.keys():
-            numero = app_config.MAP_TIMES[value]
-            return Time(numero)
+        if value in app_config.MAP_CLUBES.keys():
+            numero = app_config.MAP_CLUBES[value]
+            return Clube(numero)
         else:
-            raise ValueError(f"Valor invalido para criar instancia de Time: {value}.")
+            raise ValueError(f"Valor invalido para criar instancia de Clube: {value}.")
 
     # ----------------------------------------------------------------------------
