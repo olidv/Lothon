@@ -91,8 +91,12 @@ class AnalisePremiacao(AbstractAnalyze):
                                                      key=lambda item: item[1])}
 
         # vai printar as frequencias e atrasos das premiacoes maximas em todos os sorteios:
-        output: str = f"\n\t LOTERIA          #CONCURSOS      #PREMIADOS   ULTIMO   MEDIA      "\
-                      f"#ATRASOS   ULTIMO   MAIOR   MEDIA\n"
+        output: str = f"\n ------------------------------------------------------------------" \
+                      f"---------------------------------" \
+                      f"\n LOTERIA          #CONCURSOS      #PREMIADOS   ULTIMO   MEDIA      " \
+                      f"#ATRASOS   ULTIMO   MAIOR   MEDIA" \
+                      f"\n ------------------------------------------------------------------" \
+                      f"---------------------------------"
         for idlot, media_premiacoes in medias_premiacoes.items():
             # identifica informacoes da loteria:
             nmlot: str = loterias[idlot].nome_loteria
@@ -101,7 +105,7 @@ class AnalisePremiacao(AbstractAnalyze):
             serie = frequencias_premiacoes[idlot]
 
             # formata para impressao os resultados da loteria corrente:
-            output += f"\n\t {nmlot:17}     " \
+            output += f"\n {nmlot:17}     " \
                       f"{formatd(qtd_concursos,5)}           " \
                       f"{formatd(serie.len_sorteios,5)}    " \
                       f"{formatd(serie.ultimo_sorteio,5)}   " \
