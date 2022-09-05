@@ -18,11 +18,11 @@ cd /d C:\Apps\B3\Lothon
 echo.
 
 echo Limpando as pastas temporarias da aplicacao
-del /f /q logs\*.*          1>nul  2>&1
-del /f /q data\bolao\*.*    1>nul  2>&1
-del /f /q data\cache\*.*    1>nul  2>&1
-del /f /q data\caixa\*.*    1>nul  2>&1
-del /f /q data\palpite\*.*  1>nul  2>&1
+rem del /f /q logs\*.*        1>nul  2>&1
+rem del /f /q data\caixa\*.*  1>nul  2>&1
+del /f /q data\bolao\*.*      1>nul  2>&1
+del /f /q data\cache\D_*.csv  1>nul  2>&1
+del /f /q data\palpite\*.*    1>nul  2>&1
 echo.
 
 echo Posicionando no diretorio do projeto
@@ -31,7 +31,8 @@ echo.
 
 echo Copiando os arquivos do projeto
 xcopy dist\*.* C:\Apps\B3\Lothon  /E /C /Q /H /R /Y
-copy /y data\caixa\*.* C:\Apps\B3\Lothon\data\caixa
+rem copy /y data\cache\*.* C:\Apps\B3\Lothon\data\cache
+rem copy /y data\caixa\*.* C:\Apps\B3\Lothon\data\caixa
 echo.
 
 rem Pausa final...

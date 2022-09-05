@@ -57,11 +57,11 @@ class TimeDoCoracao(Loteria):
         time = strip_accents(td[9].text.strip().lower().replace(" /", "/")
                                                        .replace("/ ", "/")
                                                        .replace("  ", " "))
-        if time not in app_config.MAP_TIMES.keys():
+        if time not in app_config.MAP_CLUBES.keys():
             raise ValueError(f"*** ATENCAO: TIME-DO-CORACAO NAO IDENTIFICADO "
                              f"NO CONCURSO {td[0].text}: {time} ***")
 
-        bolas: tuple[int, ...] = (app_config.MAP_TIMES[time],)
+        bolas: tuple[int, ...] = (app_config.MAP_CLUBES[time],)
 
         premios: dict[int, Premio] = {1: Premio(1, int(td[17].text), parse_money(td[23].text))}
 

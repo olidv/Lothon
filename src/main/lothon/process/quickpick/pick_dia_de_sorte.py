@@ -29,8 +29,8 @@ from lothon.process.quickpick.abstract_quickpick import AbstractQuickPick
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# faixas de limites de recorrencias especificas para esta loteria:
-FAIXAS_RECORRENCIAS: dict[int: int] = {0: 3, 1: 6, 2: 39, 3: 271, 4: 2.939}
+# limite de recorrencias especificas para esta loteria:
+FAIXA_RECORRENCIAS: int = 3
 
 
 # ----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ class PickDiaDeSorte(AbstractQuickPick):
 
         # antes de gerar os palpites, calcula o maximo de recorrencias para cada jogo sorteado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
-        max_recorrencias: int = self.get_max_recorrencias(qtd_palpites, FAIXAS_RECORRENCIAS)
+        max_recorrencias: int = FAIXA_RECORRENCIAS
         logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
                     f"{max_recorrencias}.")
 
@@ -153,8 +153,7 @@ class PickDiaDeSorte(AbstractQuickPick):
 
         # com os palpites formatados ja em string, adiciona o mes da sorte (tambem string):
         palpites_com_mes: list[tuple[str, ...]] = self.add_mes_da_sorte(palpites)
-        logger.debug(f"{nmlot}: Finalizada a geracao dos palpites para a loteria: \n"
-                     f"{palpites_com_mes}")
+        logger.debug(f"{nmlot}: Finalizada a geracao de  {qtd_palpites}  palpites para a loteria.")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

@@ -66,7 +66,7 @@ class CheckBolao(AbstractCheckup):
     def get_arquivos_boloes(cls, nmlot: str) -> list[str] | None:
         # verifica a presenca de arquivos CSV com jogos de boloes:
         bolao_path: str = app_config.DS_bolao_path
-        bolao_mask: str = app_config.BA_bolao_csv_mask.format(nmlot)
+        bolao_mask: str = app_config.AP_bolao_csv_mask.format(nmlot)
         logger.debug(f"{nmlot}: Verificando a presenca de arquivos de boloes em '{bolao_path}' "
                      f"utilizando a mascara '{bolao_mask}'.")
 
@@ -84,7 +84,7 @@ class CheckBolao(AbstractCheckup):
     def get_arquivo_resultado(cls, nmlot: str, dt_bolao: str) -> str | None:
         # verifica a presenca de arquivos CSV com resultados da loteria:
         caixa_path: str = app_config.DS_caixa_path
-        resultado_mask: str = app_config.BA_resultado_csv_name.format(nmlot, dt_bolao)
+        resultado_mask: str = app_config.AP_resultado_csv_name.format(nmlot, dt_bolao)
         logger.debug(f"{nmlot}: Verificando a presenca de arquivos de resultados em "
                      f"'{caixa_path}' utilizando a mascara '{resultado_mask}'.")
 
@@ -212,7 +212,7 @@ class CheckBolao(AbstractCheckup):
             return -1
 
         # busca todos os arquivos na pasta de boloes (\data) para conferencia:
-        date_mask: str = app_config.BA_bolao_csv_name[-12:-4]
+        date_mask: str = app_config.AP_bolao_csv_name[-12:-4]
         for bolao_path in bolao_contents:
             # a partir do nome do arquivo CSV, obtem o id e data do bolao:
             file_csv: str = os.path.basename(bolao_path)

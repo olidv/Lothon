@@ -30,7 +30,7 @@ from lothon.process.quickpick.abstract_quickpick import AbstractQuickPick
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# faixas de limites de recorrencias especificas para esta loteria:
+# limite de recorrencias especificas para esta loteria:
 FAIXA_RECORRENCIAS: int = 6
 
 
@@ -101,8 +101,7 @@ class PickSuperSete(AbstractQuickPick):
             palpites.append(jogo_sorteado)
 
         # com os jogos gerados, esta loteria nao formata as dezenas em 2 digitos:
-        logger.debug(f"{nmlot}: Finalizada a geracao dos palpites para a loteria: \n"
-                     f"{palpites}")
+        logger.debug(f"{nmlot}: Finalizada a geracao de  {qtd_palpites}  palpites para a loteria.")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
