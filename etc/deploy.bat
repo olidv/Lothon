@@ -18,10 +18,11 @@ cd /d C:\Apps\B3\Lothon
 echo.
 
 echo Limpando as pastas temporarias da aplicacao
-del /f /q logs\*.*        1>nul  2>&1
-del /f /q data\bolao\*.*  1>nul  2>&1
-del /f /q data\cache\*.*  1>nul  2>&1
-del /f /q data\caixa\*.*  1>nul  2>&1
+del /f /q logs\*.*          1>nul  2>&1
+del /f /q data\bolao\*.*    1>nul  2>&1
+del /f /q data\cache\*.*    1>nul  2>&1
+del /f /q data\caixa\*.*    1>nul  2>&1
+del /f /q data\palpite\*.*  1>nul  2>&1
 echo.
 
 echo Posicionando no diretorio do projeto

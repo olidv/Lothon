@@ -66,4 +66,24 @@ class Trevo(Enum):
 
         return app_config.TAG_TREVOS[(value - 1) % 15]
 
+    @staticmethod
+    def pair(value: int) -> tuple[int, ...]:
+        if value == 0 or value is None:
+            value = 1
+
+        tag_trevos: str = app_config.TAG_TREVOS[(value - 1) % 15]
+        list_trevos: list[int] = [int(t) for t in tag_trevos.split(' ')]
+
+        return tuple(list_trevos)
+
+    @staticmethod
+    def str_pair(value: int) -> tuple[str, ...]:
+        if value == 0 or value is None:
+            value = 1
+
+        tag_trevos: str = app_config.TAG_TREVOS[(value - 1) % 15]
+        list_trevos: list[str] = [t for t in tag_trevos.split(' ')]
+
+        return tuple(list_trevos)
+
     # ----------------------------------------------------------------------------

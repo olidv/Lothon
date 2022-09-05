@@ -49,6 +49,7 @@ class AppConfig:
     RT_jlothon_batch: str = ''
 
     # Parametrizacao dos arquivos de dados para leitura e exportacao:
+    DS_palpites_path: str = ''
     DS_bolao_path: str = ''
     DS_cache_path: str = ''
     DS_caixa_path: str = ''
@@ -61,10 +62,11 @@ class AppConfig:
     LC_loteria_htm_name: str = ''
     LC_table_class_find: str = ''
 
-    # Parametrizacao para geracao de boloes de apostas:
-    BA_bolao_csv_name: str = ''
-    BA_resultado_csv_name: str = ''
-    BA_bolao_csv_mask: str = ''
+    # Parametrizacao para geracao de palpites e boloes de apostas:
+    AP_palpites_csv_name: str = ''
+    AP_bolao_csv_name: str = ''
+    AP_resultado_csv_name: str = ''
+    AP_bolao_csv_mask: str = ''
 
     # efetua a carga das propriedades a partir do arquivo INI.
     def load_properties(self, parser: ConfigParser):
@@ -88,6 +90,7 @@ class AppConfig:
         self.RT_jlothon_batch = parser.get("ROOT", "jlothon_batch")
 
         # Parametrizacao dos arquivos de dados para leitura e exportacao:
+        self.DS_palpites_path = parser.get("DADOS", "palpites_path")
         self.DS_bolao_path = parser.get("DADOS", "bolao_path")
         self.DS_cache_path = parser.get("DADOS", "cache_path")
         self.DS_caixa_path = parser.get("DADOS", "caixa_path")
@@ -103,9 +106,10 @@ class AppConfig:
         self.LC_loterias_caixa = [tuple(jogo.strip().split(';')) for jogo in loterias]
 
         # Parametrizacao para geracao de boloes de apostas:
-        self.BA_bolao_csv_name = parser.get("BOLAO_APOSTA", "bolao_csv_name")
-        self.BA_resultado_csv_name = parser.get("BOLAO_APOSTA", "resultado_csv_name")
-        self.BA_bolao_csv_mask = parser.get("BOLAO_APOSTA", "bolao_csv_mask")
+        self.AP_palpites_csv_name = parser.get("APOSTAS", "palpites_csv_name")
+        self.AP_bolao_csv_name = parser.get("APOSTAS", "bolao_csv_name")
+        self.AP_resultado_csv_name = parser.get("APOSTAS", "resultado_csv_name")
+        self.AP_bolao_csv_mask = parser.get("APOSTAS", "bolao_csv_mask")
 
     # --- CONSTANTES ---------------------------------------------------------
 
@@ -122,7 +126,7 @@ class AppConfig:
                  '11': 11, 'novembro': 11,
                  '12': 12, 'dezembro': 12}
 
-    TAG_MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+    TAG_MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
     MAP_TREVOS = {'12': 1,
                   '13': 2,

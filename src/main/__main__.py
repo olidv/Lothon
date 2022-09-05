@@ -18,15 +18,15 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.conf import settings
-from lothon.process import analisar_sorteios, simular_jogos, gerar_boloes, \
-                           conferir_apostas, exportar_arquivos
+from lothon.process import analisar_sorteios, simular_jogos, gerar_palpites, \
+                           criar_boloes, conferir_apostas, exportar_arquivos
 
 # ----------------------------------------------------------------------------
 # CONSTANTES
 # ----------------------------------------------------------------------------
 
 # argumentos da linha de comando:
-CMD_LINE_ARGS = "c:asbrot"
+CMD_LINE_ARGS = "c:aspbrot"
 
 # Possiveis erros que podem ocorrer na execucao da aplicacao para retorno no sys.exit():
 EXIT_ERROR_INVALID_ARGS = 1
@@ -62,7 +62,8 @@ def print_usage():
           '  -c <path>   Informa o path para os arquivos de configuracao\n'
           '  -a          Efetua analise dos dados de sorteios das loterias\n'
           '  -s          Simula varios jogos para validar estrategias\n'
-          '  -b          Gera boloes de apostas para loterias da Caixa\n'
+          '  -p          Gera palpites de apostas para loterias da Caixa\n'
+          '  -b          Cria boloes de apostas para loterias da Caixa\n'
           '  -r          Confere as apostas com os resultados das loterias\n'
           '  -o          Exporta arquivos CSV com dezenas sorteadas dos concursos\n'
           '  -t <proc>   Executa teste de funcionamento de algum processo\n')
@@ -91,7 +92,8 @@ if (opts is None) or (len(opts) == 0):
 opt_cfpath = ''      # path para os arquivos de configuracao
 opt_anlise = False   # Flag para analise de dados dos sorteios
 opt_simula = False   # Flag para simulacao de jogos estrategicos
-opt_boloes = False   # Flag para geracao de boloes de apostas
+opt_palpit = False   # Flag para geracao de palpites de apostas
+opt_boloes = False   # Flag para criacao de boloes de apostas
 opt_result = False   # Flag para conferencia das apostas
 opt_output = False   # Flag para exportacao de arquivos CSV (output)
 opt_testef = False   # Flag para teste de funcionamento
@@ -110,6 +112,9 @@ for opt, val in opts:
         opt_valido = True
     elif opt == '-s':
         opt_simula = True
+        opt_valido = True
+    elif opt == '-p':
+        opt_palpit = True
         opt_valido = True
     elif opt == '-b':
         opt_boloes = True
@@ -186,10 +191,15 @@ if opt_simula:
     logger.debug("Vai iniciar a simulacao de varios jogos para validar estrategias...")
     simular_jogos.run()
 
-# Opcao para executar a geracao de boloes de apostas para as loterias:
+# Opcao para executar a geracao de palpites de apostas para as loterias:
+if opt_palpit:
+    logger.debug("Vai iniciar a geracao de palpites de apostas para as loterias...")
+    gerar_palpites.run()
+
+# Opcao para executar a criacao de boloes de apostas para as loterias:
 if opt_boloes:
-    logger.debug("Vai iniciar a geracao de boloes de apostas para as loterias...")
-    gerar_boloes.run()
+    logger.debug("Vai iniciar a criacao de boloes de apostas para as loterias...")
+    criar_boloes.run()
 
 # Opcao para executar a conferencia das apostas com os resultados das loterias:
 if opt_result:

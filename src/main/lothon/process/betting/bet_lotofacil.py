@@ -1,5 +1,5 @@
 """
-   Package lothon.process.compute
+   Package lothon.process.betting
    Module  bet_lotofacil.py
 
 """
@@ -57,7 +57,7 @@ class BetLotofacil(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Geracao de Jogos para 'Lotofacil'", loteria)
+        super().__init__("Criacao de Jogos para Lotofacil", loteria)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -82,12 +82,12 @@ class BetLotofacil(AbstractBetting):
             logger.debug(f"Foram exportados #{formatd(qtd_export)} sorteios da loteria "
                          f"'{self.loteria.nome_loteria}' em arquivo CSV.")
 
-            # executa rotina Java para processamento e geracao dos jogos computados:
+            # executa rotina Java para processamento e criacao dos jogos computados:
             run_ok: bool = self.executar_jlothon()
             if run_ok:
                 logger.debug(f"Programa jLothon foi executado com sucesso.")
             else:
-                logger.error(f"Erro na execucao do programa jLothon. Geracao de boloes abortada.")
+                logger.error(f"Erro na execucao do programa jLothon. Criacao de boloes abortada.")
                 return []
 
         # importa os jogos computados em jLothon para prosseguir com o processamento:
@@ -100,12 +100,12 @@ class BetLotofacil(AbstractBetting):
         logger.debug("Processando sorteios e jogos para computacao de frequencias e ausencias...")
         topos_dezenas: list[int] = self.get_topos_dezenas_jogos(15)
 
-        # antes de gerar os jogos, calcula o maximo de recorrencias para o bolao a ser gerado:
+        # antes de criar os jogos, calcula o maximo de recorrencias para o bolao a ser criado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
         max_recorrencias: int = self.get_max_recorrencias(bolao, FAIXAS_RECORRENCIAS)
         logger.info(f"Vai utilizar como maximo de recorrencias a faixa  {max_recorrencias}.")
 
-        # inicia a geracao do bolao, sorteando jogos para as apostas:
+        # inicia a criacao do bolao, sorteando jogos para as apostas:
         apostas_bolao: list[tuple[int, ...]] = []  # aqui estao as apostas
         jogos_bolao: list[tuple[int, ...]] = []  # aqui estao todas as combinacoes das apostas
         # utiliza os topos acumulados (merge) para complementar os jogos com mais dezenas:
@@ -132,13 +132,13 @@ class BetLotofacil(AbstractBetting):
 
                 # se nao houver problema com as recorrencias, adiciona o jogo sorteado ao bolao:
                 apostas_bolao.append(jogo_sorteado)
-                # se for um numero maior de dezenas, tem q gerar os jogos de base antes de incluir:
+                # se for um numero maior de dezenas, tem q criar os jogos de base antes de incluir:
                 if len(jogo_sorteado) == self.loteria.qtd_bolas_sorteio:
                     jogos_bolao.append(jogo_sorteado)
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"Finalizada a geracao do bolao para loteria LOTOFACIL: \n{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao do bolao para loteria LOTOFACIL: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

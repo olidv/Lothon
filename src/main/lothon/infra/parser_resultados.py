@@ -75,23 +75,23 @@ def get_dir_contents(path_dir: str, mask_files: str) -> (list[str], int):
 
 
 def read_dezenas_csv(file_path: str) -> list[tuple[int, ...]] | None:
-    lista_dezenas: list[tuple[int, ...]] = []
-
     # abre arquivo para leitura e carrega todas as dezenas em cada linha (tupla):
     try:
         with open(file_path, 'r') as file_csv:
             csv_reader = csv.reader(file_csv)
             # cada linha do arquivo eh carregada em uma lista de tuplas:
-            for row in csv_reader:
-                # converte a linha para tupla de numeros, com menor consumo de recursos:
-                tupla_dezenas: tuple[int, ...] = ()
-                for dezena in row:
-                    # somente pega os numeros, ignorando texto como mes a sorte ou time do coracao
-                    if dezena.isdigit():
-                        tupla_dezenas += (int(dezena),)
-                lista_dezenas.append(tupla_dezenas)
+            lista: list[tuple[int, ...]] = [tuple(int(s) for s in row) for row in csv_reader]
 
-        return lista_dezenas
+            # for row in csv_reader:
+            #     # converte a linha para tupla de numeros, com menor consumo de recursos:
+            #     tupla_dezenas: tuple[int, ...] = ()
+            #     for dezena in row:
+            #         # somente pega os numeros, ignorando texto como mes a sorte ou time do coracao
+            #         if dezena.isdigit():
+            #             tupla_dezenas += (int(dezena),)
+            #     lista_dezenas.append(tupla_dezenas)
+
+            return lista
 
     # captura as excecoes relativas a manipulacao de arquivos:
     except FileNotFoundError as ex:
@@ -110,9 +110,9 @@ def read_jogos_csv(file_path: str) -> list[Jogo] | None:
             ordinal: int = 0
             for row in csv_reader:
                 # converte a linha para tupla de numeros, com menor consumo de recursos:
-                tupla_dezenas: tuple[int, ...] = ()
-                for dezena in row:
-                    tupla_dezenas += (int(dezena),)
+                tupla_dezenas: tuple[int, ...] = tuple(map(int, row))
+                # for dezena in row:
+                #     tupla_dezenas += (int(dezena),)
                 ordinal += 1
                 lista_jogos.append(Jogo(ordinal, 1.0, tupla_dezenas))
 
@@ -232,15 +232,13 @@ def read_pares_loteria(id_loteria: str) -> list[tuple[int, ...]] | None:
     return sorteios
 
 
-def read_jogos_loteria(nome_loteria: str) -> list[Jogo] | None:
+def read_jogos_loteria(nome_loteria: str) -> list[tuple[int, ...]] | None:
     # identifica o arquivo com os jogos computados da loteria:
     loteria_jogos_file: str = app_config.DS_jogos_csv_name.format(nome_loteria)
     loteria_jogos_path: str = os.path.join(app_config.DS_cache_path, loteria_jogos_file)
 
     # abre arquivo para leitura e carrega todas as dezenas dos jogos computados:
-    jogos_computados: list[Jogo] = read_jogos_csv(loteria_jogos_path)
-
-    # converte para o objeto Jogo:
+    jogos_computados: list[tuple[int, ...]] = read_dezenas_csv(loteria_jogos_path)
 
     return jogos_computados
 
@@ -280,7 +278,7 @@ def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple]) 
         return -1
 
     # cria arquivo fisico para conter apenas as dezenas dos jogos:
-    loteria_boloes_file: str = app_config.BA_bolao_csv_name.format(id_bolao, nome_loteria)
+    loteria_boloes_file: str = app_config.AP_bolao_csv_name.format(id_bolao, nome_loteria)
     # aplica a mascara na data fornecida, configurada no INI:
     hoje = date.today()
     loteria_boloes_file = hoje.strftime(loteria_boloes_file)
@@ -294,6 +292,34 @@ def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple]) 
 
         # percorre lista de jogos e exporta as dezenas:
         for jogo in jogos:
+            # salva as dezenas separadas por virgula:
+            csv_writer.writerow(jogo)
+            qt_rows += 1
+
+    # informa quantas linhas de jogos foram gravadas:
+    return qt_rows
+
+
+def export_palpites_loteria(nome_loteria: str, palpites: list[tuple]) -> int:
+    # valida se possui jogos a serem exportados:
+    if palpites is None or len(palpites) == 0:
+        return -1
+
+    # cria arquivo fisico para conter apenas as dezenas dos jogos:
+    loteria_palpites_file: str = app_config.AP_palpites_csv_name.format(nome_loteria)
+    # aplica a mascara na data fornecida, configurada no INI:
+    hoje = date.today()
+    loteria_palpites_file = hoje.strftime(loteria_palpites_file)
+    loteria_palpites_path: str = os.path.join(app_config.DS_palpites_path, loteria_palpites_file)
+
+    # abre arquivo para escrita e salva todos os jogos:
+    qt_rows: int = 0
+    with open(loteria_palpites_path, 'w', newline='', encoding='utf-8') as file_csv:
+        # o conteudo do arquivo sera formatado como CSV padrao:
+        csv_writer = csv.writer(file_csv, delimiter=' ')
+
+        # percorre lista de jogos e exporta as dezenas:
+        for jogo in palpites:
             # salva as dezenas separadas por virgula:
             csv_writer.writerow(jogo)
             qt_rows += 1

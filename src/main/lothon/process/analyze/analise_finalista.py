@@ -270,7 +270,7 @@ class AnaliseFinalista(AbstractAnalyze):
                 for dezena in concurso.bolas:
                     ordens_sorteio += (topos_dezenas.index(dezena),)
 
-                print(f"***** ORDENS DAS DEZENAS DO SORTEIO: ", ordens_sorteio)
+                logger.debug(f"{nmlot}: ORDENS DAS DEZENAS DO SORTEIO: ", ordens_sorteio)
 
             # na proxima iteracao considera tambem agora o concurso recem simulado:
             concursos_passados.append(concurso)

@@ -1,8 +1,8 @@
 """
    Test Package
-   Module  gerar_boloes.py
+   Module  criar_boloes.py
 
-   Modulo para executar a geracao de boloes de apostas para as loterias.
+   Modulo para executar a criacao de boloes de apostas para as loterias.
 """
 
 __all__ = [
@@ -15,7 +15,6 @@ __all__ = [
 
 # Built-in/Generic modules
 import logging
-import itertools as itt
 
 # Libs/Frameworks modules
 # Own/Project modules
@@ -78,25 +77,18 @@ boloes_quina: dict[str: dict[int: int]] = {
 # entry-point de execucao para tarefas diarias:
 def run():
     _startWatch = startwatch()
-    logger.info("Iniciando a geracao de boloes de apostas para as loterias...")
-
-    range_trevos: range = range(1, 6 + 1)
-    for jogo in itt.combinations(range_trevos, 2):
-        print(jogo)
-
-    if True is not None:
-        return
+    logger.info("Iniciando a criacao de boloes de apostas para as loterias...")
 
     # relacao de instancias das loterias da caixa e boloes para processamento
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractBetting] = {
         "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte(), domain.get_mes_da_sorte()),
-        # "duplasena": BetDuplaSena(domain.get_dupla_sena()),
-        # "lotofacil": BetLotofacil(domain.get_lotofacil()),
+        "duplasena": BetDuplaSena(domain.get_dupla_sena()),
+        "lotofacil": BetLotofacil(domain.get_lotofacil()),
         "maismilionaria": BetMaisMilionaria(domain.get_mais_milionaria(), domain.get_trevo_duplo()),
-        # "megasena": BetMegaSena(domain.get_mega_sena()),
-        # "quina": BetQuina(domain.get_quina())
+        "megasena": BetMegaSena(domain.get_mega_sena()),
+        "quina": BetQuina(domain.get_quina())
     }
     loterias_boloes: dict[str: dict] = {
         "diadesorte": boloes_diadesorte,
@@ -109,20 +101,20 @@ def run():
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
 
-    logger.debug("Vai executar o processo de geracao de boloes para todas as loterias...")
+    logger.debug("Vai executar o processo de criacao de boloes para todas as loterias...")
     for lot, bet in loterias_caixa.items():
-        # efetua a execucao do processo de geracao de boloes para cada loteria:
-        logger.debug(f"Processo '{bet.id_process}': gerando boloes para a loteria '{lot}'.")
+        # efetua a execucao do processo de criacao de boloes para cada loteria:
+        logger.debug(f"Processo '{bet.id_process}': criando boloes para a loteria '{lot}'.")
         for id_bolao, bolao in loterias_boloes[lot].items():
             # utiliza a lista de concursos carregada do arquivo HTML (default):
             apostas_bolao: list[tuple] = bet.execute(bolao)
 
-            # efetua a gravacao do arquivo CSV contendo os jogos gerados (boloes):
+            # efetua a gravacao do arquivo CSV contendo os jogos criados (boloes):
             domain.export_boloes(bet.loteria.nome_loteria, id_bolao, apostas_bolao)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)
-    logger.info(f"Finalizada a geracao de boloes de apostas para as loterias. "
+    logger.info(f"Finalizada a criacao de boloes de apostas para as loterias. "
                 f"Tempo de Processamento: {_stopWatch}")
 
     return 0

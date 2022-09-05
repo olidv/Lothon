@@ -1,11 +1,11 @@
 """
-   Package lothon.process.betting
-   Module  abstract_betting.py
+   Package lothon.process
+   Module  abstract_quickpick.py
 
 """
 
 __all__ = [
-    'AbstractBetting'
+    'AbstractQuickPick'
 ]
 
 # ----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ from lothon.process.abstract_process import AbstractProcess
 # CLASSE ABSTRATA
 # ----------------------------------------------------------------------------
 
-class AbstractBetting(AbstractProcess, ABC):
+class AbstractQuickPick(AbstractProcess, ABC):
     """
     Classe abstrata com definicao de propriedades e metodos para criacao de
     processos de computacao e calculo de jogos.
@@ -56,14 +56,13 @@ class AbstractBetting(AbstractProcess, ABC):
     # --- METODOS ------------------------------------------------------------
 
     @abstractmethod
-    def execute(self, bolao: dict[int: int],
-                concursos: list[Concurso] = None) -> list[tuple]:
+    def execute(self, qtd_palpites: int, concursos: list[Concurso] = None) -> list[tuple]:
         pass
 
     # --- METODOS HELPERS ----------------------------------------------------
 
     def executar_jlothon(self) -> bool:
-        # executa rotina Java para processamento e selecao dos jogos computados:
+        # executa rotina Java para processamento e geracao dos jogos computados:
         run_ok: bool = console.execute_jlothon(self.loteria.tag_loteria)
         return run_ok
 
@@ -109,16 +108,12 @@ class AbstractBetting(AbstractProcess, ABC):
                                                                  topos_frequencias_jogos)
         return topos_dezenas_jogos
 
-    def get_max_recorrencias(self,  bolao: dict[int: int], faixas: dict[int: int]) -> int:
+    @staticmethod
+    def get_max_recorrencias(qtd_jogos: int, faixas: dict[int: int]) -> int:
         max_recorrencias: int = 0
 
-        # antes de sortear os jogos, identifica a faixa de recorrencias para o bolao a ser criado:
-        qtd_jogos_bolao: int = 0
-        for qtd_dezenas, qtd_apostas in bolao.items():
-            qtd_jogos_bolao += math.comb(qtd_dezenas, self.loteria.qtd_bolas_sorteio) * qtd_apostas
-
         # considera a quantidade real de apostas como 80% do limite para a faixa de recorrencias
-        qtd_jogos_limite: int = math.ceil(qtd_jogos_bolao / 0.8)
+        qtd_jogos_limite: int = math.ceil(qtd_jogos / 0.8)
 
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
         for faixa, qtd_apostas in faixas.items():
@@ -139,14 +134,14 @@ class AbstractBetting(AbstractProcess, ABC):
 
     def sortear_jogo(self, max_recorrencias: int,
                      jogos_sorteados: list[tuple[int, ...]]) -> tuple[int, ...]:
-        # os limites para sorteio de numero aleatorio sao o minimo e maximo idx do array self.jogos:
+        # os limites para geracao de numero aleatorio sao o minimo e maximo idx do array self.jogos:
         min_idx_jogos: int = 0
         max_idx_jogos: int = len(self.jogos) - 1
 
         # vai sortear um jogo, mas eh preciso verificar as recorrencias com os jogos ja sorteados:
         jogo_sorteado: tuple[int, ...]
         while True:
-            # obtem um jogo qualquer, cujo indice eh obtido aleatoriamente:
+            # obtem um jogo qualquer, cujo indice eh gerado aleatoriamente:
             idx: int = random.randint(min_idx_jogos, max_idx_jogos)
 
             # se o jogo sorteado repetir muitas dezenas de algum jogo ja sorteado, sorteia outro:

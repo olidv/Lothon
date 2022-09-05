@@ -113,9 +113,14 @@ def export_sorteios(loteria: Loteria) -> int:
     return parser_resultados.export_sorteios_loteria(loteria)
 
 
-# Efetua exportacao dos boloes gerados em CSV com jogos de cada loteria:
+# Efetua exportacao dos boloes criados em CSV com jogos de cada loteria:
 def export_boloes(nome_loteria: str, id_bolao: str, jogos: list[tuple]) -> int:
     return parser_resultados.export_boloes_loteria(nome_loteria, id_bolao, jogos)
+
+
+# Efetua exportacao dos palpites gerados em CSV com jogos de cada loteria:
+def export_palpites(nome_loteria: str, palpites: list[tuple]) -> int:
+    return parser_resultados.export_palpites_loteria(nome_loteria, palpites)
 
 
 # ----------------------------------------------------------------------------
