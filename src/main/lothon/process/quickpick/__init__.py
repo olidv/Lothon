@@ -13,6 +13,7 @@ __all__ = [
     'PickMaisMilionaria',
     'PickMegaSena',
     'PickQuina',
+    'PickSuperSete',
     'PickTimemania',
 ]
 
@@ -31,6 +32,7 @@ from lothon.process.quickpick.pick_lotomania import PickLotomania
 from lothon.process.quickpick.pick_mais_milionaria import PickMaisMilionaria
 from lothon.process.quickpick.pick_mega_sena import PickMegaSena
 from lothon.process.quickpick.pick_quina import PickQuina
+from lothon.process.quickpick.pick_supersete import PickSuperSete
 from lothon.process.quickpick.pick_timemania import PickTimemania
 
 

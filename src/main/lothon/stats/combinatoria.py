@@ -680,6 +680,17 @@ def sortear_palpite(set_bolas: int, qtd_bolas_sorteadas: int) -> tuple[int, ...]
     return tuple(sorted(bolas))
 
 
+def sortear_palpite_digito(qtd_bolas_sorteadas: int) -> tuple[int, ...]:
+    bolas: tuple[int, ...] = ()
+    count: int = 0
+    while count < qtd_bolas_sorteadas:
+        bola: int = random.randint(0, 9)
+        bolas = bolas + (bola,)
+        count += 1
+
+    return bolas
+
+
 # ----------------------------------------------------------------------------
 # FUNCOES UTILITARIAS PARA MEGA-SENA
 # ----------------------------------------------------------------------------
