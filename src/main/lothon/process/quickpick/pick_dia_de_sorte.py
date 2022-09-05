@@ -95,38 +95,45 @@ class PickDiaDeSorte(AbstractQuickPick):
                 return []
         _startWatch = startwatch()
 
+        # identifica informacoes da loteria:
+        nmlot: str = self.loteria.nome_loteria
+
         # verifica se os concursos ja foram computados e gerou arquivo com jogos computados:
         if self.existe_jogos_computados():
-            logger.debug("Arquivo com jogos computados ja existe. Processo externo ignorado.")
+            logger.debug(f"{nmlot}: Arquivo com jogos computados ja existe. "
+                         f"Processo externo ignorado.")
         # se ainda nao existe o arquivo com os jogos computados, entao inicia o processo externo:
         else:
-            logger.debug("Arquivo com jogos computados nao encontrado. Iniciando processo externo.")
+            logger.debug(f"{nmlot}: Arquivo com jogos computados nao encontrado. "
+                         f"Iniciando processo externo.")
             # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
             qtd_export: int = self.exportar_sorteios()
-            logger.debug(f"Foram exportados  #{formatd(qtd_export)}  sorteios da loteria "
-                         f"'{self.loteria.nome_loteria}' em arquivo CSV.")
+            logger.debug(f"{nmlot}: Foram exportados  #{formatd(qtd_export)}  sorteios da "
+                         f"loteria em arquivo CSV.")
 
             # executa rotina Java para processamento e geracao dos jogos computados:
             run_ok: bool = self.executar_jlothon()
             if run_ok:
-                logger.debug(f"Programa jLothon foi executado com sucesso.")
+                logger.debug(f"{nmlot}: Programa jLothon foi executado com sucesso.")
             else:
-                logger.error(f"Erro na execucao do programa jLothon. Geracao de palpites abortada.")
+                logger.error(f"{nmlot}: Erro na execucao do programa jLothon. "
+                             f"Geracao de palpites abortada.")
                 return []
 
         # importa os jogos computados em jLothon para prosseguir com o processamento:
         self.jogos = self.importar_jogos()
         qtd_jogos: int = len(self.jogos)
-        logger.debug(f"Foram importados  #{formatd(qtd_jogos)}  jogos computados da loteria "
-                     f"{self.loteria.nome_loteria}' de arquivo CSV.")
+        logger.debug(f"{nmlot}: Foram importados  #{formatd(qtd_jogos)}  jogos computados da "
+                     f"loteria de arquivo CSV.")
 
         # antes de gerar os palpites, calcula o maximo de recorrencias para cada jogo sorteado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
         max_recorrencias: int = self.get_max_recorrencias(qtd_palpites, FAIXAS_RECORRENCIAS)
-        logger.info(f"Vai utilizar como maximo de recorrencias a faixa  {max_recorrencias}.")
+        logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
+                    f"{max_recorrencias}.")
 
         # inicia a geracao dos palpites, sorteando jogos para as apostas:
-        logger.debug(f"Iniciando a geracao dos palpites para loteria DIA-DE-SORTE...")
+        logger.debug(f"{nmlot}: Iniciando a geracao dos palpites para a loteria...")
         jogos_sorteados: list[tuple[int, ...]] = []  # aqui estao todos os palpites
 
         # efetua o sorteio do(s) jogo(s) com o numero de dezenas requerido:
@@ -139,18 +146,18 @@ class PickDiaDeSorte(AbstractQuickPick):
         palpites: list[tuple[str, ...]] = [tuple(f"{i:02}" for i in t) for t in jogos_sorteados]
 
         # com as dezenas sorteadas ja computadas e organizadas, agora processa os meses da sorte:
-        logger.debug("Executando computacao dos sorteios do Mes da Sorte...")
+        logger.debug(f"{nmlot}: Executando computacao dos sorteios do Mes da Sorte...")
         self.meses = self.compute_meses_sorteados()
-        logger.debug(f"Ranking dos meses da sorte conforme frequencias e ausencias:\n"
+        logger.debug(f"{nmlot}: Ranking dos meses da sorte conforme frequencias e ausencias:\n"
                      f"\t{self.meses}")
 
         # com os palpites formatados ja em string, adiciona o mes da sorte (tambem string):
         palpites_com_mes: list[tuple[str, ...]] = self.add_mes_da_sorte(palpites)
-        logger.debug(f"Finalizada a geracao dos palpites para loteria DIA-DE-SORTE: \n"
+        logger.debug(f"{nmlot}: Finalizada a geracao dos palpites para a loteria: \n"
                      f"{palpites_com_mes}")
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return palpites_com_mes
 
 # ----------------------------------------------------------------------------

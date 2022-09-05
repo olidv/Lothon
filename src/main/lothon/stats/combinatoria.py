@@ -47,6 +47,7 @@ __all__ = [
 # Built-in/Generic modules
 import itertools
 import math
+import random
 from collections.abc import Collection
 
 # Libs/Frameworks modules
@@ -648,6 +649,35 @@ def merge_listas_dezenas(list1: list[int], list2: list[int], list3: list[int]) -
             idx_jogos < len_jogos
 
     return list_merge
+
+
+# ----------------------------------------------------------------------------
+# FUNCOES PARA SORTEIO DE DEZENAS E JOGOS
+# ----------------------------------------------------------------------------
+
+def sortear_bola_pareada(set_bolas: int, bola_par: bool) -> int:
+    # se desejar bola par, o resto tem que ser zero, se for impar o resto sera 1
+    mod_div: int = 0 if bola_par else 1
+    bola: int = random.randint(1, set_bolas)
+    while bola % 2 != mod_div:
+        bola = random.randint(1, set_bolas)
+
+    return bola
+
+
+def sortear_palpite(set_bolas: int, qtd_bolas_sorteadas: int) -> tuple[int, ...]:
+    bolas: tuple[int, ...] = ()
+    count: int = 0
+    bola_par: bool = False  # sempre comeca pela bola impar
+    while count < qtd_bolas_sorteadas:
+        bola = sortear_bola_pareada(set_bolas, bola_par)
+        if bola not in bolas:
+            bolas = bolas + (bola,)
+            count += 1
+            bola_par = not bola_par  # vai alternando nos sorteios das bolas pares e impares
+
+    # ordena as dezenas sorteadas para permitir comparar com outras tuplas de dezenas:
+    return tuple(sorted(bolas))
 
 
 # ----------------------------------------------------------------------------

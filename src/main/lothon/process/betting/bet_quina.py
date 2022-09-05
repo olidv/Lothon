@@ -71,42 +71,49 @@ class BetQuina(AbstractBetting):
                 return []
         _startWatch = startwatch()
 
+        # identifica informacoes da loteria:
+        nmlot: str = self.loteria.nome_loteria
+
         # se ainda nao existe o arquivo com os jogos computados, entao inicia o processo externo:
         if self.existe_jogos_computados():
-            logger.debug("Arquivo com jogos computados ja existe. Processo externo ignorado.")
+            logger.debug(f"{nmlot}: Arquivo com jogos computados ja existe. "
+                         f"Processo externo ignorado.")
         else:
-            logger.debug(
-                "Arquivo com jogos computados nao encontrado. Iniciando processo externo.")
+            logger.debug(f"{nmlot}: Arquivo com jogos computados nao encontrado. "
+                         f"Iniciando processo externo.")
             # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
             qtd_export: int = self.exportar_sorteios()
-            logger.debug(f"Foram exportados #{formatd(qtd_export)} sorteios da loteria "
-                         f"'{self.loteria.nome_loteria}' em arquivo CSV.")
+            logger.debug(f"{nmlot}: Foram exportados #{formatd(qtd_export)} sorteios da "
+                         f"loteria em arquivo CSV.")
 
             # executa rotina Java para processamento e criacao dos jogos computados:
             run_ok: bool = self.executar_jlothon()
             if run_ok:
-                logger.debug(f"Programa jLothon foi executado com sucesso.")
+                logger.debug(f"{nmlot}: Programa jLothon foi executado com sucesso.")
             else:
-                logger.error(
-                    f"Erro na execucao do programa jLothon. Criacao de boloes abortada.")
+                logger.error(f"{nmlot}: Erro na execucao do programa jLothon. "
+                             f"Criacao de boloes abortada.")
                 return []
 
         # importa os jogos computados em jLothon para prosseguir com o processamento:
         self.jogos = self.importar_jogos()
         qtd_jogos: int = len(self.jogos)
-        logger.debug(f"Foram importados  #{formatd(qtd_jogos)}  jogos computados da loteria "
-                     f"{self.loteria.nome_loteria}' de arquivo CSV.")
+        logger.debug(f"{nmlot}: Foram importados  #{formatd(qtd_jogos)}  jogos computados da "
+                     f"loteria de arquivo CSV.")
 
         # contabiliza as frequencias das dezenas em todos os jogos considerados:
-        logger.debug("Processando sorteios e jogos para computacao de frequencias e ausencias...")
+        logger.debug(f"{nmlot}: Processando sorteios e jogos para computacao de "
+                     f"frequencias e ausencias...")
         topos_dezenas: list[int] = self.get_topos_dezenas_jogos(10)
 
         # antes de criar os jogos, calcula o maximo de recorrencias para o bolao a ser criado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
         max_recorrencias: int = self.get_max_recorrencias(bolao, FAIXAS_RECORRENCIAS)
-        logger.info(f"Vai utilizar como maximo de recorrencias a faixa  {max_recorrencias}.")
+        logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
+                    f"{max_recorrencias}.")
 
         # inicia a criacao do bolao, sorteando jogos para as apostas:
+        logger.debug(f"{nmlot}: Iniciando a criacao do bolao para a loteria...")
         apostas_bolao: list[tuple[int, ...]] = []  # aqui estao as apostas
         jogos_bolao: list[tuple[int, ...]] = []  # aqui estao todas as combinacoes das apostas
         # utiliza os topos acumulados (merge) para complementar os jogos com mais dezenas:
@@ -140,10 +147,11 @@ class BetQuina(AbstractBetting):
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"Finalizada a criacao de boloes para loteria QUINA: \n{apostas_bolao}")
+        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria: \n"
+                     f"{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
-        logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
+        logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
         return apostas_bolao
 
 # ----------------------------------------------------------------------------

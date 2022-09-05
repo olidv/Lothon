@@ -22,7 +22,8 @@ import logging
 from lothon.util.eve import *
 from lothon import domain
 from lothon.process.quickpick import AbstractQuickPick, PickDiaDeSorte, PickDuplaSena, \
-                                     PickLotofacil, PickMaisMilionaria, PickMegaSena, PickQuina
+                                     PickLotofacil, PickMaisMilionaria, PickMegaSena, PickQuina, \
+                                     PickTimemania, PickLotomania
 
 
 # ----------------------------------------------------------------------------
@@ -62,22 +63,29 @@ def run():
     logger.debug("Vai efetut4ar carga das definicoes das loterias do arquivo de configuracao .INI")
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: AbstractQuickPick] = {
-        "diadesorte": PickDiaDeSorte(domain.get_dia_de_sorte(),
-                                     domain.get_mes_da_sorte()),
-        "duplasena": PickDuplaSena(domain.get_dupla_sena()),
-        "lotofacil": PickLotofacil(domain.get_lotofacil()),
-        "maismilionaria": PickMaisMilionaria(domain.get_mais_milionaria(),
-                                             domain.get_trevo_duplo()),
-        "megasena": PickMegaSena(domain.get_mega_sena()),
-        "quina": PickQuina(domain.get_quina())
+        # "diadesorte": PickDiaDeSorte(domain.get_dia_de_sorte(),
+        #                              domain.get_mes_da_sorte()),
+        # "duplasena": PickDuplaSena(domain.get_dupla_sena()),
+        # "lotofacil": PickLotofacil(domain.get_lotofacil()),
+        # "maismilionaria": PickMaisMilionaria(domain.get_mais_milionaria(),
+        #                                      domain.get_trevo_duplo()),
+        # "megasena": PickMegaSena(domain.get_mega_sena()),
+        # "quina": PickQuina(domain.get_quina()),
+
+        # "timemania": PickTimemania(domain.get_timemania()),
+        "lotomania": PickLotomania(domain.get_lotomania()),
+        # "supersete": PickSuperSete(domain.get_super_sete())
     }
     loterias_palpites: dict[str: int] = {
         "diadesorte": PALPITES_DIADESORTE,
         "duplasena": PALPITES_DUPLASENA,
         "lotofacil": PALPITES_LOTOFACIL,
+        "lotomania": PALPITES_LOTOMANIA,
         "maismilionaria": PALPITES_MAISMILIONARIA,
         "megasena": PALPITES_MEGASENA,
-        "quina": PALPITES_QUINA
+        "quina": PALPITES_QUINA,
+        "supersete": PALPITES_SUPERSETE,
+        "timemania": PALPITES_TIMEMANIA
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

@@ -1,11 +1,11 @@
 """
    Package lothon.process.quickpick
-   Module  pick_mega_sena.py
+   Module  pick_lotomania.py
 
 """
 
 __all__ = [
-    'PickMegaSena'
+    'PickLotomania'
 ]
 
 # ----------------------------------------------------------------------------
@@ -18,6 +18,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
+from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso
 from lothon.process.quickpick.abstract_quickpick import AbstractQuickPick
 
@@ -30,14 +31,17 @@ from lothon.process.quickpick.abstract_quickpick import AbstractQuickPick
 logger = logging.getLogger(__name__)
 
 # faixas de limites de recorrencias especificas para esta loteria:
-FAIXAS_RECORRENCIAS: dict[int: int] = {0: 6, 1: 77, 2: 875, 3: 15719}
+FAIXA_RECORRENCIAS: int = 29
+
+# a loteria lotomania permite a aposta com 50 dezenas, embora sejam sorteadas apenas 20:
+QTD_BOLAS_APOSTA = 50
 
 
 # ----------------------------------------------------------------------------
 # CLASSE CONCRETA
 # ----------------------------------------------------------------------------
 
-class PickMegaSena(AbstractQuickPick):
+class PickLotomania(AbstractQuickPick):
     """
     Implementacao de classe para .
     """
@@ -48,7 +52,33 @@ class PickMegaSena(AbstractQuickPick):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Geracao de Palpites para Mega-Sena", loteria)
+        super().__init__("Geracao de Palpites para Lotomania", loteria)
+
+    # --- METODOS ------------------------------------------------------------
+
+    @classmethod
+    def substitui_100(cls, jogo: tuple[int, ...]) -> tuple[int, ...]:
+        # se tupla possuir 100, substitui por 00:
+        if 100 in jogo:
+            return tuple(sorted([dez % 100 for dez in jogo]))
+        else:
+            return jogo
+
+    def gerar_palpite(self, max_recorrencias: int,
+                      jogos_sorteados: list[tuple[int, ...]]) -> tuple[int, ...]:
+        # vai sortear um jogo, mas eh preciso verificar as recorrencias com os jogos ja sorteados:
+        jogo_sorteado: tuple[int, ...]
+        while True:
+            # gera um jogo qualquer, sem repetir muitas dezenas de algum jogo ja sorteado:
+            jogo_sorteado = cb.sortear_palpite(self.loteria.qtd_bolas, QTD_BOLAS_APOSTA)
+            # a dezena 100 eh substituida pela dezena 00:
+            jogo_sorteado = self.substitui_100(jogo_sorteado)
+
+            # o jogo não pode possuir recorrencias com os outros jogos ou concursos ja sorteados:
+            if cb.check_max_recorrencias(jogo_sorteado, jogos_sorteados, max_recorrencias):
+                break  # este jogo pode ser aproveitado
+
+        return jogo_sorteado
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -66,37 +96,9 @@ class PickMegaSena(AbstractQuickPick):
         # identifica informacoes da loteria:
         nmlot: str = self.loteria.nome_loteria
 
-        # verifica se os concursos ja foram computados e gerou arquivo com jogos computados:
-        if self.existe_jogos_computados():
-            logger.debug(f"{nmlot}: Arquivo com jogos computados ja existe. "
-                         f"Processo externo ignorado.")
-        # se ainda nao existe o arquivo com os jogos computados, entao inicia o processo externo:
-        else:
-            logger.debug(f"{nmlot}: Arquivo com jogos computados nao encontrado. "
-                         f"Iniciando processo externo.")
-            # Vai exportar os arquivos CSV com dezenas sorteadas das loterias...
-            qtd_export: int = self.exportar_sorteios()
-            logger.debug(f"{nmlot}: Foram exportados #{formatd(qtd_export)} sorteios da "
-                         f"loteria em arquivo CSV.")
-
-            # executa rotina Java para processamento e geracao dos jogos computados:
-            run_ok: bool = self.executar_jlothon()
-            if run_ok:
-                logger.debug(f"{nmlot}: Programa jLothon foi executado com sucesso.")
-            else:
-                logger.error(f"{nmlot}: Erro na execucao do programa jLothon. "
-                             f"Geracao de boloes abortada.")
-                return []
-
-        # importa os jogos computados em jLothon para prosseguir com o processamento:
-        self.jogos = self.importar_jogos()
-        qtd_jogos: int = len(self.jogos)
-        logger.debug(f"{nmlot}: Foram importados  #{formatd(qtd_jogos)}  jogos computados da "
-                     f"loteria de arquivo CSV.")
-
         # antes de gerar os palpites, calcula o maximo de recorrencias para cada jogo sorteado:
         # com o numero real de apostas, verifica qual a faixa de recorrencias ira utilizar:
-        max_recorrencias: int = self.get_max_recorrencias(qtd_palpites, FAIXAS_RECORRENCIAS)
+        max_recorrencias: int = FAIXA_RECORRENCIAS
         logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
                     f"{max_recorrencias}.")
 
@@ -106,7 +108,7 @@ class PickMegaSena(AbstractQuickPick):
 
         # efetua o sorteio do(s) jogo(s) com o numero de dezenas requerido:
         for _ in range(0, qtd_palpites):
-            jogo_sorteado: tuple[int, ...] = self.sortear_jogo(max_recorrencias, jogos_sorteados)
+            jogo_sorteado: tuple[int, ...] = self.gerar_palpite(max_recorrencias, jogos_sorteados)
             # adiciona o jogo sorteado a lista de palpites:
             jogos_sorteados.append(jogo_sorteado)
 
