@@ -35,15 +35,15 @@ from lothon.process.quickpick import AbstractQuickPick, \
 logger = logging.getLogger(__name__)
 
 # numero de palpites a serem gerados para as loterias consideradas:
-PALPITES_DIADESORTE: int = 100
-PALPITES_DUPLASENA: int = 100
-PALPITES_LOTOFACIL: int = 100
+PALPITES_DIADESORTE: int = 112
+PALPITES_DUPLASENA: int = 114
+PALPITES_LOTOFACIL: int = 114
 PALPITES_LOTOMANIA: int = 100
-PALPITES_MAISMILIONARIA: int = 100
-PALPITES_MEGASENA: int = 100
-PALPITES_QUINA: int = 100
-PALPITES_SUPERSETE: int = 100
-PALPITES_TIMEMANIA: int = 100
+PALPITES_MAISMILIONARIA: int = 120
+PALPITES_MEGASENA: int = 114
+PALPITES_QUINA: int = 102
+PALPITES_SUPERSETE: int = 108
+PALPITES_TIMEMANIA: int = 115
 
 
 # ----------------------------------------------------------------------------
