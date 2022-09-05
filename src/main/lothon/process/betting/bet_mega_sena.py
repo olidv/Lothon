@@ -56,7 +56,7 @@ class BetMegaSena(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Criacao de Jogos para Mega-Sena", loteria)
+        super().__init__("Criacao de Boloes para Mega-Sena", loteria)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -140,7 +140,7 @@ class BetMegaSena(AbstractBetting):
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"Finalizada a criacao do bolao para loteria MEGA-SENA: \n{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao de boloes para loteria MEGA-SENA: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

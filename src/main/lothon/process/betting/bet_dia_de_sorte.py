@@ -56,7 +56,7 @@ class BetDiaDeSorte(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria1: Loteria, loteria2: Loteria):
-        super().__init__("Criacao de Jogos para Dia de Sorte", loteria1)
+        super().__init__("Criacao de Boloes para Dia de Sorte", loteria1)
 
         # mantem as informacoes da loteria secundaria mes da sorte:
         self.loteria_mes: Loteria = loteria2
@@ -180,7 +180,7 @@ class BetDiaDeSorte(AbstractBetting):
 
         # com os jogos criados, adiciona o mes da sorte:
         apostas_bolao: list[tuple] = self.add_mes_da_sorte(apostas_sorteadas)
-        logger.debug(f"Finalizada a criacao do bolao para loteria DIA-DE-SORTE: \n{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao de boloes para loteria DIA-DE-SORTE: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

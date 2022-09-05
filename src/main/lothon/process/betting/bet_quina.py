@@ -56,7 +56,7 @@ class BetQuina(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Criacao de Jogos para Quina", loteria)
+        super().__init__("Criacao de Boloes para Quina", loteria)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -140,7 +140,7 @@ class BetQuina(AbstractBetting):
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"Finalizada a criacao do bolao para loteria QUINA: \n{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao de boloes para loteria QUINA: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

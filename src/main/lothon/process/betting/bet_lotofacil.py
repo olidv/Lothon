@@ -57,7 +57,7 @@ class BetLotofacil(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria: Loteria):
-        super().__init__("Criacao de Jogos para Lotofacil", loteria)
+        super().__init__("Criacao de Boloes para Lotofacil", loteria)
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -138,7 +138,7 @@ class BetLotofacil(AbstractBetting):
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"Finalizada a criacao do bolao para loteria LOTOFACIL: \n{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao de boloes para loteria LOTOFACIL: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")

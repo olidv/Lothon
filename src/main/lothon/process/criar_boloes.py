@@ -102,15 +102,16 @@ def run():
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
 
     logger.debug("Vai executar o processo de criacao de boloes para todas as loterias...")
-    for lot, bet in loterias_caixa.items():
+    for id_loteria, bet_loteria in loterias_caixa.items():
         # efetua a execucao do processo de criacao de boloes para cada loteria:
-        logger.debug(f"Processo '{bet.id_process}': criando boloes para a loteria '{lot}'.")
-        for id_bolao, bolao in loterias_boloes[lot].items():
+        logger.debug(f"Processo '{bet_loteria.id_process}': criando boloes para a loteria "
+                     f"'{id_loteria}'.")
+        for id_bolao, bolao in loterias_boloes[id_loteria].items():
             # utiliza a lista de concursos carregada do arquivo HTML (default):
-            apostas_bolao: list[tuple] = bet.execute(bolao)
+            apostas_bolao: list[tuple] = bet_loteria.execute(bolao)
 
             # efetua a gravacao do arquivo CSV contendo os jogos criados (boloes):
-            domain.export_boloes(bet.loteria.nome_loteria, id_bolao, apostas_bolao)
+            domain.export_boloes(bet_loteria.loteria.nome_loteria, id_bolao, apostas_bolao)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)

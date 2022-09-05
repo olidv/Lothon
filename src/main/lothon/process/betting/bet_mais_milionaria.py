@@ -56,7 +56,7 @@ class BetMaisMilionaria(AbstractBetting):
     # --- INICIALIZACAO ------------------------------------------------------
 
     def __init__(self, loteria1: Loteria, loteria2: Loteria):
-        super().__init__("Criacao de Jogos para +Milionaria", loteria1)
+        super().__init__("Criacao de Boloes para +Milionaria", loteria1)
 
         # mantem as informacoes da loteria secundaria trevo duplo:
         self.loteria_trevo: Loteria = loteria2
@@ -180,8 +180,7 @@ class BetMaisMilionaria(AbstractBetting):
 
         # com os jogos criados, adiciona o trevo duplo:
         apostas_bolao: list[tuple] = self.add_trevo_duplo(apostas_sorteadas)
-        logger.debug(f"Finalizada a criacao do bolao para loteria MAIS-MILIONARIA: \n"
-                     f"{apostas_bolao}")
+        logger.debug(f"Finalizada a criacao de boloes para loteria +MILIONARIA: \n{apostas_bolao}")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"Tempo para executar {self.id_process.upper()}: {_stopWatch}")
