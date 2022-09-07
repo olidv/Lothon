@@ -99,7 +99,7 @@ def run():
         palpites: list[tuple] = pick_loteria.execute(loterias_palpites[id_loteria])
 
         # efetua a gravacao do arquivo CSV contendo os palpites gerados (dezenas):
-        domain.export_palpites(pick_loteria.loteria.nome_loteria, palpites)
+        domain.export_palpites(pick_loteria.loteria.nome_loteria.lower(), palpites)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)

@@ -307,16 +307,13 @@ def export_palpites_loteria(nome_loteria: str, palpites: list[tuple]) -> int:
 
     # cria arquivo fisico para conter apenas as dezenas dos jogos:
     loteria_palpites_file: str = app_config.AP_palpites_csv_name.format(nome_loteria)
-    # aplica a mascara na data fornecida, configurada no INI:
-    hoje = date.today()
-    loteria_palpites_file = hoje.strftime(loteria_palpites_file)
     loteria_palpites_path: str = os.path.join(app_config.DS_palpites_path, loteria_palpites_file)
 
     # abre arquivo para escrita e salva todos os jogos:
     qt_rows: int = 0
     with open(loteria_palpites_path, 'w', newline='', encoding='utf-8') as file_csv:
         # o conteudo do arquivo sera formatado como CSV padrao:
-        csv_writer = csv.writer(file_csv, delimiter=' ')
+        csv_writer = csv.writer(file_csv, delimiter=',')
 
         # percorre lista de jogos e exporta as dezenas:
         for jogo in palpites:
