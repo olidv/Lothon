@@ -52,9 +52,9 @@ python -m zipfile -c dist\bin\lothon.zip src\main\lothon src\main\__main__.py
 echo.
 
 echo Copiando para distribuicao os arquivos de resources e scripts
-copy src\scripts\*.* dist\bin\
-copy src\resources\prod\*.* dist\conf\
-copy src\resources\README.md dist\
+copy src\batches\*.*          dist\bin\
+copy src\resources\prod\*.*   dist\conf\
+copy src\resources\README.md  dist\
 echo.
 
 echo Copiando para distribuicao as dependencias de libraries externas
