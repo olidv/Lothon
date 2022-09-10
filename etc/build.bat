@@ -51,7 +51,7 @@ echo Compactando o codigo fonte para criar pacote executavel [ ZIP ]
 python -m zipfile -c dist\bin\lothon.zip src\main\lothon src\main\__main__.py
 echo.
 
-echo Copiando para distribuicao os arquivos de resources e scripts
+echo Copiando para distribuicao os arquivos de resources e batches
 copy src\batches\*.*          dist\bin\
 copy src\resources\prod\*.*   dist\conf\
 copy src\resources\README.md  dist\
