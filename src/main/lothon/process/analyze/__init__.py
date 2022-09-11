@@ -74,12 +74,12 @@ def get_process_chain() -> list[AbstractAnalyze]:
         _process_chain.append(AnaliseSomatorio())    # 0:00:11
 
         # SIM: com ressalvas, pois demora muito tempo para processar...
-        _process_chain.append(AnaliseRecorrencia())  # 0:00:31
+        # _process_chain.append(AnaliseRecorrencia())  # 0:00:31
 
         # NAO: componentes sem COMPUTE/EVALUATE implementado...
         _process_chain.append(AnaliseSemanal())      # 0:00:00
-        _process_chain.append(AnaliseSeletiva())     # 0:00:00
-        _process_chain.append(AnaliseFinalista())    # 0:00:00
+        # _process_chain.append(AnaliseSeletiva())     # 0:00:00
+        # _process_chain.append(AnaliseFinalista())    # 0:00:00
 
     return _process_chain
 

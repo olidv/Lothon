@@ -62,14 +62,14 @@ def run():
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
         "diadesorte": domain.get_dia_de_sorte(),         #
-        # "duplasena": domain.get_dupla_sena(),            #
+        "duplasena": domain.get_dupla_sena(),            #
         "lotofacil": domain.get_lotofacil(),             #
-        # "lotomania": domain.get_lotomania(),             #
-        # "quina": domain.get_quina(),                     #
-        # "maismilionaria": domain.get_mais_milionaria(),  #
-        # "megasena": domain.get_mega_sena(),              #
-        # "supersete": domain.get_super_sete(),            #
-        # "timemania": domain.get_timemania(),             #
+        "quina": domain.get_quina(),                     #
+        "megasena": domain.get_mega_sena(),              #
+        # "lotomania": domain.get_lotomania(),           #
+        # "maismilionaria": domain.get_mais_milionaria(),#
+        # "supersete": domain.get_super_sete(),          #
+        # "timemania": domain.get_timemania()            #
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")

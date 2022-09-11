@@ -5,3 +5,6 @@ call ..\venv\Scripts\activate.bat
 
 rem Executa a aplicacao indicando o arquivo de configuracao:
 python lothon.zip -c C:\Apps\B3\Lothon\conf -p
+
+rem Encerra este CMD para nao afetar o ambiente anterior:
+exit
