@@ -19,7 +19,6 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.stats import combinatoria as cb
 from lothon.domain import Loteria, Concurso
 from lothon.process.betting.abstract_betting import AbstractBetting
 
@@ -51,44 +50,14 @@ class BetDiaDeSorte(AbstractBetting):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('loteria_mes', 'concursos_mes', 'meses')
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, loteria1: Loteria, loteria2: Loteria):
-        super().__init__("Criacao de Boloes para Dia de Sorte", loteria1)
-
-        # mantem as informacoes da loteria secundaria mes da sorte:
-        self.loteria_mes: Loteria = loteria2
-        self.concursos_mes: list[Concurso] = loteria2.concursos
-        self.meses: list[int] = []
+    def __init__(self, loteria: Loteria):
+        super().__init__("Criacao de Boloes para Dia de Sorte", loteria)
 
     # --- METODOS HELPERS ----------------------------------------------------
-
-    def compute_meses_sorteados(self) -> list[int]:
-        # extrai o ranking dos meses a partir dos topos de frequencias e ausencias nos concursos:
-        meses_frequentes: list[int] = cb.calc_topos_frequencia(self.concursos_mes,
-                                                               self.loteria_mes.qtd_bolas,
-                                                               self.loteria_mes.qtd_bolas)
-        meses_ausentes: list[int] = cb.calc_topos_ausencia(self.concursos_mes,
-                                                           self.loteria_mes.qtd_bolas,
-                                                           self.loteria_mes.qtd_bolas)
-
-        meses_computados: list[int] = cb.merge_topos(meses_frequentes, meses_ausentes)
-        return meses_computados
-
-    def add_mes_da_sorte(self, apostas: list[tuple[int, ...]]) -> list[tuple]:
-        apostas_com_mes: list[tuple] = []
-
-        last_idx: int = len(self.meses) - 1  # idx_mes vai circular entre 0 ... 11
-        idx_mes: int = last_idx
-        for aposta in apostas:
-            idx_mes = 0 if (idx_mes == last_idx) else (idx_mes + 1)
-            mes_da_sorte: int = self.meses[idx_mes]
-            aposta += (mes_da_sorte,)  # mes no formato numerico (1 ... 12)
-            apostas_com_mes.append(aposta)
-
-        return apostas_com_mes
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -145,12 +114,6 @@ class BetDiaDeSorte(AbstractBetting):
         logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
                     f"{max_recorrencias}.")
 
-        # com as dezenas sorteadas ja computadas e organizadas, agora processa os meses da sorte:
-        logger.debug(f"{nmlot}: Executando computacao dos sorteios do Mes da Sorte...")
-        self.meses = self.compute_meses_sorteados()
-        logger.debug(f"{nmlot}: Ranking dos meses da sorte conforme frequencias e ausencias:\n"
-                     f"\t{self.meses}")
-
         # inicia a criacao do bolao, sorteando jogos para as apostas:
         logger.debug(f"{nmlot}: Iniciando a criacao do bolao para a loteria...")
         apostas_sorteadas: list[tuple[int, ...]] = []  # aqui estao as apostas
@@ -186,13 +149,10 @@ class BetDiaDeSorte(AbstractBetting):
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
 
-        # com os jogos criados, adiciona o mes da sorte:
-        apostas_bolao: list[tuple] = self.add_mes_da_sorte(apostas_sorteadas)
-        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria: \n"
-                     f"{apostas_bolao}")
+        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria.")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
-        return apostas_bolao
+        return apostas_sorteadas
 
 # ----------------------------------------------------------------------------

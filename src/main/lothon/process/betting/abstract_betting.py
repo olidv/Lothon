@@ -56,8 +56,7 @@ class AbstractBetting(AbstractProcess, ABC):
     # --- METODOS ------------------------------------------------------------
 
     @abstractmethod
-    def execute(self, bolao: dict[int: int],
-                concursos: list[Concurso] = None) -> list[tuple]:
+    def execute(self, bolao: dict[int: int], concursos: list[Concurso] = None) -> list[tuple]:
         pass
 
     # --- METODOS HELPERS ----------------------------------------------------

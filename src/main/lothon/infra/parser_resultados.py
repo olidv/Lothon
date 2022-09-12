@@ -288,7 +288,7 @@ def export_boloes_loteria(nome_loteria: str, id_bolao: str, jogos: list[tuple]) 
     qt_rows: int = 0
     with open(loteria_boloes_path, 'w', newline='', encoding='utf-8') as file_csv:
         # o conteudo do arquivo sera formatado como CSV padrao:
-        csv_writer = csv.writer(file_csv)
+        csv_writer = csv.writer(file_csv, delimiter=',')
 
         # percorre lista de jogos e exporta as dezenas:
         for jogo in jogos:

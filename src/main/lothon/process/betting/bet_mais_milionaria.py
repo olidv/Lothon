@@ -19,8 +19,7 @@ import logging
 # Libs/Frameworks modules
 # Own/Project modules
 from lothon.util.eve import *
-from lothon.stats import combinatoria as cb
-from lothon.domain import Loteria, Concurso, Trevo
+from lothon.domain import Loteria, Concurso
 from lothon.process.betting.abstract_betting import AbstractBetting
 
 # ----------------------------------------------------------------------------
@@ -51,44 +50,14 @@ class BetMaisMilionaria(AbstractBetting):
     """
 
     # --- PROPRIEDADES -------------------------------------------------------
-    __slots__ = ('loteria_trevo', 'concursos_trevo', 'trevos')
+    __slots__ = ()
 
     # --- INICIALIZACAO ------------------------------------------------------
 
-    def __init__(self, loteria1: Loteria, loteria2: Loteria):
-        super().__init__("Criacao de Boloes para +Milionaria", loteria1)
-
-        # mantem as informacoes da loteria secundaria trevo duplo:
-        self.loteria_trevo: Loteria = loteria2
-        self.concursos_trevo: list[Concurso] = loteria2.concursos
-        self.trevos: list[int] = []
+    def __init__(self, loteria: Loteria):
+        super().__init__("Criacao de Boloes para +Milionaria", loteria)
 
     # --- METODOS HELPERS ----------------------------------------------------
-
-    def compute_trevos_sorteados(self) -> list[int]:
-        # extrai o ranking dos trevos a partir dos topos de frequencias e ausencias nos concursos:
-        trevos_frequentes: list[int] = cb.calc_topos_frequencia(self.concursos_trevo,
-                                                                self.loteria_trevo.qtd_bolas,
-                                                                self.loteria_trevo.qtd_bolas)
-        trevos_ausentes: list[int] = cb.calc_topos_ausencia(self.concursos_trevo,
-                                                            self.loteria_trevo.qtd_bolas,
-                                                            self.loteria_trevo.qtd_bolas)
-
-        trevos_computados: list[int] = cb.merge_topos(trevos_frequentes, trevos_ausentes)
-        return trevos_computados
-
-    def add_trevo_duplo(self, apostas: list[tuple[int, ...]]) -> list[tuple]:
-        apostas_com_trevo: list[tuple] = []
-
-        last_idx: int = len(self.trevos) - 1  # idx_trevo vai circular entre 0 ... 14
-        idx_trevo: int = last_idx
-        for aposta in apostas:
-            idx_trevo = 0 if (idx_trevo == last_idx) else (idx_trevo + 1)
-            enum_trevo: int = self.trevos[idx_trevo]
-            aposta += Trevo.pair(enum_trevo)  # trevos no formato tupla: (1, 2) ... (5, 6)
-            apostas_com_trevo.append(aposta)
-
-        return apostas_com_trevo
 
     # --- PROCESSAMENTO ------------------------------------------------------
 
@@ -145,12 +114,6 @@ class BetMaisMilionaria(AbstractBetting):
         logger.info(f"{nmlot}: Vai utilizar como maximo de recorrencias a faixa  "
                     f"{max_recorrencias}.")
 
-        # com as dezenas sorteadas ja computadas e organizadas, agora processa os trevos da sorte:
-        logger.debug(f"{nmlot}: Executando computacao dos sorteios do Trevo Duplo...")
-        self.trevos = self.compute_trevos_sorteados()
-        logger.debug(f"{nmlot}: Ranking dos trevos da sorte conforme frequencias e ausencias:\n"
-                     f"\t{self.trevos}")
-
         # inicia a criacao do bolao, sorteando jogos para as apostas:
         logger.debug(f"{nmlot}: Iniciando a criacao do bolao para a loteria...")
         apostas_sorteadas: list[tuple[int, ...]] = []  # aqui estao as apostas
@@ -186,13 +149,10 @@ class BetMaisMilionaria(AbstractBetting):
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
 
-        # com os jogos criados, adiciona o trevo duplo:
-        apostas_bolao: list[tuple] = self.add_trevo_duplo(apostas_sorteadas)
-        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria: \n"
-                     f"{apostas_bolao}")
+        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria.")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")
-        return apostas_bolao
+        return apostas_sorteadas
 
 # ----------------------------------------------------------------------------

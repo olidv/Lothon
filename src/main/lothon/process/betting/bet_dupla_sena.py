@@ -147,8 +147,8 @@ class BetDuplaSena(AbstractBetting):
                 else:
                     for jogo in itt.combinations(jogo_sorteado, self.loteria.qtd_bolas_sorteio):
                         jogos_bolao.append(jogo)
-        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria: \n"
-                     f"{apostas_bolao}")
+
+        logger.debug(f"{nmlot}: Finalizada a criacao de boloes para a loteria.")
 
         _stopWatch = stopwatch(_startWatch)
         logger.info(f"{nmlot}: Tempo para executar {self.id_process.upper()}: {_stopWatch}")

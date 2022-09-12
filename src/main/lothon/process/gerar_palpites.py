@@ -21,10 +21,10 @@ import logging
 # from lothon.conf import app_config
 from lothon.util.eve import *
 from lothon import domain
-from lothon.process.quickpick import AbstractQuickPick, \
-                                     PickDiaDeSorte, PickDuplaSena, PickLotofacil, \
-                                     PickLotomania, PickMegaSena, PickQuina, \
-                                     PickSuperSete, PickTimemania, PickMaisMilionaria
+from lothon.process.betting import AbstractBetting, \
+                                   BetDiaDeSorte, BetDuplaSena, BetLotofacil, \
+                                   BetLotomania, BetMaisMilionaria, BetMegaSena, \
+                                   BetQuina, BetSuperSete, BetTimemania
 
 
 # ----------------------------------------------------------------------------
@@ -34,17 +34,36 @@ from lothon.process.quickpick import AbstractQuickPick, \
 # obtem uma instancia do logger para o modulo corrente:
 logger = logging.getLogger(__name__)
 
-# numero de palpites a serem gerados para as loterias consideradas:
-PALPITES_DIADESORTE: int = 100
-PALPITES_DUPLASENA: int = 100
-PALPITES_LOTOFACIL: int = 100
-PALPITES_LOTOMANIA: int = 100
-PALPITES_MAISMILIONARIA: int = 100
-PALPITES_MEGASENA: int = 100
-PALPITES_QUINA: int = 100
-PALPITES_SUPERSETE: int = 100
-PALPITES_TIMEMANIA: int = 100
-
+# numero de palpites a serem gerados para as loterias consideradas eh sempre 100, por enquanto:
+loterias_palpites: dict[str: dict[str: dict[int: int]]] = {
+    "diadesorte": {
+        "P100": {7: 100}
+    },
+    "duplasena": {
+        "P100": {6: 100}
+    },
+    "lotofacil": {
+        "P100": {15: 100}
+    },
+    "lotomania": {
+        "P100": {50: 100}
+    },
+    "maismilionaria": {
+        "P100": {6: 100}
+    },
+    "megasena": {
+        "P100": {6: 100}
+    },
+    "quina": {
+        "P100": {5: 100}
+    },
+    "supersete": {
+        "P100": {7: 100}
+    },
+    "timemania": {
+        "P100": {10: 100}
+    }
+}
 
 # ----------------------------------------------------------------------------
 # FUNCOES HELPERS
@@ -63,41 +82,35 @@ def run():
     # relacao de instancias das loterias da caixa e quantidades de palpites para processamento:
     logger.debug("Vai efetutar carga das definicoes das loterias do arquivo de configuracao .INI")
     # aproveita p/ efetuar leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
-    loterias_caixa: dict[str: AbstractQuickPick] = {
-        "diadesorte": PickDiaDeSorte(domain.get_dia_de_sorte()),
-        "duplasena": PickDuplaSena(domain.get_dupla_sena()),
-        "lotofacil": PickLotofacil(domain.get_lotofacil()),
-        "lotomania": PickLotomania(domain.get_lotomania()),
-        "megasena": PickMegaSena(domain.get_mega_sena()),
-        "quina": PickQuina(domain.get_quina()),
-        "supersete": PickSuperSete(domain.get_super_sete()),
-        "timemania": PickTimemania(domain.get_timemania()),
-        "maismilionaria": PickMaisMilionaria(domain.get_mais_milionaria())
-    }
-    loterias_palpites: dict[str: int] = {
-        "diadesorte": PALPITES_DIADESORTE,
-        "duplasena": PALPITES_DUPLASENA,
-        "lotofacil": PALPITES_LOTOFACIL,
-        "lotomania": PALPITES_LOTOMANIA,
-        "megasena": PALPITES_MEGASENA,
-        "quina": PALPITES_QUINA,
-        "supersete": PALPITES_SUPERSETE,
-        "timemania": PALPITES_TIMEMANIA,
-        "maismilionaria": PALPITES_MAISMILIONARIA
+    loterias_caixa: dict[str: AbstractBetting] = {
+        "diadesorte": BetDiaDeSorte(domain.get_dia_de_sorte()),
+        "duplasena": BetDuplaSena(domain.get_dupla_sena()),
+        "lotofacil": BetLotofacil(domain.get_lotofacil()),
+        "lotomania": BetLotomania(domain.get_lotomania()),
+        "maismilionaria": BetMaisMilionaria(domain.get_mais_milionaria()),
+        "megasena": BetMegaSena(domain.get_mega_sena()),
+        "quina": BetQuina(domain.get_quina()),
+        "supersete": BetSuperSete(domain.get_super_sete()),
+        "timemania": BetTimemania(domain.get_timemania())
     }
     logger.info("Criadas instancias das loterias para processamento, "
                 "com ultimos sorteios carregados dos arquivos HTML de resultados.")
 
     logger.debug("Vai executar o processo de geracao de palpites para todas as loterias...")
-    for id_loteria, pick_loteria in loterias_caixa.items():
+    for id_loteria, bet_loteria in loterias_caixa.items():
         # efetua a execucao do processo de geracao de palpites para cada loteria:
-        logger.debug(f"Processo '{pick_loteria.id_process}': gerando palpites para a loteria "
+        logger.debug(f"Processo '{bet_loteria.id_process}': gerando palpites para a loteria "
                      f"'{id_loteria}'.")
-        # utiliza a lista de concursos carregada do arquivo HTML (default):
-        palpites: list[tuple] = pick_loteria.execute(loterias_palpites[id_loteria])
+        for id_bolao, bolao in loterias_palpites[id_loteria].items():
+            # utiliza a lista de concursos carregada do arquivo HTML (default):
+            palpites: list[tuple] = bet_loteria.execute(bolao)
 
-        # efetua a gravacao do arquivo CSV contendo os palpites gerados (dezenas):
-        domain.export_palpites(pick_loteria.loteria.nome_loteria.lower(), palpites)
+            # com os jogos gerados, converte as dezenas das tuplas em strings de 2 digitos:
+            if id_loteria != 'supersete':  # a super sete apenas possui 1 digito...
+                palpites = [tuple(f"{i:02}" for i in t) for t in palpites]
+
+            # efetua a gravacao do arquivo CSV contendo os jogos gerados (palpites):
+            domain.export_palpites(bet_loteria.loteria.nome_loteria.lower(), palpites)
 
     # finalizadas todas as tarefas, informa que o processamento foi ok:
     _stopWatch = stopwatch(_startWatch)
