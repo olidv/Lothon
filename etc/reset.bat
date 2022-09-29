@@ -14,5 +14,5 @@ del /f /q tmp\*.*           1>nul  2>&1
 echo.
 
 rem Pausa final...
-rem echo.
-rem pause
+echo.
+pause

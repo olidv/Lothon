@@ -14,7 +14,8 @@ echo.
 echo.
 
 echo Posicionando no diretorio raiz da aplicacao
-cd /d C:\Apps\B3\Lothon
+mkdir C:\Apps\Infinite\Lothon  1>nul  2>&1
+cd /d C:\Apps\Infinite\Lothon
 echo.
 
 echo Limpando as pastas temporarias da aplicacao
@@ -30,9 +31,7 @@ cd /d D:\Workspace\Python\Lothon\
 echo.
 
 echo Copiando os arquivos do projeto
-xcopy dist\*.* C:\Apps\B3\Lothon  /E /C /Q /H /R /Y
-rem copy /y data\cache\*.* C:\Apps\B3\Lothon\data\cache
-rem copy /y data\caixa\*.* C:\Apps\B3\Lothon\data\caixa
+xcopy dist\*.* C:\Apps\Infinite\Lothon  /E /C /Q /H /R /Y
 echo.
 
 rem Pausa final...

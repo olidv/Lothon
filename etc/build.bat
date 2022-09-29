@@ -29,7 +29,6 @@ echo Criando nova estrutura para distribuir o pacote do executavel
 mkdir dist               1>nul  2>&1
 mkdir dist\bin           1>nul  2>&1
 mkdir dist\conf          1>nul  2>&1
-mkdir dist\data          1>nul  2>&1
 mkdir dist\data\bolao    1>nul  2>&1
 mkdir dist\data\cache    1>nul  2>&1
 mkdir dist\data\caixa    1>nul  2>&1
@@ -52,9 +51,9 @@ python -m zipfile -c dist\bin\lothon.zip src\main\lothon src\main\__main__.py
 echo.
 
 echo Copiando para distribuicao os arquivos de resources e batches
-copy src\batches\*.*          dist\bin\
-copy src\resources\prod\*.*   dist\conf\
-copy src\resources\README.md  dist\
+copy src\batches\*.*         dist\bin\
+copy src\resources\*.ico     dist\bin\
+copy src\resources\prod\*.*  dist\conf\
 echo.
 
 echo Copiando para distribuicao as dependencias de libraries externas
