@@ -72,9 +72,9 @@ social_palpites.py
 start .
 echo.
 
-echo Executando Firefox para verificar Loto365.com.br e atualizar Google Drive e Redes Sociais...
+echo Copiando Arquivos para publicacao dos palpites do dia...
 cd /D C:\Users\qdev\Loto365\docs-templates\Social
-start "" "C:\Program Files\Mozilla Firefox\firefox.exe" -url "https://www.Loto365.com.br/#palpites" "https://drive.google.com/drive/folders/1PjOJoHbueNMiNGKJHLP5tC7UEyuRRSvD" "https://web.whatsapp.com/" "https://web.telegram.org/z/#-1488280660" "https://twitter.com/compose/tweet" "https://www.facebook.com/Loto365br" "https://www.instagram.com/loto365br/" "https://studio.youtube.com/channel/UCiiGBkWJiej2eAfwcqiI77A/videos/upload" "https://www.linkedin.com/company/loto365br/?share=true" "https://br.pinterest.com/pin-builder/"
+copy /Y *.* \\BLACK\Publico\Social
 echo.
 
 echo Removendo arquivo flag [safeToDelete.tmp]...
