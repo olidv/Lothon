@@ -29,10 +29,6 @@ echo  ************************************************
 echo.
 echo.
 
-pause
-echo.
-echo.
-
 echo Posicionando no diretorio da aplicacao Lothon para geracao de palpites:
 cd /D C:\Apps\Infinite\Lothon\bin
 start /b /wait gerar_palpites.bat
