@@ -34,18 +34,22 @@ cd /D C:\Apps\Infinite\Lothon\bin
 start /b /wait gerar_palpites.bat
 echo.
 
-echo Copiando Arquivos CSV de papites para projeto CDN-Lothon...
-cd /D C:\Apps\Infinite\Lothon\data\palpite
-copy /Y *.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites
+echo Recuperando ultimo commit dos arquivos no repositorio GitHub...
+cd /D C:\Users\qdev\Loto365\cdn-lothon
+git pull origin main
 echo.
 
-echo Efetuando commit dos arqivos CSV no repositorio GitHub...
+echo Copiando Arquivos CSV de papites para projeto CDN-Lothon...
+copy /Y C:\Apps\Infinite\Lothon\data\palpite\*.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites
+echo.
+
+echo Efetuando commit dos arquivos CSV no repositorio GitHub...
 cd /D C:\Users\qdev\Loto365\cdn-lothon
 git commit -am "Novos palpites gerados diariamente pelo Lothon."
 git push origin main
 echo.
 
-echo Ativando o ambiente virtual do Janitor:
+echo Ativando o ambiente virtual do Janitor para usar os scripts\*.py:
 cd /D C:\Apps\Infinite\Janitor
 call venv\Scripts\activate.bat
 echo.
@@ -73,13 +77,12 @@ start .
 echo.
 
 echo Copiando Arquivos para publicacao dos palpites do dia...
-cd /D C:\Users\qdev\Loto365\docs-templates\Social
-copy /Y *.* \\BLACK\Publico\Social
+del /F /Q \\BLACK\Publico\Social\*.*
+copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Social
 echo.
 
 echo Removendo arquivo flag [safeToDelete.tmp]...
-cd /D C:\Apps\Infinite\Lothon\data
-del /F /Q safeToDelete.tmp
+del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
 echo.
 
 :endbat
