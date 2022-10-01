@@ -61,10 +61,10 @@ def run():
     logger.debug("Vai efetuar carga das definicoes das loterias do arquivo de configuracao .INI")
     # Ja aproveita e efetua leitura dos arquivos HTML com resultados dos sorteios de cada loteria:
     loterias_caixa: dict[str: Loteria] = {
-        "diadesorte": domain.get_dia_de_sorte(),         #
-        "duplasena": domain.get_dupla_sena(),            #
-        "lotofacil": domain.get_lotofacil(),             #
-        "quina": domain.get_quina(),                     #
+        # "diadesorte": domain.get_dia_de_sorte(),         #
+        # "duplasena": domain.get_dupla_sena(),            #
+        # "lotofacil": domain.get_lotofacil(),             #
+        # "quina": domain.get_quina(),                     #
         "megasena": domain.get_mega_sena(),              #
         # "lotomania": domain.get_lotomania(),           #
         # "maismilionaria": domain.get_mais_milionaria(),#
@@ -102,9 +102,9 @@ def run():
     if EXEC_ANALISE_SORTEIO_SECUNDARIO:
         # analise dos sorteios secundarios: Mes da Sorte, Time do Coracao, Trevo Duplo.
         sorteios_secundarios: dict[str: Loteria] = {
-            "mesdasorte": domain.get_mes_da_sorte(),        #
-            "timedocoracao": domain.get_time_do_coracao(),  #
-            "trevoduplo": domain.get_trevo_duplo()          #
+            # "mesdasorte": domain.get_mes_da_sorte(),        #
+            # "timedocoracao": domain.get_time_do_coracao(),  #
+            # "trevoduplo": domain.get_trevo_duplo()          #
         }
 
         # configura o processo de analise antes, mas apenas uma unica vez para todas as loterias:
