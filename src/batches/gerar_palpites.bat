@@ -2,7 +2,7 @@
 
 rem Printa a apresentacao do Lothon.
 echo.
-echo  GERAR_PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\GERAR_PALPITES.BAT ]
+echo  GERAR PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\GERAR_PALPITES.BAT ]
 echo.
 echo.
 
@@ -24,7 +24,7 @@ color B
 echo  ************************************************
 echo  **  FLAG OK: ARQUIVO safeToDelete ENCONTRADO. **
 echo  ************************************************
-echo  ** PREPARANDO PARA GERAR PALPITES P/ LOTERIAS **
+echo  ** PREPARANDO P/ GERAR PALPITES DAS LOTERIAS. **
 echo  ************************************************
 echo.
 echo.
@@ -77,11 +77,15 @@ start .
 echo.
 
 echo Copiando Arquivos para publicacao dos palpites do dia...
-del /F /Q \\BLACK\Publico\Social\*.*
-copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Social
+del /F /Q \\BLACK\Publico\Colethon\Lothon\Social\*.*
+copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Colethon\Lothon\Social
 echo.
 
-echo Removendo arquivo flag [safeToDelete.tmp]...
+echo Criando arquivo flag na pasta compartilhada do Colethon [safeToDelete.tmp]...
+touch \\BLACK\Publico\Colethon\safeToDelete.tmp
+echo.
+
+echo Removendo arquivo flag local [safeToDelete.tmp]...
 del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
 echo.
 

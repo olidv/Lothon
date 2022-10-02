@@ -2,12 +2,12 @@
 
 rem Printa a apresentacao do Lothon.
 echo.
-echo  POSTAR_PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\POSTAR_PALPITES.BAT ]
+echo  POSTAR PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\POSTAR_PALPITES.BAT ]
 echo.
 echo.
 
 rem verifica se o flag indicativo de processamento existe:
-if exist D:\Publico\Lothon\data\safeToDelete.tmp goto yesfile
+if exist C:\Apps\Infinite\Lothon\data\safeToDelete.tmp goto yesfile
 
 :nofile
 color C
@@ -24,29 +24,9 @@ color B
 echo  ************************************************
 echo  **  FLAG OK: ARQUIVO safeToDelete ENCONTRADO. **
 echo  ************************************************
-echo  ** PREPARANDO PARA GERAR PALPITES P/ LOTERIAS **
+echo  ** PREPARANDO P/ POSTAR PALPITES DAS LOTERIAS **
 echo  ************************************************
 echo.
-echo.
-
-echo Posicionando no diretorio D:\Publico
-cd /D D:\Publico
-
-echo Copiando Arquivos HTM contendo resultados das loterias da Caixa EF...
-copy /y Lothon\data\caixa\D_*.htm C:\Apps\Infinite\Lothon\data\caixa
-move /Y Lothon\data\caixa\D_*.htm D:\Workspace\Python\Lothon\data\caixa\
-echo.
-copy /Y Lothon\data\cache\D_*.csv C:\Apps\Infinite\Lothon\data\cache\
-copy /Y Lothon\data\cache\D_*.csv D:\Workspace\Python\Lothon\data\cache\
-move /Y Lothon\data\cache\D_*.csv D:\Workspace\Java\jLothon\data\cache\
-echo.
-copy /Y Lothon\data\cache\JC_*.csv C:\Apps\Infinite\Lothon\data\cache\
-move /Y Lothon\data\cache\JC_*.csv D:\Workspace\Python\Lothon\data\cache\
-echo.
-
-echo Copiando Arquivos para publicacao dos palpites do dia...
-del /F /Q C:\Users\qdev\Loto365\docs-templates\Social\*.*
-move /Y Social\*.* C:\Users\qdev\Loto365\docs-templates\Social
 echo.
 
 echo Recuperando ultimo commit dos arquivos CSV, PNG e PDF no repositorio GitHub...
@@ -62,7 +42,7 @@ start .
 echo.
 
 echo Removendo arquivos flag [safeToDelete.tmp]...
-del /F /Q D:\Publico\Lothon\data
+del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
 echo.
 
 :endbat
