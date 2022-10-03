@@ -1,4 +1,5 @@
 @echo off
+color 1F
 
 rem Printa a apresentacao do Lothon.
 echo.

@@ -1,4 +1,5 @@
 @echo off
+color 1F
 
 rem Ativa o ambiente virtual da aplicacao:
 call ..\venv\Scripts\activate.bat
