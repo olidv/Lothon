@@ -34,6 +34,10 @@ echo Copiando os arquivos do projeto
 xcopy dist\*.* C:\Apps\Infinite\Lothon  /E /C /Q /H /R /Y
 echo.
 
+echo Disponibilizando release da aplicacao para producao
+copy /y dist\*.zip D:\Publico
+echo.
+
 rem Pausa final...
 echo.
 pause
