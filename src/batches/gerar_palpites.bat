@@ -72,12 +72,14 @@ git push origin main
 echo.
 
 echo Preparando recursos para criacao de video e publicacao nas redes sociais...
+mkdir C:\Users\qdev\Loto365\docs-templates\Social\slides
 cd /D C:\Users\qdev\Loto365\docs-templates\Social
 social_palpites.py
 start .
 echo.
 
 echo Copiando Arquivos para publicacao dos palpites do dia...
+mkdir \\BLACK\Publico\Colethon\Lothon\Social
 del /F /Q \\BLACK\Publico\Colethon\Lothon\Social\*.*
 copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Colethon\Lothon\Social
 echo.
