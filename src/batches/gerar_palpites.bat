@@ -3,12 +3,12 @@ color 1F
 
 rem Printa a apresentacao do Lothon.
 echo.
-echo  GERAR PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\GERAR_PALPITES.BAT ]
+echo  GERAR PALPITES   [ C:\APPS\LOTO365\LOTHON\BIN\GERAR_PALPITES.BAT ]
 echo.
 echo.
 
 rem verifica se o flag indicativo de processamento existe:
-if exist C:\Apps\Infinite\Lothon\data\safeToDelete.tmp goto yesfile
+if exist C:\Apps\Loto365\Lothon\data\safeToDelete.tmp goto yesfile
 
 :nofile
 color C
@@ -31,7 +31,7 @@ echo.
 echo.
 
 echo Posicionando no diretorio da aplicacao Lothon para geracao de palpites:
-cd /D C:\Apps\Infinite\Lothon\bin
+cd /D C:\Apps\Loto365\Lothon\bin
 start /b /wait palpites.bat
 echo.
 
@@ -41,7 +41,7 @@ git pull origin main
 echo.
 
 echo Copiando Arquivos CSV de papites para projeto CDN-Lothon...
-copy /Y C:\Apps\Infinite\Lothon\data\palpite\*.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites
+copy /Y C:\Apps\Loto365\Lothon\data\palpite\*.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites
 echo.
 
 echo Efetuando commit dos arquivos CSV no repositorio GitHub...
@@ -89,7 +89,7 @@ touch \\BLACK\Publico\Colethon\safeToDelete.tmp
 echo.
 
 echo Removendo arquivo flag local [safeToDelete.tmp]...
-del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
+del /F /Q C:\Apps\Loto365\Lothon\data\safeToDelete.tmp
 echo.
 
 :endbat

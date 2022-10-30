@@ -3,12 +3,12 @@ color 1F
 
 rem Printa a apresentacao do Lothon.
 echo.
-echo  POSTAR PALPITES   [ C:\APPS\INFINITE\LOTHON\BIN\POSTAR_PALPITES.BAT ]
+echo  POSTAR PALPITES   [ C:\APPS\LOTO365\LOTHON\BIN\POSTAR_PALPITES.BAT ]
 echo.
 echo.
 
 rem verifica se o flag indicativo de processamento existe:
-if exist C:\Apps\Infinite\Lothon\data\safeToDelete.tmp goto yesfile
+if exist C:\Apps\Loto365\Lothon\data\safeToDelete.tmp goto yesfile
 
 :nofile
 color C
@@ -44,7 +44,7 @@ start .
 echo.
 
 echo Removendo arquivos flag [safeToDelete.tmp]...
-del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
+del /F /Q C:\Apps\Loto365\Lothon\data\safeToDelete.tmp
 echo.
 
 :endbat

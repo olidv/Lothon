@@ -3,7 +3,7 @@ color E
 
 rem Printa a apresentacao do deploy:
 echo.
-echo  DEPLOY DO LOTHON   [ D:\WORKSPACE\PYTHON\LOTHON\ETC\DEPLOY.BAT ]
+echo  DEPLOY DO LOTHON   [ D:\WORKSPACE\LOTO365\LOTHON\ETC\DEPLOY.BAT ]
 echo.
 echo.
 
@@ -14,8 +14,8 @@ echo.
 echo.
 
 echo Posicionando no diretorio raiz da aplicacao
-mkdir C:\Apps\Infinite\Lothon  1>nul  2>&1
-cd /d C:\Apps\Infinite\Lothon
+mkdir C:\Apps\Loto365\Lothon  1>nul  2>&1
+cd /d C:\Apps\Loto365\Lothon
 echo.
 
 echo Limpando as pastas temporarias da aplicacao
@@ -27,11 +27,11 @@ del /f /q data\palpite\*.*    1>nul  2>&1
 echo.
 
 echo Posicionando no diretorio do projeto
-cd /d D:\Workspace\Python\Lothon\
+cd /d D:\Workspace\Loto365\Lothon\
 echo.
 
 echo Copiando os arquivos do projeto
-xcopy dist\*.* C:\Apps\Infinite\Lothon  /E /C /Q /H /R /Y
+xcopy dist\*.* C:\Apps\Loto365\Lothon  /E /C /Q /H /R /Y
 echo.
 
 echo Disponibilizando release da aplicacao para producao
