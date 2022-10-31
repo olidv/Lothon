@@ -79,9 +79,9 @@ start .
 echo.
 
 echo Copiando Arquivos para publicacao dos palpites do dia...
-mkdir \\BLACK\Publico\Colethon\Lothon\Social
-del /F /Q \\BLACK\Publico\Colethon\Lothon\Social\*.*
-copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Colethon\Lothon\Social
+mkdir \\BLACK\Publico\Colethon\Loto365\Lothon\Social
+del /F /Q \\BLACK\Publico\Colethon\Loto365\Lothon\Social\*.*
+copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Colethon\Loto365\Lothon\Social
 echo.
 
 echo Criando arquivo flag na pasta compartilhada do Colethon [safeToDelete.tmp]...
