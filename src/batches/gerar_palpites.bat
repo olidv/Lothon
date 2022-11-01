@@ -35,16 +35,17 @@ cd /D C:\Apps\Loto365\Lothon\bin
 start /b /wait palpites.bat
 echo.
 
-echo Recuperando ultimo commit dos arquivos no repositorio GitHub...
+echo Recuperando ultimo commit no repositorio GitHub dos arquivos...
 cd /D C:\Users\qdev\Loto365\cdn-lothon
 git pull origin main
 echo.
 
-echo Copiando Arquivos CSV de papites para projeto CDN-Lothon...
-copy /Y C:\Apps\Loto365\Lothon\data\palpite\*.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites
+echo Copiando Arquivos CSV de papites para projetos do Lothon...
+copy /Y C:\Apps\Loto365\Lothon\data\palpite\*.csv C:\Users\qdev\Loto365\cdn-lothon\data\palpites\
+copy /Y C:\Apps\Loto365\Lothon\data\palpite\*.csv \\BLACK\Publico\Colethon\Loto365\Lothon\data\palpite
 echo.
 
-echo Efetuando commit dos arquivos CSV no repositorio GitHub...
+echo Efetuando commit no repositorio GitHub dos arquivos CSV...
 cd /D C:\Users\qdev\Loto365\cdn-lothon
 git commit -am "Novos palpites gerados diariamente pelo Lothon."
 git push origin main
@@ -65,23 +66,24 @@ cd /D C:\Users\qdev\Loto365\cdn-lothon\data\palpites
 reduce_palpites.py
 echo.
 
-echo Efetuando commit dos arquivos PNG e PDF no repositorio GitHub...
+echo Efetuando commit no repositorio GitHub dos arquivos PNG e PDF...
 cd /D C:\Users\qdev\Loto365\cdn-lothon
 git commit -am "Novos palpites gerados diariamente pelo Lothon."
 git push origin main
 echo.
 
-echo Preparando recursos para criacao de video e publicacao nas redes sociais...
-mkdir C:\Users\qdev\Loto365\docs-templates\Social\slides
-cd /D C:\Users\qdev\Loto365\docs-templates\Social
+echo Preparando recursos para criacao de publicacao nos aplicativos de mensagens...
+cd /D C:\Users\qdev\Loto365\cdn-lothon\social
 social_palpites.py
 start .
 echo.
 
-echo Copiando Arquivos para publicacao dos palpites do dia...
-mkdir \\BLACK\Publico\Colethon\Loto365\Lothon\Social
-del /F /Q \\BLACK\Publico\Colethon\Loto365\Lothon\Social\*.*
-copy /Y C:\Users\qdev\Loto365\docs-templates\Social\*.* \\BLACK\Publico\Colethon\Loto365\Lothon\Social
+echo Efetuando commit dos arquivos no repositorio GifHub para postagens...
+cd /D C:\Users\qdev\Loto365\cdn-lothon\social
+git add --all
+cd /D C:\Users\qdev\Loto365\cdn-lothon
+git commit -am "Palpites preparados para postagem em redes sociais."
+git push origin main
 echo.
 
 echo Criando arquivo flag na pasta compartilhada do Colethon [safeToDelete.tmp]...
