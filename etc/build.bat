@@ -3,7 +3,7 @@ color E
 
 rem Printa a apresentacao do build:
 echo.
-echo  BUILD DO LOTHON   [ D:\WORKSPACE\LOTO365\LOTHON\ETC\BUILD.BAT ]
+echo  BUILD DO LOTHON   [ D:\WORKSPACE\INFINITE\LOTHON\ETC\BUILD.BAT ]
 echo.
 echo.
 

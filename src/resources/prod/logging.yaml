@@ -22,7 +22,7 @@ handlers:
       when: 'midnight'
       backupCount: 32
       encoding: utf8
-      filename: C:\Apps\Loto365\Lothon\logs\lothon.log
+      filename: C:\Apps\Infinite\Lothon\logs\lothon.log
 
 loggers:
   #schedule:
