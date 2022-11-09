@@ -48,5 +48,5 @@ echo.
 
 :endbat
 rem Pausa final...
-echo.
-pause
+rem echo.
+rem pause
