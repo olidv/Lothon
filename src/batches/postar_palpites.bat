@@ -31,16 +31,16 @@ echo.
 echo.
 
 echo Efetuando commit no repositorio GitHub dos arquivos CSV de palpites...
-cd /D D:\Workspace\United-Sapiens\loto365-blogspot
+cd /D D:\Workspace\United-Sapiens\Loto365\loto365-blogspot
 git commit -am "Novos palpites gerados diariamente pelo Lothon."
 git push origin main
 echo.
 
-echo Executando Firefox para verificar Loto365.com.br...
-start "" "C:\Program Files (x86)\Notepad++\notepad++.exe" "D:\Workspace\United-Sapiens\loto365-blogspot\data\palpites\dia-de-sorte.csv"
-start "" "C:\Program Files\Mozilla Firefox\firefox.exe" -url "https://www.Loto365.com.br/#palpites"
-start .
-echo.
+rem echo Executando Firefox para verificar Loto365.com.br...
+rem start "" "C:\Program Files (x86)\Notepad++\notepad++.exe" "D:\Workspace\United-Sapiens\loto365-blogspot\data\palpites\dia-de-sorte.csv"
+rem start "" "C:\Program Files\Mozilla Firefox\firefox.exe" -url "https://www.Loto365.com.br/#palpites"
+rem start .
+rem echo.
 
 echo Removendo arquivos flag [safeToDelete.tmp]...
 del /F /Q C:\Apps\Infinite\Lothon\data\safeToDelete.tmp
